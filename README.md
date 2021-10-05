@@ -1,1 +1,5 @@
-# authz-micro
+# authx-micro
+
+```
+gradle clean build test
+```

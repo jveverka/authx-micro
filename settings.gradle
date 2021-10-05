@@ -1,0 +1,3 @@
+include "authx-micro-clients"
+include "authx-micro-examples"
+include "authx-micro-service"

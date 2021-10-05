@@ -1,0 +1,13 @@
+
+subprojects {
+    apply plugin: 'java'
+}
+
+project(':authx-micro-clients') {
+}
+
+project(':authx-micro-examples') {
+}
+
+project(':authx-micro-service') {
+}
