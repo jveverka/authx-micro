@@ -10,8 +10,9 @@ public class Permission {
 
     @Id
     private String id;
-    private String projectId;
 
+    private String projectId;
+    private String description;
     private String service;
     private String resource;
     private String action;

@@ -3,6 +3,7 @@ package one.microproject.authx.service.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
 import java.util.Map;
 
 @Document
@@ -12,14 +13,16 @@ public class Project {
     private String id;
 
     private String description;
+    private List<String> adminIds;
     private Map<String, String> labels;
 
     public Project() {
     }
 
-    public Project(String id, String description, Map<String, String> labels) {
+    public Project(String id, String description, List<String> adminIds, Map<String, String> labels) {
         this.id = id;
         this.description = description;
+        this.adminIds = adminIds;
         this.labels = labels;
     }
 
@@ -45,6 +48,14 @@ public class Project {
 
     public void setLabels(Map<String, String> labels) {
         this.labels = labels;
+    }
+
+    public List<String> getAdminIds() {
+        return adminIds;
+    }
+
+    public void setAdminIds(List<String> adminIds) {
+        this.adminIds = adminIds;
     }
 
 }

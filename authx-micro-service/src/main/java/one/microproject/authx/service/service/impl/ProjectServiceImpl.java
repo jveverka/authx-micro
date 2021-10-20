@@ -2,50 +2,85 @@ package one.microproject.authx.service.service.impl;
 
 import one.microproject.authx.service.dto.CreateProjectRequest;
 import one.microproject.authx.service.dto.ProjectDto;
+import one.microproject.authx.service.exceptions.DataConflictException;
+import one.microproject.authx.service.model.Client;
 import one.microproject.authx.service.model.Project;
+import one.microproject.authx.service.model.User;
+import one.microproject.authx.service.repository.ClientRepository;
 import one.microproject.authx.service.repository.ProjectRepository;
+import one.microproject.authx.service.repository.UserRepository;
 import one.microproject.authx.service.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final ClientRepository clientRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public ProjectServiceImpl(ProjectRepository projectRepository) {
+    public ProjectServiceImpl(ClientRepository clientRepository,
+                              ProjectRepository projectRepository,
+                              UserRepository userRepository) {
         this.projectRepository = projectRepository;
+        this.clientRepository = clientRepository;
+        this.userRepository = userRepository;
     }
 
 
     @Override
-    public ProjectDto createProject(CreateProjectRequest request) {
-        Project project = new Project(request.id(), request.description(), request.labels());
+    @Transactional
+    public ProjectDto create(CreateProjectRequest request) {
+        //data validation
+        Optional<Client> client = clientRepository.findById(request.adminClient().id());
+        if (client.isPresent()) {
+            throw new DataConflictException("Client already exists.");
+        }
+        Optional<User> user = userRepository.findById(request.adminUser().id());
+        if (user.isPresent()) {
+            throw new DataConflictException("User already exists.");
+        }
+        Optional<Project> projectOptional = projectRepository.findById(request.id());
+        if (projectOptional.isPresent()) {
+            throw new DataConflictException("Project already exists.");
+        }
+        Project project = new Project(request.id(), request.description(), List.of(request.adminUser().id()), request.labels());
         projectRepository.save(project);
         return new ProjectDto(request.id(), request.description(), request.labels());
     }
 
     @Override
-    public List<ProjectDto> getProjects() {
+    public List<ProjectDto> getAll() {
         return projectRepository.findAll().stream().map(p -> new ProjectDto(p.getId(), p.getDescription(), p.getLabels())).collect(Collectors.toList());
     }
 
     @Override
-    public Optional<ProjectDto> getProject(String id) {
+    public Optional<ProjectDto> get(String id) {
         return projectRepository.findById(id).map(p -> new ProjectDto(p.getId(), p.getDescription(), p.getLabels()));
     }
 
     @Override
-    public void removeProject(String id) {
-        projectRepository.deleteById(id);
+    @Transactional
+    public void remove(String id) {
+        Optional<Project> projectOptional = projectRepository.findById(id);
+        if (projectOptional.isEmpty()) {
+            throw new DataConflictException("Project not found.");
+        } else {
+            //TODO: delete all project dependencies
+            projectRepository.deleteById(id);
+        }
     }
 
     @Override
+    @Transactional
     public void removeAll() {
         projectRepository.deleteAll();
     }

@@ -8,13 +8,13 @@ import java.util.Optional;
 
 public interface ProjectService {
 
-    ProjectDto createProject(CreateProjectRequest request);
+    ProjectDto create(CreateProjectRequest request);
 
-    List<ProjectDto> getProjects();
+    List<ProjectDto> getAll();
 
-    Optional<ProjectDto> getProject(String id);
+    Optional<ProjectDto> get(String id);
 
-    void removeProject(String id);
+    void remove(String id);
 
     void removeAll();
 
