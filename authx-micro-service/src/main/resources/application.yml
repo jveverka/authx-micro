@@ -1,0 +1,17 @@
+server:
+  port: 8080
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: loggerdb
+
+logging:
+  level:
+    root: INFO
+    one:
+      microproject:
+        iamservice:
+          client:
+            impl: INFO
