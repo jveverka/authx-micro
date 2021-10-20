@@ -1,3 +1,5 @@
+[![Build and Test](https://github.com/jveverka/authx-micro/actions/workflows/main.yml/badge.svg)](https://github.com/jveverka/authx-micro/actions/workflows/main.yml)
+
 # authx-micro
 Minimalistic standalone OAuth2 authentication and authorization server. Project is compliant with subset of OpenID-connect and OAuth2 and other related specifications.
 
