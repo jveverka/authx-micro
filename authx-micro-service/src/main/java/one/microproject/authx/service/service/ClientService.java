@@ -20,6 +20,8 @@ public interface ClientService {
 
     List<ClientDto> removeAll(String projectId);
 
+    void removeAll();
+
     void setSecret(String projectId, String id, String secret);
 
     Boolean verifySecret(String projectId, String id, String secret);

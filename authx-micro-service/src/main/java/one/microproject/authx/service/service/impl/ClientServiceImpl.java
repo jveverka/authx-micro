@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static one.microproject.authx.service.service.impl.ServiceUtils.createId;
 import static one.microproject.authx.service.service.impl.ServiceUtils.getSha512HashBase64;
@@ -32,14 +31,14 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional
-    public ClientDto createClient(String projectId, CreateClientRequest clientRequest) {
-        String dbId = createId(projectId, clientRequest.id());
+    public ClientDto createClient(String projectId, CreateClientRequest request) {
+        String dbId = createId(projectId, request.id());
         Optional<Client> clientOptional = clientRepository.findById(dbId);
         if (clientOptional.isPresent()) {
             throw new DataConflictException("Client id already exists.");
         }
-        String secretHash = getSha512HashBase64(clientRequest.secret());
-        Client client = dMapper.map(dbId, projectId, secretHash, clientRequest);
+        String secretHash = getSha512HashBase64(request.secret());
+        Client client = dMapper.map(dbId, projectId, secretHash, request);
         clientRepository.save(client);
         return dMapper.map(client);
     }
@@ -47,13 +46,13 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public List<ClientDto> getAll() {
         return clientRepository.findAll().stream()
-                .map(dMapper::map).collect(Collectors.toList());
+                .map(dMapper::map).toList();
     }
 
     @Override
     public List<ClientDto> getAll(String projectId) {
         return clientRepository.findAll(projectId).stream()
-                .map(dMapper::map).collect(Collectors.toList());
+                .map(dMapper::map).toList();
     }
 
     @Override
@@ -74,7 +73,12 @@ public class ClientServiceImpl implements ClientService {
     @Transactional
     public List<ClientDto> removeAll(String projectId) {
         return clientRepository.deleteAll(projectId).stream()
-                .map(dMapper::map).collect(Collectors.toList());
+                .map(dMapper::map).toList();
+    }
+
+    @Override
+    public void removeAll() {
+        clientRepository.deleteAll();
     }
 
     @Override

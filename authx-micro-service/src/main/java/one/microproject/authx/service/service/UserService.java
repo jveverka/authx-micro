@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface UserService {
 
-    UserDto create(String projectId, CreateUserRequest request);
+    UserDto create(String projectId, String clientId, CreateUserRequest request);
 
     List<UserDto> getAll();
 
@@ -19,6 +19,8 @@ public interface UserService {
     void remove(String projectId, String id);
 
     void removeAll(String projectId);
+
+    void removeAll();
 
     void setSecret(String projectId, String id, String secret);
 

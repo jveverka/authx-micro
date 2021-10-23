@@ -3,6 +3,7 @@ package one.microproject.authx.service.service.impl;
 import one.microproject.authx.service.dto.ClientDto;
 import one.microproject.authx.service.dto.CreateClientRequest;
 import one.microproject.authx.service.dto.CreateProjectRequest;
+import one.microproject.authx.service.dto.CreateUserRequest;
 import one.microproject.authx.service.dto.ProjectDto;
 import one.microproject.authx.service.dto.UserDto;
 import one.microproject.authx.service.model.Client;
@@ -33,7 +34,11 @@ public class DMapper {
     }
 
     public UserDto map(User user) {
-        return new UserDto(user.getId(), user.getClientId(), user.getEmail(), user.getDescription(), user.getSecret(), user.getLabels());
+        return new UserDto(user.getUserId(), user.getClientId(), user.getEmail(), user.getDescription(), user.getSecret(), user.getLabels());
+    }
+
+    public User map(String dbId, String projectId, String clientId, String secretHash, CreateUserRequest request) {
+        return new User(dbId, request.id(), projectId, clientId, request.email(), request.description(), secretHash, request.labels());
     }
 
 }
