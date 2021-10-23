@@ -11,6 +11,7 @@ public class Permission {
     @Id
     private String id;
 
+    private String permissionId;
     private String projectId;
     private String description;
     private String service;

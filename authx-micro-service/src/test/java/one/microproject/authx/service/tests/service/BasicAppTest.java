@@ -31,7 +31,7 @@ class BasicAppTest extends AppBaseTest {
     @Test
     void testProjectAddRemove() {
         CreateUserRequest adminUser = new CreateUserRequest("admin");
-        CreateClientRequest adminClient = new CreateClientRequest("admin-client");
+        CreateClientRequest adminClient = new CreateClientRequest("admin-client", "description", false, "secret", Map.of());
         CreateProjectRequest createProjectRequest = new CreateProjectRequest("p-001", "P 001", Map.of("key", "value"), adminUser, adminClient);
         ProjectDto project = projectService.create(createProjectRequest);
         assertNotNull(project);

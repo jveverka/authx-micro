@@ -11,6 +11,7 @@ public class Role {
     @Id
     private String id;
 
+    private String roleId;
     private String projectId;
     private String description;
     private List<String> permissionIds;

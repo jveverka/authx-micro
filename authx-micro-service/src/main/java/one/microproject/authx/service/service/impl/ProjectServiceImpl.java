@@ -1,14 +1,14 @@
 package one.microproject.authx.service.service.impl;
 
+import one.microproject.authx.service.dto.ClientDto;
 import one.microproject.authx.service.dto.CreateProjectRequest;
 import one.microproject.authx.service.dto.ProjectDto;
 import one.microproject.authx.service.exceptions.DataConflictException;
-import one.microproject.authx.service.model.Client;
 import one.microproject.authx.service.model.Project;
 import one.microproject.authx.service.model.User;
-import one.microproject.authx.service.repository.ClientRepository;
 import one.microproject.authx.service.repository.ProjectRepository;
 import one.microproject.authx.service.repository.UserRepository;
+import one.microproject.authx.service.service.ClientService;
 import one.microproject.authx.service.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,15 +23,15 @@ import java.util.stream.Collectors;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final ClientRepository clientRepository;
+    private final ClientService clientService;
     private final UserRepository userRepository;
 
     @Autowired
-    public ProjectServiceImpl(ClientRepository clientRepository,
+    public ProjectServiceImpl(ClientService clientService,
                               ProjectRepository projectRepository,
                               UserRepository userRepository) {
         this.projectRepository = projectRepository;
-        this.clientRepository = clientRepository;
+        this.clientService = clientService;
         this.userRepository = userRepository;
     }
 
@@ -40,7 +40,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public ProjectDto create(CreateProjectRequest request) {
         //data validation
-        Optional<Client> client = clientRepository.findById(request.adminClient().id());
+        Optional<ClientDto> client = clientService.get(request.id(), request.adminClient().id());
         if (client.isPresent()) {
             throw new DataConflictException("Client already exists.");
         }
@@ -54,6 +54,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         Project project = new Project(request.id(), request.description(), List.of(request.adminUser().id()), request.labels());
         projectRepository.save(project);
+        clientService.createClient(request.id(), request.adminClient());
         return new ProjectDto(request.id(), request.description(), request.labels());
     }
 

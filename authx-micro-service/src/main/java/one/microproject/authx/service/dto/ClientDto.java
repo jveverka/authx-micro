@@ -1,4 +1,6 @@
 package one.microproject.authx.service.dto;
 
-public record ClientDto(String id) {
+import java.util.Map;
+
+public record ClientDto(String id, String projectId, String description, Boolean authEnabled, Map<String, String> labels) {
 }

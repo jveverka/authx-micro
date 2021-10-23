@@ -11,6 +11,7 @@ public class Group {
     @Id
     private String id;
 
+    private String groupId;
     private String projectId;
     private String description;
     private Map<String, String> labels;
