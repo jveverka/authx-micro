@@ -75,7 +75,8 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectOptional.isEmpty()) {
             throw new DataConflictException("Project not found.");
         } else {
-            //TODO: delete all project dependencies
+            clientService.removeAll(id);
+            //TODO: clear all related data
             projectRepository.deleteById(id);
         }
     }

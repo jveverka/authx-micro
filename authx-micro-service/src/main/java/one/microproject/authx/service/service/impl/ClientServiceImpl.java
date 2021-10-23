@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static one.microproject.authx.service.service.impl.ServiceUtils.createId;
 import static one.microproject.authx.service.service.impl.ServiceUtils.getSha512HashBase64;
@@ -41,8 +42,15 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    public List<ClientDto> getAll() {
+        return clientRepository.findAll().stream()
+                .map(c -> new ClientDto(c.getClientId(), c.getProjectId(), c.getDescription(), c.getAuthEnabled(), c.getLabels())).collect(Collectors.toList());
+    }
+
+    @Override
     public List<ClientDto> getAll(String projectId) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return clientRepository.findAll(projectId).stream()
+                .map(c -> new ClientDto(c.getClientId(), c.getProjectId(), c.getDescription(), c.getAuthEnabled(), c.getLabels())).collect(Collectors.toList());
     }
 
     @Override
@@ -57,6 +65,13 @@ public class ClientServiceImpl implements ClientService {
     public void remove(String projectId, String id) {
         String dbId = createId(projectId, id);
         clientRepository.deleteById(dbId);
+    }
+
+    @Override
+    @Transactional
+    public List<ClientDto> removeAll(String projectId) {
+        return clientRepository.deleteAll(projectId).stream()
+                .map(c -> new ClientDto(c.getClientId(), c.getProjectId(), c.getDescription(), c.getAuthEnabled(), c.getLabels())).collect(Collectors.toList());
     }
 
     @Override

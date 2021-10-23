@@ -10,11 +10,15 @@ public interface ClientService {
 
     ClientDto createClient(String projectId, CreateClientRequest clientRequest);
 
+    List<ClientDto> getAll();
+
     List<ClientDto> getAll(String projectId);
 
     Optional<ClientDto> get(String projectId, String id);
 
     void remove(String projectId, String id);
+
+    List<ClientDto> removeAll(String projectId);
 
     void setSecret(String projectId, String id, String secret);
 
