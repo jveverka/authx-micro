@@ -6,6 +6,7 @@ import one.microproject.authx.service.exceptions.DataConflictException;
 import one.microproject.authx.service.model.Client;
 import one.microproject.authx.service.repository.ClientRepository;
 import one.microproject.authx.service.service.ClientService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +21,12 @@ import static one.microproject.authx.service.service.impl.ServiceUtils.getSha512
 @Transactional(readOnly = true)
 public class ClientServiceImpl implements ClientService {
 
+    private final DMapper dMapper;
     private final ClientRepository clientRepository;
 
-    public ClientServiceImpl(ClientRepository clientRepository) {
+    @Autowired
+    public ClientServiceImpl(DMapper dMapper, ClientRepository clientRepository) {
+        this.dMapper = dMapper;
         this.clientRepository = clientRepository;
     }
 
@@ -35,29 +39,28 @@ public class ClientServiceImpl implements ClientService {
             throw new DataConflictException("Client id already exists.");
         }
         String secretHash = getSha512HashBase64(clientRequest.secret());
-        Client client = new Client(dbId, clientRequest.id(), projectId, clientRequest.description(),
-                clientRequest.authEnabled(), secretHash, clientRequest.labels());
+        Client client = dMapper.map(dbId, projectId, secretHash, clientRequest);
         clientRepository.save(client);
-        return new ClientDto(client.getClientId(), client.getProjectId(), client.getDescription(), client.getAuthEnabled(), client.getLabels());
+        return dMapper.map(client);
     }
 
     @Override
     public List<ClientDto> getAll() {
         return clientRepository.findAll().stream()
-                .map(c -> new ClientDto(c.getClientId(), c.getProjectId(), c.getDescription(), c.getAuthEnabled(), c.getLabels())).collect(Collectors.toList());
+                .map(dMapper::map).collect(Collectors.toList());
     }
 
     @Override
     public List<ClientDto> getAll(String projectId) {
         return clientRepository.findAll(projectId).stream()
-                .map(c -> new ClientDto(c.getClientId(), c.getProjectId(), c.getDescription(), c.getAuthEnabled(), c.getLabels())).collect(Collectors.toList());
+                .map(dMapper::map).collect(Collectors.toList());
     }
 
     @Override
     public Optional<ClientDto> get(String projectId, String id) {
         String dbId = createId(projectId, id);
         Optional<Client> clientOptional = clientRepository.findById(dbId);
-        return clientOptional.map(c -> new ClientDto(c.getClientId(), c.getProjectId(), c.getDescription(), c.getAuthEnabled(), c.getLabels()));
+        return clientOptional.map(dMapper::map);
     }
 
     @Override
@@ -71,7 +74,7 @@ public class ClientServiceImpl implements ClientService {
     @Transactional
     public List<ClientDto> removeAll(String projectId) {
         return clientRepository.deleteAll(projectId).stream()
-                .map(c -> new ClientDto(c.getClientId(), c.getProjectId(), c.getDescription(), c.getAuthEnabled(), c.getLabels())).collect(Collectors.toList());
+                .map(dMapper::map).collect(Collectors.toList());
     }
 
     @Override

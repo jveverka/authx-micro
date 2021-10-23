@@ -10,11 +10,15 @@ public interface UserService {
 
     UserDto create(String projectId, CreateUserRequest request);
 
+    List<UserDto> getAll();
+
     List<UserDto> getAll(String projectId);
 
-    Optional<UserDto> get(String projectId);
+    Optional<UserDto> get(String projectId, String id);
 
     void remove(String projectId, String id);
+
+    void removeAll(String projectId);
 
     void setSecret(String projectId, String id, String secret);
 

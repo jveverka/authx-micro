@@ -3,13 +3,13 @@ package one.microproject.authx.service.service.impl;
 import one.microproject.authx.service.dto.ClientDto;
 import one.microproject.authx.service.dto.CreateProjectRequest;
 import one.microproject.authx.service.dto.ProjectDto;
+import one.microproject.authx.service.dto.UserDto;
 import one.microproject.authx.service.exceptions.DataConflictException;
 import one.microproject.authx.service.model.Project;
-import one.microproject.authx.service.model.User;
 import one.microproject.authx.service.repository.ProjectRepository;
-import one.microproject.authx.service.repository.UserRepository;
 import one.microproject.authx.service.service.ClientService;
 import one.microproject.authx.service.service.ProjectService;
+import one.microproject.authx.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,17 +22,20 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ProjectServiceImpl implements ProjectService {
 
+    private final DMapper dMapper;
     private final ProjectRepository projectRepository;
     private final ClientService clientService;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
-    public ProjectServiceImpl(ClientService clientService,
+    public ProjectServiceImpl(DMapper dMapper,
                               ProjectRepository projectRepository,
-                              UserRepository userRepository) {
+                              ClientService clientService,
+                              UserService userService) {
+        this.dMapper = dMapper;
         this.projectRepository = projectRepository;
         this.clientService = clientService;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
 
@@ -44,7 +47,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (client.isPresent()) {
             throw new DataConflictException("Client already exists.");
         }
-        Optional<User> user = userRepository.findById(request.adminUser().id());
+        Optional<UserDto> user = userService.get(request.id(), request.adminUser().id());
         if (user.isPresent()) {
             throw new DataConflictException("User already exists.");
         }
@@ -52,20 +55,20 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectOptional.isPresent()) {
             throw new DataConflictException("Project already exists.");
         }
-        Project project = new Project(request.id(), request.description(), List.of(request.adminUser().id()), request.labels());
+        Project project = dMapper.map(request);
         projectRepository.save(project);
         clientService.createClient(request.id(), request.adminClient());
-        return new ProjectDto(request.id(), request.description(), request.labels());
+        return dMapper.map(project);
     }
 
     @Override
     public List<ProjectDto> getAll() {
-        return projectRepository.findAll().stream().map(p -> new ProjectDto(p.getId(), p.getDescription(), p.getLabels())).collect(Collectors.toList());
+        return projectRepository.findAll().stream().map(dMapper::map).collect(Collectors.toList());
     }
 
     @Override
     public Optional<ProjectDto> get(String id) {
-        return projectRepository.findById(id).map(p -> new ProjectDto(p.getId(), p.getDescription(), p.getLabels()));
+        return projectRepository.findById(id).map(dMapper::map);
     }
 
     @Override
@@ -76,7 +79,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new DataConflictException("Project not found.");
         } else {
             clientService.removeAll(id);
-            //TODO: clear all related data
+            userService.removeAll(id);
             projectRepository.deleteById(id);
         }
     }

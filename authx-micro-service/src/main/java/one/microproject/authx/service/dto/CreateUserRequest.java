@@ -1,4 +1,6 @@
 package one.microproject.authx.service.dto;
 
-public record CreateUserRequest(String id) {
+import java.util.Map;
+
+public record CreateUserRequest(String id, String email, String description, String secret, Map<String, String> labels) {
 }
