@@ -1,7 +1,7 @@
 package one.microproject.authx.service.service;
 
-import one.microproject.authx.service.dto.ClientDto;
-import one.microproject.authx.service.dto.CreateClientRequest;
+import one.microproject.authx.common.dto.ClientDto;
+import one.microproject.authx.common.dto.CreateClientRequest;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package one.microproject.authx.service.exceptions;
+package one.microproject.authx.common.exeptions;
 
 public class DataProcessingException extends RuntimeException {
 

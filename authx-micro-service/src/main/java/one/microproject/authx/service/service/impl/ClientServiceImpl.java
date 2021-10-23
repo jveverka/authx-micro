@@ -1,7 +1,7 @@
 package one.microproject.authx.service.service.impl;
 
-import one.microproject.authx.service.dto.ClientDto;
-import one.microproject.authx.service.dto.CreateClientRequest;
+import one.microproject.authx.common.dto.ClientDto;
+import one.microproject.authx.common.dto.CreateClientRequest;
 import one.microproject.authx.service.exceptions.DataConflictException;
 import one.microproject.authx.service.model.Client;
 import one.microproject.authx.service.repository.ClientRepository;
@@ -13,8 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static one.microproject.authx.service.service.impl.ServiceUtils.createId;
-import static one.microproject.authx.service.service.impl.ServiceUtils.getSha512HashBase64;
+import static one.microproject.authx.common.ServiceUtils.createId;
+import static one.microproject.authx.common.ServiceUtils.getSha512HashBase64;
+
 
 @Service
 @Transactional(readOnly = true)

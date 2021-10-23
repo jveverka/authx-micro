@@ -1,7 +1,7 @@
 package one.microproject.authx.service.service.impl;
 
-import one.microproject.authx.service.dto.CreateUserRequest;
-import one.microproject.authx.service.dto.UserDto;
+import one.microproject.authx.common.dto.CreateUserRequest;
+import one.microproject.authx.common.dto.UserDto;
 import one.microproject.authx.service.exceptions.DataConflictException;
 import one.microproject.authx.service.model.User;
 import one.microproject.authx.service.repository.UserRepository;
@@ -14,8 +14,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static one.microproject.authx.service.service.impl.ServiceUtils.createId;
-import static one.microproject.authx.service.service.impl.ServiceUtils.getSha512HashBase64;
+import static one.microproject.authx.common.ServiceUtils.createId;
+import static one.microproject.authx.common.ServiceUtils.getSha512HashBase64;
+
 
 @Service
 @Transactional(readOnly = true)

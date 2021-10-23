@@ -5,6 +5,9 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+project(':authx-micro-common') {
+}
+
 project(':authx-micro-clients') {
 }
 
@@ -12,4 +15,7 @@ project(':authx-micro-examples') {
 }
 
 project(':authx-micro-service') {
+    dependencies {
+        implementation project(':authx-micro-common')
+    }
 }

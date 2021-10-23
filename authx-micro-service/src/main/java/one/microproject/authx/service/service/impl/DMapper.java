@@ -1,11 +1,11 @@
 package one.microproject.authx.service.service.impl;
 
-import one.microproject.authx.service.dto.ClientDto;
-import one.microproject.authx.service.dto.CreateClientRequest;
-import one.microproject.authx.service.dto.CreateProjectRequest;
-import one.microproject.authx.service.dto.CreateUserRequest;
-import one.microproject.authx.service.dto.ProjectDto;
-import one.microproject.authx.service.dto.UserDto;
+import one.microproject.authx.common.dto.ClientDto;
+import one.microproject.authx.common.dto.CreateClientRequest;
+import one.microproject.authx.common.dto.CreateProjectRequest;
+import one.microproject.authx.common.dto.CreateUserRequest;
+import one.microproject.authx.common.dto.ProjectDto;
+import one.microproject.authx.common.dto.UserDto;
 import one.microproject.authx.service.model.Client;
 import one.microproject.authx.service.model.Project;
 import one.microproject.authx.service.model.User;

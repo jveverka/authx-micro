@@ -1,4 +1,4 @@
-package one.microproject.authx.service.dto;
+package one.microproject.authx.common.dto;
 
 import java.util.Map;
 

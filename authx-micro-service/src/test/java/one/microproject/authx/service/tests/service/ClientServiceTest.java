@@ -1,7 +1,7 @@
 package one.microproject.authx.service.tests.service;
 
-import one.microproject.authx.service.dto.ClientDto;
-import one.microproject.authx.service.dto.CreateClientRequest;
+import one.microproject.authx.common.dto.ClientDto;
+import one.microproject.authx.common.dto.CreateClientRequest;
 import one.microproject.authx.service.service.ClientService;
 import one.microproject.authx.service.tests.AppBaseTest;
 import org.junit.jupiter.api.AfterEach;

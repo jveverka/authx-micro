@@ -1,6 +1,6 @@
-package one.microproject.authx.service.service.impl;
+package one.microproject.authx.common;
 
-import one.microproject.authx.service.exceptions.DataProcessingException;
+import one.microproject.authx.common.exeptions.DataProcessingException;
 import org.bouncycastle.util.encoders.Base64;
 
 import java.nio.charset.StandardCharsets;

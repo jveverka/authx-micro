@@ -1,10 +1,10 @@
-package one.microproject.authx.service.tests;
+package one.microproject.authx.common.tests;
 
 
 import org.junit.jupiter.api.Test;
 
-import static one.microproject.authx.service.service.impl.ServiceUtils.createId;
-import static one.microproject.authx.service.service.impl.ServiceUtils.getSha512HashBase64;
+import static one.microproject.authx.common.ServiceUtils.createId;
+import static one.microproject.authx.common.ServiceUtils.getSha512HashBase64;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ServiceUtilsTest {
