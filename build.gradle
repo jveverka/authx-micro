@@ -9,6 +9,9 @@ project(':authx-micro-common') {
 }
 
 project(':authx-micro-clients') {
+    dependencies {
+        implementation project(':authx-micro-common')
+    }
 }
 
 project(':authx-micro-examples') {
