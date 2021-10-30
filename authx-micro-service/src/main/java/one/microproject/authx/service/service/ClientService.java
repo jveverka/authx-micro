@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface ClientService {
 
-    ClientDto createClient(String projectId, CreateClientRequest clientRequest);
+    ClientDto create(String projectId, CreateClientRequest clientRequest);
 
     List<ClientDto> getAll();
 

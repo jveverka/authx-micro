@@ -24,8 +24,8 @@ class ClientServiceTest extends AppBaseTest {
     void testClientAddAndRemove() {
         CreateClientRequest createClientRequest1 = new CreateClientRequest("c1", "d11", true, "s11", Map.of());
         CreateClientRequest createClientRequest2 = new CreateClientRequest("c1", "d21", true, "s21", Map.of());
-        ClientDto client1 = clientService.createClient("p-01", createClientRequest1);
-        ClientDto client2 = clientService.createClient("p-02", createClientRequest2);
+        ClientDto client1 = clientService.create("p-01", createClientRequest1);
+        ClientDto client2 = clientService.create("p-02", createClientRequest2);
 
         assertEquals(createClientRequest1.id(), client1.id());
         assertEquals(createClientRequest2.id(), client2.id());

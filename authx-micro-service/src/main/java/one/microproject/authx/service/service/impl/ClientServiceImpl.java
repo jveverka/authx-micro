@@ -32,7 +32,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional
-    public ClientDto createClient(String projectId, CreateClientRequest request) {
+    public ClientDto create(String projectId, CreateClientRequest request) {
         String dbId = createId(projectId, request.id());
         Optional<Client> clientOptional = clientRepository.findById(dbId);
         if (clientOptional.isPresent()) {
