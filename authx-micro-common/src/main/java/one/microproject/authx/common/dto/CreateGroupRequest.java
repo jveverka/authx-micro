@@ -1,4 +1,6 @@
 package one.microproject.authx.common.dto;
 
-public record CreateGroupRequest() {
+import java.util.Map;
+
+public record CreateGroupRequest(String id, String projectId, String description, Map<String, String> labels) {
 }
