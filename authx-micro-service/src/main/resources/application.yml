@@ -11,6 +11,16 @@ spring:
       port: 27017
       database: loggerdb
 
+authx:
+  global-admins:
+    project-name: global-admins
+    admin-user:
+      username: admin-user
+      password: s3cr3t
+    admin-client:
+      client-id: admin-client
+      client-secret: secret
+
 logging:
   level:
     root: INFO

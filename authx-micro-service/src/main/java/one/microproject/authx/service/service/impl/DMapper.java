@@ -1,12 +1,8 @@
 package one.microproject.authx.service.service.impl;
 
-import one.microproject.authx.common.dto.ClientDto;
-import one.microproject.authx.common.dto.CreateClientRequest;
-import one.microproject.authx.common.dto.CreateProjectRequest;
-import one.microproject.authx.common.dto.CreateUserRequest;
-import one.microproject.authx.common.dto.ProjectDto;
-import one.microproject.authx.common.dto.UserDto;
+import one.microproject.authx.common.dto.*;
 import one.microproject.authx.service.model.Client;
+import one.microproject.authx.service.model.Group;
 import one.microproject.authx.service.model.Project;
 import one.microproject.authx.service.model.User;
 import org.springframework.stereotype.Component;
@@ -39,6 +35,14 @@ public class DMapper {
 
     public User map(String dbId, String projectId, String clientId, String secretHash, CreateUserRequest request) {
         return new User(dbId, request.id(), projectId, clientId, request.email(), request.description(), secretHash, request.labels());
+    }
+
+    public Group map(String dbId, CreateGroupRequest request) {
+        return new Group(dbId, request.id(), request.projectId(), request.description(), request.labels());
+    }
+
+    public GroupDto map(Group group) {
+        return new GroupDto(group.getGroupId(), group.getProjectId(), group.getDescription(), group.getLabels());
     }
 
 }

@@ -33,7 +33,7 @@ class ProjectServiceTest extends AppBaseTest {
         assertEquals(createProjectRequest.id(), project.id());
 
         List<ProjectDto> projects = projectService.getAll();
-        assertEquals(1, projects.size());
+        assertEquals(2, projects.size());
 
         Optional<ProjectDto> projectDtoOptional = projectService.get(project.id());
         assertTrue(projectDtoOptional.isPresent());
@@ -41,7 +41,7 @@ class ProjectServiceTest extends AppBaseTest {
 
         projectService.remove(project.id());
         projects = projectService.getAll();
-        assertEquals(0, projects.size());
+        assertEquals(1, projects.size());
     }
 
     @AfterEach

@@ -15,9 +15,9 @@ public class CryptoConfig {
 
     @PostConstruct
     private void init() {
-        LOG.info("#CONFIG: initializing Bouncy Castle Provider (BCP) ...");
+        LOG.info("## CONFIG: initializing Bouncy Castle Provider (BCP) ...");
         Security.addProvider(new BouncyCastleProvider());
-        LOG.info("#CONFIG: BCP initialized.");
+        LOG.info("## CONFIG: BCP initialized.");
     }
 
 }

@@ -12,6 +12,7 @@ AuthX is simplified version of [iam-service](https://github.com/jveverka/iam-ser
 * __Refresh Token__ - wip
  
 ### Technical documentation
+* [Security Model](docs/authx-security-model.md)
 * [Build and run locally.](docs/authx-build-and-run.md)
 * [Internal Data Model.](docs/authx-data-model.md)
 * [Authx in Docker.](docs/authx-dockerization.md)

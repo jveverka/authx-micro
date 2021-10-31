@@ -2,7 +2,9 @@ package one.microproject.authx.service.service.impl;
 
 import one.microproject.authx.common.dto.CreateGroupRequest;
 import one.microproject.authx.common.dto.GroupDto;
+import one.microproject.authx.service.repository.GroupRepository;
 import one.microproject.authx.service.service.GroupService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +14,15 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 public class GroupServiceImpl implements GroupService {
+
+    private final DMapper dMapper;
+    private final GroupRepository groupRepository;
+
+    @Autowired
+    public GroupServiceImpl(DMapper dMapper, GroupRepository groupRepository) {
+        this.dMapper = dMapper;
+        this.groupRepository = groupRepository;
+    }
 
     @Override
     @Transactional
@@ -51,4 +62,5 @@ public class GroupServiceImpl implements GroupService {
     public void removeAll() {
 
     }
+    
 }

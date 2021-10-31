@@ -31,7 +31,7 @@ class ClientServiceTest extends AppBaseTest {
         assertEquals(createClientRequest2.id(), client2.id());
 
         List<ClientDto> clients = clientService.getAll();
-        assertEquals(2, clients.size());
+        assertEquals(3, clients.size());
 
         clients = clientService.getAll("p-01");
         assertEquals(1, clients.size());
@@ -49,13 +49,13 @@ class ClientServiceTest extends AppBaseTest {
         assertEquals(1, clients.size());
 
         clients = clientService.getAll();
-        assertEquals(1, clients.size());
+        assertEquals(2, clients.size());
 
         clients = clientService.removeAll("p-02");
         assertEquals(1, clients.size());
 
         clients = clientService.getAll();
-        assertEquals(0, clients.size());
+        assertEquals(1, clients.size());
     }
 
     @AfterEach
