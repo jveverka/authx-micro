@@ -1,5 +1,6 @@
 package one.microproject.authx.service.config;
 
+import one.microproject.authx.common.dto.AuthxDto;
 import one.microproject.authx.common.dto.CreateClientRequest;
 import one.microproject.authx.common.dto.CreateProjectRequest;
 import one.microproject.authx.common.dto.CreateUserRequest;
@@ -15,6 +16,9 @@ import java.util.Map;
 public class DataInitConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataInitConfig.class);
+
+    @Value("${authx.app-id}")
+    private String appId;
 
     @Value("${authx.global-admins.project-name}")
     private String projectName;
@@ -36,6 +40,11 @@ public class DataInitConfig {
         CreateUserRequest adminUserRequest = new CreateUserRequest(adminUser, "", "Global Admin", adminPassword, Map.of());
         CreateClientRequest adminClientRequest = new CreateClientRequest(clientId, "Global Admin Client", false, clientSecret, Map.of());
         return new CreateProjectRequest(projectName, "Global Admins", Map.of(), adminUserRequest, adminClientRequest);
+    }
+
+    @Bean
+    public AuthxDto getApplicatitionId() {
+        return new AuthxDto(appId);
     }
 
 }

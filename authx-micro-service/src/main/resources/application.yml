@@ -12,6 +12,7 @@ spring:
       database: loggerdb
 
 authx:
+  app-id: authx-001
   global-admins:
     project-name: global-admins
     admin-user:
