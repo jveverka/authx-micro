@@ -19,6 +19,9 @@ dependencies {
     implementation 'org.bouncycastle:bcpg-jdk15on:1.69'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.69'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.5.12'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.testcontainers:junit-jupiter:1.16.1'
