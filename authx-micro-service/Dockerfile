@@ -1,16 +1,18 @@
 ARG ARCH="amd64"
-FROM ${ARCH}/amazoncorretto:17-alpine3.14
+FROM ${ARCH}/eclipse-temurin:17-jdk-focal
 
 COPY build/libs/authx-micro-service-*-RELEASE.jar /authx-micro-service.jar
 COPY authx-micro-service-start.sh /authx-micro-service-start.sh
 COPY src/main/resources/application.yml /application.yml
 COPY src/main/resources/application-cloud.yml /application-cloud.yml
 
-RUN apk add --no-cache netcat-openbsd
+RUN apt update
+RUN apt install -y netcat
 
 RUN chmod +x /authx-micro-service-start.sh
 
-RUN adduser -g authxuser --disabled-password authxuser
+RUN addgroup authxuser
+RUN useradd -g authxuser -m authxuser
 USER authxuser
 
 ENV XMX 128m

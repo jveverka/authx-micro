@@ -25,7 +25,8 @@ docker manifest push jurajveverka/authx-micro-service:${VERSION}
 docker run -d --name authx-micro-service \
   -p 8080:8080 -p 7777:7777 \
   -e "REDIS_HOST=127.0.0.1" \
-  jurajveverka/authx-micro-service:${VERSION}
+  -e "REDIS_PORT=6379" \
+  jurajveverka/authx-micro-service:${VERSION}-${ARCH}
 ```
 
 ### Start With docker-compose
