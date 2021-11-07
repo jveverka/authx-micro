@@ -1,0 +1,39 @@
+version: '3.3'
+
+services:
+
+  authx-service:
+    image: jurajveverka/authx-micro-service:1.0.0-RELEASE-amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+      - 7777:7777
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_DB=admin
+      - MONGODB_USERNAME=root
+      - MONGODB_PASSWORD=s3cr3t
+
+  mongodb:
+    image: mongo:5.0.3-focal
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=mongodb
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=s3cr3t
+    volumes:
+      - mongodb-data:/data/db
+
+  redis:
+    image: redis:6.2.2-alpine
+    ports:
+      - 6379:6379
+
+volumes:
+  mongodb-data:

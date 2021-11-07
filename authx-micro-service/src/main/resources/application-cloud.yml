@@ -1,29 +1,31 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT}
 
 spring:
   redis:
-    host: localhost
-    port: 6379
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: loggerdb
+      host: ${MONGODB_HOST}
+      port: ${MONGODB_PORT}
+      database: ${MONGODB_DB}
+      username: ${MONGODB_USERNAME}
+      password: ${MONGODB_PASSWORD}
 
 authx:
-  app-id: authx-001
+  app-id: ${AUTHX_APP_ID}
   global-admins:
     project-name: global-admins
     admin-user:
       username: admin-user
-      password: s3cr3t
+      password: ${ADMIN_USER_PASSWORD}
     admin-client:
       client-id: admin-client
-      client-secret: secret
+      client-secret: ${ADMIN_CLIENT_SECRET}
 
 management:
-  port: 7777
+  port: ${MANAGEMENT_PORT}
   endpoint:
     prometheus:
       enabled: true
