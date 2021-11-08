@@ -25,7 +25,8 @@ authx:
       client-secret: ${ADMIN_CLIENT_SECRET}
 
 management:
-  port: ${MANAGEMENT_PORT}
+  server:
+    port: ${MANAGEMENT_PORT}
   endpoint:
     prometheus:
       enabled: true

@@ -9,7 +9,9 @@ spring:
     mongodb:
       host: localhost
       port: 27017
-      database: loggerdb
+      database: mongodb
+      username: root
+      password: s3cr3t
 
 authx:
   app-id: authx-001
@@ -23,7 +25,8 @@ authx:
       client-secret: secret
 
 management:
-  port: 7777
+  server:
+    port: 7777
   endpoint:
     prometheus:
       enabled: true

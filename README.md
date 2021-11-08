@@ -10,6 +10,12 @@ AuthX is simplified version of [iam-service](https://github.com/jveverka/iam-ser
 * __Password Credentials__ - wip
 * __Client Credentials__ - wip
 * __Refresh Token__ - wip
+
+### Endpoints
+``
+http://localhost:7777/actuator/health
+http://localhost:7777/actuator/prometheus
+``
  
 ### Technical documentation
 * [Security Model](docs/authx-security-model.md)
