@@ -26,7 +26,7 @@ public abstract class AppBaseTest {
     private static final int DOCKER_EXPOSED_MONGO_PORT = 27017;
     private static final int DOCKER_EXPOSED_REDIS_PORT = 6379;
 
-    private static final String MONGO_DOCKER_IMAGE = "mongo:5.0.3-focal";
+    private static final String MONGO_DOCKER_IMAGE = "mongo:5.0.4-focal";
     private static final String REDIS_DOCKER_IMAGE = "redis:6.2.6-alpine";
 
     private static MongoDBContainer mongoDBContainer;

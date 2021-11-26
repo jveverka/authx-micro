@@ -1,5 +1,6 @@
 package one.microproject.authx.service.model;
 
+import one.microproject.authx.common.dto.KeyPairSerialized;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,21 +15,22 @@ public class Client {
     private String clientId;
     private String projectId;
     private String description;
-    private Boolean authEnabled;
     private String secret;
     private Map<String, String> labels;
+    private Map<String, KeyPairSerialized> keyPairs;
 
     public Client() {
     }
 
-    public Client(String id, String clientId, String projectId, String description, Boolean authEnabled, String secret, Map<String, String> labels) {
+    public Client(String id, String clientId, String projectId, String description, String secret,
+                  Map<String, String> labels, Map<String, KeyPairSerialized> keyPairs) {
         this.id = id;
         this.clientId = clientId;
         this.projectId = projectId;
         this.description = description;
-        this.authEnabled = authEnabled;
         this.secret = secret;
         this.labels = labels;
+        this.keyPairs = keyPairs;
     }
 
     public String getId() {
@@ -63,14 +65,6 @@ public class Client {
         this.description = description;
     }
 
-    public Boolean getAuthEnabled() {
-        return authEnabled;
-    }
-
-    public void setAuthEnabled(Boolean authEnabled) {
-        this.authEnabled = authEnabled;
-    }
-
     public String getSecret() {
         return secret;
     }
@@ -85,5 +79,13 @@ public class Client {
 
     public void setLabels(Map<String, String> labels) {
         this.labels = labels;
+    }
+
+    public Map<String, KeyPairSerialized> getKeyPairs() {
+        return keyPairs;
+    }
+
+    public void setKeyPairs(Map<String, KeyPairSerialized> keyPairs) {
+        this.keyPairs = keyPairs;
     }
 }

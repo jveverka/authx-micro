@@ -1,5 +1,6 @@
 package one.microproject.authx.service.model;
 
+import one.microproject.authx.common.dto.KeyPairSerialized;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -18,11 +19,13 @@ public class User {
     private String description;
     private String secret;
     private Map<String, String> labels;
+    private Map<String, KeyPairSerialized> keyPairs;
 
     public User() {
     }
 
-    public User(String id, String userId, String projectId, String clientId, String email, String description, String secret, Map<String, String> labels) {
+    public User(String id, String userId, String projectId, String clientId, String email, String description, String secret,
+                Map<String, String> labels, Map<String, KeyPairSerialized> keyPairs) {
         this.id = id;
         this.userId = userId;
         this.projectId = projectId;
@@ -31,6 +34,7 @@ public class User {
         this.description = description;
         this.secret = secret;
         this.labels = labels;
+        this.keyPairs = keyPairs;
     }
 
     public String getId() {
@@ -95,5 +99,13 @@ public class User {
 
     public void setLabels(Map<String, String> labels) {
         this.labels = labels;
+    }
+
+    public Map<String, KeyPairSerialized> getKeyPairs() {
+        return keyPairs;
+    }
+
+    public void setKeyPairs(Map<String, KeyPairSerialized> keyPairs) {
+        this.keyPairs = keyPairs;
     }
 }

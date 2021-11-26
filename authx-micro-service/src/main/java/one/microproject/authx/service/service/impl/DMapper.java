@@ -1,13 +1,17 @@
 package one.microproject.authx.service.service.impl;
 
 import one.microproject.authx.common.dto.*;
+import one.microproject.authx.common.utils.CryptoUtils;
 import one.microproject.authx.service.model.Client;
 import one.microproject.authx.service.model.Group;
 import one.microproject.authx.service.model.Project;
 import one.microproject.authx.service.model.User;
 import org.springframework.stereotype.Component;
 
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class DMapper {
@@ -21,20 +25,20 @@ public class DMapper {
     }
 
     public ClientDto map(Client client) {
-        return new ClientDto(client.getClientId(), client.getProjectId(), client.getDescription(), client.getAuthEnabled(), client.getLabels());
+        return new ClientDto(client.getClientId(), client.getProjectId(), client.getDescription(), client.getLabels());
     }
 
-    public Client map(String dbId, String projectId, String secretHash, CreateClientRequest clientRequest) {
+    public Client map(String dbId, String projectId, String secretHash, CreateClientRequest clientRequest, Map<String, KeyPairSerialized> keyPairs) {
         return new Client(dbId, clientRequest.id(), projectId, clientRequest.description(),
-                clientRequest.authEnabled(), secretHash, clientRequest.labels());
+                secretHash, clientRequest.labels(), keyPairs);
     }
 
     public UserDto map(User user) {
         return new UserDto(user.getUserId(), user.getClientId(), user.getEmail(), user.getDescription(), user.getSecret(), user.getLabels());
     }
 
-    public User map(String dbId, String projectId, String clientId, String secretHash, CreateUserRequest request) {
-        return new User(dbId, request.id(), projectId, clientId, request.email(), request.description(), secretHash, request.labels());
+    public User map(String dbId, String projectId, String clientId, String secretHash, CreateUserRequest request, Map<String, KeyPairSerialized> keyPairs) {
+        return new User(dbId, request.id(), projectId, clientId, request.email(), request.description(), secretHash, request.labels(), keyPairs);
     }
 
     public Group map(String dbId, CreateGroupRequest request) {
@@ -43,6 +47,18 @@ public class DMapper {
 
     public GroupDto map(Group group) {
         return new GroupDto(group.getGroupId(), group.getProjectId(), group.getDescription(), group.getLabels());
+    }
+
+    public KeyPairData map(KeyPairSerialized keyPairSerialized) {
+        PrivateKey privateKey = CryptoUtils.deserializePrivateKey(keyPairSerialized.privateKey());
+        X509Certificate certificate = CryptoUtils.deserializeX509Certificate(keyPairSerialized.x509Certificate());
+        return new KeyPairData(keyPairSerialized.id(), certificate, privateKey);
+    }
+
+    public KeyPairSerialized map(KeyPairData keyPairData) {
+        String privateKey = CryptoUtils.serializePrivateKey(keyPairData.privateKey());
+        String certificate = CryptoUtils.serializeX509Certificate(keyPairData.x509Certificate());
+        return new KeyPairSerialized(keyPairData.id(), certificate, privateKey);
     }
 
 }

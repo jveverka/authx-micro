@@ -1,21 +1,29 @@
 package one.microproject.authx.service.service.impl;
 
 import one.microproject.authx.common.dto.CreateUserRequest;
+import one.microproject.authx.common.dto.KeyPairData;
+import one.microproject.authx.common.dto.KeyPairSerialized;
 import one.microproject.authx.common.dto.UserDto;
+import one.microproject.authx.common.utils.LabelUtils;
 import one.microproject.authx.service.exceptions.DataConflictException;
 import one.microproject.authx.service.model.User;
 import one.microproject.authx.service.repository.UserRepository;
+import one.microproject.authx.service.service.CryptoService;
 import one.microproject.authx.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static one.microproject.authx.common.ServiceUtils.createId;
-import static one.microproject.authx.common.ServiceUtils.getSha512HashBase64;
+import static one.microproject.authx.common.utils.ServiceUtils.createId;
+import static one.microproject.authx.common.utils.CryptoUtils.getSha512HashBase64;
+import static one.microproject.authx.common.utils.LabelUtils.AUTHX_CERTIFICATE_DURATION;
+import static one.microproject.authx.common.utils.LabelUtils.PRIMARY_KID;
 
 
 @Service
@@ -23,12 +31,15 @@ import static one.microproject.authx.common.ServiceUtils.getSha512HashBase64;
 public class UserServiceImpl implements UserService {
 
     private final DMapper dMapper;
+    private final CryptoService cryptoService;
     private final UserRepository userRepository;
 
     @Autowired
     public UserServiceImpl(DMapper dMapper,
+                           CryptoService cryptoService,
                            UserRepository userRepository) {
         this.dMapper = dMapper;
+        this.cryptoService = cryptoService;
         this.userRepository = userRepository;
     }
 
@@ -41,7 +52,10 @@ public class UserServiceImpl implements UserService {
             throw new DataConflictException("User id already exists.");
         }
         String secretHash = getSha512HashBase64(request.secret());
-        User user = dMapper.map(dbId, projectId, clientId, secretHash, request);
+        Map<String, String> labels = LabelUtils.mergeWithDefaults(request.labels());
+        Map<String, KeyPairSerialized> keys = generateKeyPair(request.id(), labels);
+
+        User user = dMapper.map(dbId, projectId, clientId, secretHash, request, keys);
         userRepository.save(user);
         return dMapper.map(user);
     }
@@ -105,6 +119,14 @@ public class UserServiceImpl implements UserService {
         } else {
             return Boolean.FALSE;
         }
+    }
+
+    private Map<String, KeyPairSerialized> generateKeyPair(String subject, Map<String, String> labels) {
+        TimeUnit unit = TimeUnit.MILLISECONDS;
+        Long duration = Long.parseLong(labels.get(AUTHX_CERTIFICATE_DURATION));
+        KeyPairData keyPairData = cryptoService.generateKeyPair(PRIMARY_KID, subject, unit, duration);
+        KeyPairSerialized keyPairSerialized = dMapper.map(keyPairData);
+        return Map.of(PRIMARY_KID, keyPairSerialized);
     }
 
 }
