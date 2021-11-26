@@ -12,8 +12,10 @@ import one.microproject.authx.service.dto.JWKResponse;
 import one.microproject.authx.service.dto.ProviderConfigurationResponse;
 import one.microproject.authx.service.dto.TokenResponse;
 import one.microproject.authx.service.dto.UserInfoResponse;
+import one.microproject.authx.service.service.OAuth2Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,11 +36,18 @@ import static one.microproject.authx.common.Constants.BEARER_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
-@RequestMapping(path = "/api/v1/auth")
+@RequestMapping(path = "/api/v1/oauth2")
 @Tag(name = "OAuth2", description = "APIs providing OAuth2 authentication flows.")
-public class AuthController {
+public class OAuth2Controller {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2Controller.class);
+
+    private final OAuth2Service oAuth2Service;
+
+    @Autowired
+    public OAuth2Controller(OAuth2Service oAuth2Service) {
+        this.oAuth2Service = oAuth2Service;
+    }
 
     @Operation(description =
             "This endpoint represents the end of all authorizations flows when if successful, tokens are issued.\n" +
