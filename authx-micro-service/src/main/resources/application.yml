@@ -9,9 +9,7 @@ spring:
     mongodb:
       host: localhost
       port: 27017
-      database: mongodb
-      username: root
-      password: s3cr3t
+      database: loggerdb
 
 authx:
   app-id: authx-001

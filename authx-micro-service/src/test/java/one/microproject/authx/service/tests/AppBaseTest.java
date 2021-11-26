@@ -36,7 +36,9 @@ public abstract class AppBaseTest {
 
         private final Logger LOGGER = LoggerFactory.getLogger(AppBaseTest.class);
 
-        private static MongoDBContainer mongoDBContainer = new MongoDBContainer(MONGO_DOCKER_IMAGE);
+        private static MongoDBContainer mongoDBContainer = new MongoDBContainer(MONGO_DOCKER_IMAGE)
+                .withExposedPorts(DOCKER_EXPOSED_MONGO_PORT)
+                .withReuse(true);
         private static GenericContainer<?> redisContainer = new GenericContainer<>(REDIS_DOCKER_IMAGE)
                 .withExposedPorts(DOCKER_EXPOSED_REDIS_PORT)
                 .withReuse(true);
@@ -61,7 +63,6 @@ public abstract class AppBaseTest {
             TestPropertyValues.of(
                     "spring.data.mongodb.host=localhost",
                     "spring.data.mongodb.port=" + mongoBoundPort,
-                    "spring.data.mongodb.database=test",
                     "spring.redis.host=" + redisContainer.getContainerIpAddress(),
                     "spring.redis.host=" + redisBoundPort
             ).applyTo(context.getEnvironment());
