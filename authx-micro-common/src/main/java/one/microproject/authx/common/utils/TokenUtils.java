@@ -2,15 +2,12 @@ package one.microproject.authx.common.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
-import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SigningKeyResolver;
 import one.microproject.authx.common.dto.TokenClaims;
 import one.microproject.authx.common.dto.TokenType;
 
-import java.security.Key;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -52,21 +49,6 @@ public final class TokenUtils {
         Date expiration = claims.getExpiration();
         Date issuedAt = claims.getIssuedAt();
         return new TokenClaims(iss, sub, aud, issuedAt, expiration, TokenType.getTokenType(tokenType));
-    }
-
-    private static class SigningKeyResolverImpl implements SigningKeyResolver {
-        private final X509Certificate certificate;
-        public SigningKeyResolverImpl(X509Certificate certificate) {
-            this.certificate = certificate;
-        }
-        @Override
-        public Key resolveSigningKey(JwsHeader header, Claims claims) {
-            return certificate.getPublicKey();
-        }
-        @Override
-        public Key resolveSigningKey(JwsHeader header, String plaintext) {
-            return certificate.getPublicKey();
-        }
     }
 
 }
