@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.GrantType;
+import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.service.dto.IntrospectResponse;
 import one.microproject.authx.service.dto.JWKResponse;
 import one.microproject.authx.service.dto.ProviderConfigurationResponse;
@@ -32,13 +33,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Optional;
 import java.util.Set;
 
 import static one.microproject.authx.common.Constants.BEARER_PREFIX;
 import static one.microproject.authx.service.controller.ControllerUtils.getClientCredentials;
+import static one.microproject.authx.service.controller.ControllerUtils.getIssuerUri;
 import static one.microproject.authx.service.controller.ControllerUtils.getScopes;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -49,12 +55,15 @@ public class OAuth2Controller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2Controller.class);
 
+    private final ServletContext servletContext;
     private final UrlMapper urlMapper;
     private final OAuth2Service oAuth2Service;
 
     @Autowired
-    public OAuth2Controller(OAuth2Service oAuth2Service,
+    public OAuth2Controller(ServletContext servletContext,
+                            OAuth2Service oAuth2Service,
                             UrlMapper urlMapper) {
+        this.servletContext = servletContext;
         this.urlMapper = urlMapper;
         this.oAuth2Service = oAuth2Service;
     }
@@ -103,14 +112,18 @@ public class OAuth2Controller {
                                                        @RequestParam(name = "nonce", required = false) String nonce,
                                                        @RequestParam(name = "audience", required = false) String audience,
                                                        @RequestBody MultiValueMap bodyValueMap,
-                                                       HttpServletRequest request) {
+                                                       HttpServletRequest request) throws MalformedURLException, URISyntaxException {
+        String servletContextPath = servletContext.getContextPath();
+        URL requestUrl = new URL(request.getRequestURL().toString());
+        URI issuerUri = getIssuerUri(servletContextPath, requestUrl, projectId, urlMapper);
         GrantType grantTypeEnum = GrantType.getGrantType(grantType);
         Set<String> scopes = getScopes(scope);
         switch (grantTypeEnum) {
             case PASSWORD -> {
                 Optional<ClientCredentials> ccOptional = getClientCredentials(request, clientId, clientSecret);
                 if (ccOptional.isPresent()) {
-                    TokenResponse tokenResponse = oAuth2Service.getTokenForPassword(projectId, ccOptional.get(), scopes);
+                    UserCredentials userCredentials = new UserCredentials(username, password);
+                    TokenResponse tokenResponse = oAuth2Service.getTokenForPassword(issuerUri, projectId, ccOptional.get(), scopes, userCredentials);
                     return ResponseEntity.ok(tokenResponse);
                 } else {
                     throw new OAuth2TokenException("Missing or invalid client credentials.");
@@ -119,7 +132,7 @@ public class OAuth2Controller {
             case CLIENT_CREDENTIALS -> {
                 Optional<ClientCredentials> ccOptional = getClientCredentials(request, clientId, clientSecret);
                 if (ccOptional.isPresent()) {
-                    TokenResponse tokenResponse = oAuth2Service.getTokenForClientCredentials(projectId, ccOptional.get(), scopes);
+                    TokenResponse tokenResponse = oAuth2Service.getTokenForClientCredentials(issuerUri, projectId, ccOptional.get(), scopes);
                     return ResponseEntity.ok(tokenResponse);
                 } else {
                     throw new OAuth2TokenException("Missing or invalid client credentials.");
@@ -128,7 +141,7 @@ public class OAuth2Controller {
             case REFRESH_TOKEN -> {
                 Optional<ClientCredentials> ccOptional = getClientCredentials(request, clientId, clientSecret);
                 if (ccOptional.isPresent()) {
-                    TokenResponse tokenResponse = oAuth2Service.getTokenForRefreshToken(projectId, ccOptional.get(), scopes);
+                    TokenResponse tokenResponse = oAuth2Service.getTokenForRefreshToken(issuerUri, projectId, ccOptional.get(), scopes, refreshToken);
                     return ResponseEntity.ok(tokenResponse);
                 } else {
                     throw new OAuth2TokenException("Missing or invalid client credentials.");
@@ -146,10 +159,12 @@ public class OAuth2Controller {
             "- [OpenID Connect Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html)")
     @GetMapping(path = "/{project-id}/.well-known/openid-configuration", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProviderConfigurationResponse> getConfiguration(@PathVariable("project-id") String projectId,
-                                                                          HttpServletRequest request) throws MalformedURLException {
+                                                                          HttpServletRequest request) throws MalformedURLException, URISyntaxException {
         LOGGER.info("getConfiguration: {}", request.getRequestURL());
-        //TODO: finish implementation.
-        ProviderConfigurationResponse configuration = null;
+        String servletContextPath = servletContext.getContextPath();
+        URL requestUrl = new URL(request.getRequestURL().toString());
+        URI issuerUri = getIssuerUri(servletContextPath, requestUrl, projectId, urlMapper);
+        ProviderConfigurationResponse configuration = oAuth2Service.getProviderConfiguration(issuerUri, projectId);
         return ResponseEntity.ok(configuration);
     }
 
@@ -160,8 +175,7 @@ public class OAuth2Controller {
     @GetMapping(path = "/{project-id}/.well-known/jwks.json", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<JWKResponse> getCerts(@PathVariable("project-id") String projectId) {
         LOGGER.info("getCerts: projectId={}", projectId);
-        //TODO: finish implementation.
-        JWKResponse jwkData = null;
+        JWKResponse jwkData = oAuth2Service.getJWKResponse(projectId);
         return ResponseEntity.ok(jwkData);
     }
 
@@ -173,8 +187,7 @@ public class OAuth2Controller {
                                                               @RequestParam("token") String token,
                                                               @RequestParam(name = "token_type_hint", required = false) String tokenTypeHint) {
         LOGGER.info("introspectToken: token={} token_type_hint={}", token, tokenTypeHint);
-        //TODO: finish implementation.
-        IntrospectResponse response = null;
+        IntrospectResponse response = oAuth2Service.getIntrospectResponse(projectId, token, tokenTypeHint);
         return ResponseEntity.ok(response);
     }
 
@@ -185,7 +198,7 @@ public class OAuth2Controller {
     public ResponseEntity<Void> revoke(@PathVariable("project-id") String projectId,
                                        @RequestParam("token") String token,
                                        @RequestParam(name = "token_type_hint", required = false) String tokenTypeHint) {
-        //TODO: finish implementation.
+        oAuth2Service.revoke(projectId, token, tokenTypeHint);
         return ResponseEntity.ok().build();
     }
 
@@ -199,8 +212,7 @@ public class OAuth2Controller {
         String authorization = request.getHeader(AUTHORIZATION);
         if (authorization != null && authorization.startsWith(BEARER_PREFIX)) {
             String token = authorization.substring(BEARER_PREFIX.length());
-            //TODO: finish implementation.
-            Optional<UserInfoResponse> response = Optional.empty();
+            Optional<UserInfoResponse> response = oAuth2Service.getUserInfo(projectId, token);
             return ResponseEntity.of(response);
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

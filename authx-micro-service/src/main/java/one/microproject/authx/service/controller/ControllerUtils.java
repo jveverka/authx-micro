@@ -1,8 +1,12 @@
 package one.microproject.authx.service.controller;
 
 import one.microproject.authx.common.dto.ClientCredentials;
+import one.microproject.authx.service.service.impl.UrlMapper;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Optional;
@@ -43,6 +47,25 @@ public final class ControllerUtils {
             }
             return scopes;
         }
+    }
+
+    public static String getContextPath(String servletContextPath) {
+        if (servletContextPath == null || servletContextPath.isEmpty())  {
+            return "";
+        } else if ("/".equals(servletContextPath)) {
+            return "";
+        } else if (!servletContextPath.isEmpty() && !servletContextPath.startsWith("/")) {
+            return "/" + servletContextPath;
+        } else {
+            return servletContextPath;
+        }
+    }
+
+    public static URI getIssuerUri(String servletContextPath, URL requestUrl, String projectId, UrlMapper urlMapper) throws URISyntaxException {
+        String contextPath = getContextPath(servletContextPath);
+        String baseUrl = requestUrl.getProtocol() + "://" + requestUrl.getHost() + ":" + requestUrl.getPort() + contextPath;
+        baseUrl = urlMapper.map(baseUrl);
+        return new URI(baseUrl + "/api/v1/oauth2/" + projectId );
     }
 
 }
