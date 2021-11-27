@@ -1,6 +1,7 @@
 package one.microproject.authx.common.utils;
 
 import one.microproject.authx.common.dto.KeyPairData;
+import one.microproject.authx.common.dto.KeyPairSerialized;
 import one.microproject.authx.common.exceptions.CryptoProcessingException;
 import one.microproject.authx.common.exceptions.DataProcessingException;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -38,6 +39,10 @@ public final class CryptoUtils {
     private CryptoUtils() {
     }
 
+    public static KeyPairData generateSelfSignedKeyPair(String id, String issuer, Instant notBefore, TimeUnit unit, Long duration) {
+        return generateKeyPair(id, issuer, issuer, notBefore, unit, duration);
+    }
+
     public static KeyPairData generateKeyPair(String id, String issuer, String subject, Instant notBefore, TimeUnit unit, Long duration) {
         try {
             Instant notAfter = Instant.ofEpochMilli(notBefore.toEpochMilli() + unit.toMillis(duration));
@@ -50,6 +55,10 @@ public final class CryptoUtils {
         } catch(Exception e) {
             throw new CryptoProcessingException(e);
         }
+    }
+
+    public static X509Certificate createSelfSignedCertificate(String issuer, Instant notBefore, Instant notAfter, KeyPair keyPair) {
+        return createSignedCertificate(issuer, issuer, notBefore, notAfter, keyPair);
     }
 
     public static X509Certificate createSignedCertificate(String issuer, String subject, Instant notBefore, Instant notAfter, KeyPair keyPair) {
@@ -110,6 +119,18 @@ public final class CryptoUtils {
         } catch (NoSuchAlgorithmException e) {
             throw new DataProcessingException(e);
         }
+    }
+
+    public static KeyPairData map(KeyPairSerialized keyPairSerialized) {
+        PrivateKey privateKey = deserializePrivateKey(keyPairSerialized.privateKey());
+        X509Certificate certificate = deserializeX509Certificate(keyPairSerialized.x509Certificate());
+        return new KeyPairData(keyPairSerialized.id(), certificate, privateKey);
+    }
+
+    public static KeyPairSerialized map(KeyPairData keyPairData) {
+        String privateKey = serializePrivateKey(keyPairData.privateKey());
+        String certificate = serializeX509Certificate(keyPairData.x509Certificate());
+        return new KeyPairSerialized(keyPairData.id(), certificate, privateKey);
     }
 
 }

@@ -8,8 +8,6 @@ import one.microproject.authx.service.model.Project;
 import one.microproject.authx.service.model.User;
 import org.springframework.stereotype.Component;
 
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 
@@ -50,15 +48,11 @@ public class DMapper {
     }
 
     public KeyPairData map(KeyPairSerialized keyPairSerialized) {
-        PrivateKey privateKey = CryptoUtils.deserializePrivateKey(keyPairSerialized.privateKey());
-        X509Certificate certificate = CryptoUtils.deserializeX509Certificate(keyPairSerialized.x509Certificate());
-        return new KeyPairData(keyPairSerialized.id(), certificate, privateKey);
+        return CryptoUtils.map(keyPairSerialized);
     }
 
     public KeyPairSerialized map(KeyPairData keyPairData) {
-        String privateKey = CryptoUtils.serializePrivateKey(keyPairData.privateKey());
-        String certificate = CryptoUtils.serializeX509Certificate(keyPairData.x509Certificate());
-        return new KeyPairSerialized(keyPairData.id(), certificate, privateKey);
+        return CryptoUtils.map(keyPairData);
     }
 
 }

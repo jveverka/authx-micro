@@ -14,7 +14,7 @@ public class CryptoServiceImpl implements CryptoService {
     @Override
     public KeyPairData generateKeyPair(String id, String subject, TimeUnit unit, Long duration) {
         Instant notBefore = Instant.now();
-        return CryptoUtils.generateKeyPair(id, subject, subject, notBefore, unit, duration);
+        return CryptoUtils.generateSelfSignedKeyPair(id, subject, notBefore, unit, duration);
     }
 
 }
