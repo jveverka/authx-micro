@@ -7,12 +7,16 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import one.microproject.authx.common.dto.ClientCredentials;
+import one.microproject.authx.common.dto.GrantType;
 import one.microproject.authx.service.dto.IntrospectResponse;
 import one.microproject.authx.service.dto.JWKResponse;
 import one.microproject.authx.service.dto.ProviderConfigurationResponse;
 import one.microproject.authx.service.dto.TokenResponse;
 import one.microproject.authx.service.dto.UserInfoResponse;
+import one.microproject.authx.service.exceptions.OAuth2TokenException;
 import one.microproject.authx.service.service.OAuth2Service;
+import one.microproject.authx.service.service.impl.UrlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +35,11 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.util.Optional;
+import java.util.Set;
 
 import static one.microproject.authx.common.Constants.BEARER_PREFIX;
+import static one.microproject.authx.service.controller.ControllerUtils.getClientCredentials;
+import static one.microproject.authx.service.controller.ControllerUtils.getScopes;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
@@ -42,10 +49,13 @@ public class OAuth2Controller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2Controller.class);
 
+    private final UrlMapper urlMapper;
     private final OAuth2Service oAuth2Service;
 
     @Autowired
-    public OAuth2Controller(OAuth2Service oAuth2Service) {
+    public OAuth2Controller(OAuth2Service oAuth2Service,
+                            UrlMapper urlMapper) {
+        this.urlMapper = urlMapper;
         this.oAuth2Service = oAuth2Service;
     }
 
@@ -94,9 +104,40 @@ public class OAuth2Controller {
                                                        @RequestParam(name = "audience", required = false) String audience,
                                                        @RequestBody MultiValueMap bodyValueMap,
                                                        HttpServletRequest request) {
-        //TODO: finish implementation.
-        TokenResponse tokenResponse = null;
-        return ResponseEntity.ok(tokenResponse);
+        GrantType grantTypeEnum = GrantType.getGrantType(grantType);
+        Set<String> scopes = getScopes(scope);
+        switch (grantTypeEnum) {
+            case PASSWORD -> {
+                Optional<ClientCredentials> ccOptional = getClientCredentials(request, clientId, clientSecret);
+                if (ccOptional.isPresent()) {
+                    TokenResponse tokenResponse = oAuth2Service.getTokenForPassword(projectId, ccOptional.get(), scopes);
+                    return ResponseEntity.ok(tokenResponse);
+                } else {
+                    throw new OAuth2TokenException("Missing or invalid client credentials.");
+                }
+            }
+            case CLIENT_CREDENTIALS -> {
+                Optional<ClientCredentials> ccOptional = getClientCredentials(request, clientId, clientSecret);
+                if (ccOptional.isPresent()) {
+                    TokenResponse tokenResponse = oAuth2Service.getTokenForClientCredentials(projectId, ccOptional.get(), scopes);
+                    return ResponseEntity.ok(tokenResponse);
+                } else {
+                    throw new OAuth2TokenException("Missing or invalid client credentials.");
+                }
+            }
+            case REFRESH_TOKEN -> {
+                Optional<ClientCredentials> ccOptional = getClientCredentials(request, clientId, clientSecret);
+                if (ccOptional.isPresent()) {
+                    TokenResponse tokenResponse = oAuth2Service.getTokenForRefreshToken(projectId, ccOptional.get(), scopes);
+                    return ResponseEntity.ok(tokenResponse);
+                } else {
+                    throw new OAuth2TokenException("Missing or invalid client credentials.");
+                }
+            }
+            default -> {
+                throw new OAuth2TokenException("Unsupported grant type: " + grantType);
+            }
+        }
     }
 
 

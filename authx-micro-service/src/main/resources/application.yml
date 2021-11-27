@@ -1,5 +1,8 @@
 server:
   port: 8080
+  shutdown: graceful
+  servlet:
+    context-path: /authx
 
 spring:
   redis:
@@ -13,6 +16,9 @@ spring:
 
 authx:
   app-id: authx-001
+  base-url-mapping:
+    internal-url: http://localhost:8080/authx
+    external-url: http://localhost:8080/authx
   global-admins:
     project-name: global-admins
     admin-user:

@@ -1,5 +1,8 @@
 server:
   port: ${SERVER_PORT}
+  shutdown: graceful
+  servlet:
+    context-path: ${CONTEXT_PATH}
 
 spring:
   redis:
@@ -15,6 +18,9 @@ spring:
 
 authx:
   app-id: ${AUTHX_APP_ID}
+  base-url-mapping:
+    internal-url: ${AUTHX_INTERNAL_URL}
+    external-url: ${AUTHX_EXTERNAL_URL}
   global-admins:
     project-name: global-admins
     admin-user:

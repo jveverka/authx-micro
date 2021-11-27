@@ -4,6 +4,7 @@ import one.microproject.authx.common.dto.AuthxDto;
 import one.microproject.authx.common.dto.CreateClientRequest;
 import one.microproject.authx.common.dto.CreateProjectRequest;
 import one.microproject.authx.common.dto.CreateUserRequest;
+import one.microproject.authx.service.service.impl.UrlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,11 @@ public class DataInitConfig {
     @Value("${authx.global-admins.admin-client.client-secret}")
     private String clientSecret;
 
+    @Value("${authx.base-url-mapping.internal-url}")
+    private String internalUrl;
+    @Value("${authx.base-url-mapping.external-url}")
+    private String externalUrl;
+
     @Bean
     public CreateProjectRequest getInitialModel() {
         LOGGER.info("##CONFIG: Global Admins");
@@ -43,8 +49,16 @@ public class DataInitConfig {
     }
 
     @Bean
-    public AuthxDto getApplicatitionId() {
+    public AuthxDto getApplicationId() {
+        LOGGER.info("##CONFIG: App ID: {}", appId);
         return new AuthxDto(appId);
+    }
+
+    @Bean
+    public UrlMapper getUrlMapper() {
+        LOGGER.info("##CONFIG: Internal URL: {}", internalUrl);
+        LOGGER.info("##CONFIG: External URL: {}", externalUrl);
+        return new UrlMapper(internalUrl, externalUrl);
     }
 
 }
