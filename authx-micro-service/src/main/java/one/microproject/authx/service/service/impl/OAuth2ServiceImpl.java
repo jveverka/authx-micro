@@ -2,18 +2,19 @@ package one.microproject.authx.service.service.impl;
 
 import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.UserCredentials;
-import one.microproject.authx.service.dto.IntrospectResponse;
-import one.microproject.authx.service.dto.JWKResponse;
-import one.microproject.authx.service.dto.ProviderConfigurationResponse;
-import one.microproject.authx.service.dto.TokenResponse;
-import one.microproject.authx.service.dto.UserInfoResponse;
+import one.microproject.authx.common.dto.UserDto;
+import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
+import one.microproject.authx.common.dto.oauth2.JWKResponse;
+import one.microproject.authx.common.dto.oauth2.ProviderConfigurationResponse;
+import one.microproject.authx.common.dto.oauth2.TokenResponse;
+import one.microproject.authx.common.dto.oauth2.UserInfoResponse;
+import one.microproject.authx.service.exceptions.OAuth2TokenException;
 import one.microproject.authx.service.service.ClientService;
 import one.microproject.authx.service.service.OAuth2Service;
 import one.microproject.authx.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
@@ -35,7 +36,12 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         Boolean clientOk = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
         Boolean userOk = userService.verifySecret(projectId, userCredentials.username(), userCredentials.password());
         if (clientOk && userOk) {
+            Optional<UserDto> userDto = userService.get(projectId, userCredentials.username());
+            if (userDto.isPresent()) {
 
+            } else {
+                throw new OAuth2TokenException("User not found !");
+            }
         } else {
 
         }

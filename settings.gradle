@@ -1,4 +1,6 @@
 include "authx-micro-common"
-include "authx-micro-clients"
 include "authx-micro-examples"
 include "authx-micro-service"
+
+include "authx-micro-jclient"
+project(":authx-micro-jclient").projectDir = new File("authx-micro-clients/authx-micro-jclient")

@@ -2,11 +2,11 @@ package one.microproject.authx.service.service;
 
 import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.UserCredentials;
-import one.microproject.authx.service.dto.IntrospectResponse;
-import one.microproject.authx.service.dto.JWKResponse;
-import one.microproject.authx.service.dto.ProviderConfigurationResponse;
-import one.microproject.authx.service.dto.TokenResponse;
-import one.microproject.authx.service.dto.UserInfoResponse;
+import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
+import one.microproject.authx.common.dto.oauth2.JWKResponse;
+import one.microproject.authx.common.dto.oauth2.ProviderConfigurationResponse;
+import one.microproject.authx.common.dto.oauth2.TokenResponse;
+import one.microproject.authx.common.dto.oauth2.UserInfoResponse;
 
 import java.net.URI;
 import java.util.Optional;
