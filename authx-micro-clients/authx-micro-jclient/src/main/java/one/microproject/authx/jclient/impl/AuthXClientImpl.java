@@ -44,8 +44,6 @@ public class AuthXClientImpl implements AuthXClient {
     @Override
     public TokenResponse getTokenForPassword(ClientCredentials clientCredentials, Set<String> scopes, UserCredentials userCredentials) {
         try {
-
-            String scope = scopes.toString();
             Request request = new Request.Builder()
                     .url(baseUrl + SERVICES_OAUTH2 + projectId + DELIMITER + TOKEN +
                             "?grant_type=password" +
@@ -60,7 +58,7 @@ public class AuthXClientImpl implements AuthXClient {
             if (response.code() == 200) {
                 return mapper.readValue(response.body().string(), TokenResponse.class);
             } else {
-                throw new AuthXClientException("Auth Error !");
+                throw new AuthXClientException("Username/Password Auth Error !");
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);

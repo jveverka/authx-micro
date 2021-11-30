@@ -20,7 +20,6 @@ import java.util.Set;
 
 import static one.microproject.authx.jclient.impl.Constants.DELIMITER;
 import static one.microproject.authx.jclient.impl.Constants.SERVICES_OAUTH2;
-import static one.microproject.authx.jclient.impl.Constants.TOKEN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AuthXClientTest {
@@ -47,7 +46,7 @@ public class AuthXClientTest {
         ClientCredentials clientCredentials = new ClientCredentials("client-id", "secret");
         Set<String> scopes = Set.of();
         UserCredentials userCredentials = new UserCredentials("user", "password");
-        
+
         AuthXClient authXClient = new AuthXClientBuilder()
                 .withBaseUrl(url)
                 .withProjectId(projectId)
