@@ -33,9 +33,9 @@ public final class LabelUtils {
 
     public static Map<String, String> mergeWithDefaults(Map<String, String> labels) {
         Map<String, String> result = new HashMap<>(labels);
-        for (String key: defaults.keySet()) {
-            if (!result.containsKey(key)) {
-                result.put(key, defaults.get(key));
+        for (Map.Entry<String, String> entry: defaults.entrySet()) {
+            if (!result.containsKey(entry.getKey())) {
+                result.put(entry.getKey(), defaults.get(entry.getValue()));
             }
         }
         validate(result);
@@ -59,6 +59,32 @@ public final class LabelUtils {
         } catch (Exception e) {
             throw new DataProcessingException(e);
         }
+    }
+
+    public static Long getAccessTokenDuration(Long defaultValue, Map<String, String> projectLabels, Map<String, String> labels) {
+        return getDuration(defaultValue, AUTHX_ACCESS_TOKEN_DURATION, projectLabels, labels);
+    }
+
+    public static Long getRefreshTokenDuration(Long defaultValue, Map<String, String> projectLabels, Map<String, String> labels) {
+        return getDuration(defaultValue, AUTHX_REFRESH_TOKEN_DURATION, projectLabels, labels);
+    }
+
+    public static Long getDuration(Long defaultValue, String key, Map<String, String> projectLabels, Map<String, String> labels) {
+        if (projectLabels.containsKey(key)) {
+            try {
+                return Long.parseLong(projectLabels.get(key));
+            } catch(Exception e) {
+                return defaultValue;
+            }
+        }
+        if (labels.containsKey(key)) {
+            try {
+                return Long.parseLong(labels.get(key));
+            } catch(Exception e) {
+                return defaultValue;
+            }
+        }
+        return defaultValue;
     }
 
 }
