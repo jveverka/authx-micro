@@ -35,7 +35,7 @@ public final class LabelUtils {
         Map<String, String> result = new HashMap<>(labels);
         for (Map.Entry<String, String> entry: defaults.entrySet()) {
             if (!result.containsKey(entry.getKey())) {
-                result.put(entry.getKey(), defaults.get(entry.getValue()));
+                result.put(entry.getKey(), defaults.get(entry.getKey()));
             }
         }
         validate(result);
