@@ -26,17 +26,17 @@ public class DMapper {
         return new ClientDto(client.getClientId(), client.getProjectId(), client.getDescription(), client.getLabels());
     }
 
-    public Client map(String dbId, String projectId, String secretHash, CreateClientRequest clientRequest, Map<String, KeyPairSerialized> keyPairs) {
+    public Client map(String dbId, String projectId, String secretHash, CreateClientRequest clientRequest, String defaultKid, Map<String, KeyPairSerialized> keyPairs) {
         return new Client(dbId, clientRequest.id(), projectId, clientRequest.description(),
-                secretHash, clientRequest.labels(), keyPairs);
+                secretHash, defaultKid, clientRequest.labels(), keyPairs);
     }
 
     public UserDto map(User user) {
         return new UserDto(user.getUserId(), user.getClientId(), user.getEmail(), user.getDescription(), user.getSecret(), user.getLabels());
     }
 
-    public User map(String dbId, String projectId, String clientId, String secretHash, CreateUserRequest request, Map<String, KeyPairSerialized> keyPairs) {
-        return new User(dbId, request.id(), projectId, clientId, request.email(), request.description(), secretHash, request.labels(), keyPairs);
+    public User map(String dbId, String projectId, String clientId, String secretHash, CreateUserRequest request, String defaultKid, Map<String, KeyPairSerialized> keyPairs) {
+        return new User(dbId, request.id(), projectId, clientId, request.email(), request.description(), secretHash, defaultKid, request.labels(), keyPairs);
     }
 
     public Group map(String dbId, CreateGroupRequest request) {

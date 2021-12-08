@@ -16,6 +16,7 @@ public class Client {
     private String projectId;
     private String description;
     private String secret;
+    private String defaultKid;
     private Map<String, String> labels;
     private Map<String, KeyPairSerialized> keyPairs;
 
@@ -23,12 +24,13 @@ public class Client {
     }
 
     public Client(String id, String clientId, String projectId, String description, String secret,
-                  Map<String, String> labels, Map<String, KeyPairSerialized> keyPairs) {
+                  String defaultKid, Map<String, String> labels, Map<String, KeyPairSerialized> keyPairs) {
         this.id = id;
         this.clientId = clientId;
         this.projectId = projectId;
         this.description = description;
         this.secret = secret;
+        this.defaultKid = defaultKid;
         this.labels = labels;
         this.keyPairs = keyPairs;
     }
@@ -71,6 +73,14 @@ public class Client {
 
     public void setSecret(String secret) {
         this.secret = secret;
+    }
+
+    public String getDefaultKid() {
+        return defaultKid;
+    }
+
+    public void setDefaultKid(String defaultKid) {
+        this.defaultKid = defaultKid;
     }
 
     public Map<String, String> getLabels() {

@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         Map<String, String> labels = LabelUtils.mergeWithDefaults(request.labels());
         Map<String, KeyPairSerialized> keys = generateKeyPair(request.id(), labels);
 
-        User user = dMapper.map(dbId, projectId, clientId, secretHash, request, keys);
+        User user = dMapper.map(dbId, projectId, clientId, secretHash, request, PRIMARY_KID, keys);
         userRepository.save(user);
         return dMapper.map(user);
     }

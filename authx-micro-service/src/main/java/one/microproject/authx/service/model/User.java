@@ -18,6 +18,7 @@ public class User {
     private String email;
     private String description;
     private String secret;
+    private String defaultKid;
     private Map<String, String> labels;
     private Map<String, KeyPairSerialized> keyPairs;
 
@@ -25,7 +26,7 @@ public class User {
     }
 
     public User(String id, String userId, String projectId, String clientId, String email, String description, String secret,
-                Map<String, String> labels, Map<String, KeyPairSerialized> keyPairs) {
+                String defaultKid, Map<String, String> labels, Map<String, KeyPairSerialized> keyPairs) {
         this.id = id;
         this.userId = userId;
         this.projectId = projectId;
@@ -33,6 +34,7 @@ public class User {
         this.email = email;
         this.description = description;
         this.secret = secret;
+        this.defaultKid = defaultKid;
         this.labels = labels;
         this.keyPairs = keyPairs;
     }
@@ -93,6 +95,14 @@ public class User {
         this.secret = secret;
     }
 
+    public String getDefaultKid() {
+        return defaultKid;
+    }
+
+    public void setDefaultKid(String defaultKid) {
+        this.defaultKid = defaultKid;
+    }
+
     public Map<String, String> getLabels() {
         return labels;
     }
@@ -108,4 +118,5 @@ public class User {
     public void setKeyPairs(Map<String, KeyPairSerialized> keyPairs) {
         this.keyPairs = keyPairs;
     }
+
 }

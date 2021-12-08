@@ -54,7 +54,7 @@ public class ClientServiceImpl implements ClientService {
         Map<String, String> labels = LabelUtils.mergeWithDefaults(request.labels());
         Map<String, KeyPairSerialized> keys = generateKeyPair(request.id(), labels);
 
-        Client client = dMapper.map(dbId, projectId, secretHash, request, keys);
+        Client client = dMapper.map(dbId, projectId, secretHash, request, PRIMARY_KID, keys);
         clientRepository.save(client);
         return dMapper.map(client);
     }
