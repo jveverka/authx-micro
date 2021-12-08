@@ -1,6 +1,7 @@
 package one.microproject.authx.service.service;
 
 import one.microproject.authx.common.dto.CreateUserRequest;
+import one.microproject.authx.common.dto.KeyPairSerialized;
 import one.microproject.authx.common.dto.UserDto;
 
 import java.util.List;
@@ -25,5 +26,7 @@ public interface UserService {
     void setSecret(String projectId, String id, String secret);
 
     Boolean verifySecret(String projectId, String id, String secret);
+
+    Optional<KeyPairSerialized> getDefaultKeyPair(String projectId, String id);
 
 }

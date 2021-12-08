@@ -124,6 +124,18 @@ public class ClientServiceImpl implements ClientService {
         }
     }
 
+    @Override
+    public Optional<KeyPairSerialized> getDefaultKeyPair(String projectId, String id) {
+        String dbId = createId(projectId, id);
+        Optional<Client> clientOptional = clientRepository.findById(dbId);
+        if (clientOptional.isPresent()) {
+            Client client = clientOptional.get();
+            return Optional.ofNullable(client.getKeyPairs().get(client.getDefaultKid()));
+        } else {
+            return Optional.empty();
+        }
+    }
+
     private Map<String, KeyPairSerialized> generateKeyPair(String subject, Map<String, String> labels) {
         TimeUnit unit = TimeUnit.MILLISECONDS;
         Long duration = Long.parseLong(labels.get(AUTHX_CERTIFICATE_DURATION));

@@ -121,6 +121,18 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public Optional<KeyPairSerialized> getDefaultKeyPair(String projectId, String id) {
+        String dbId = createId(projectId, id);
+        Optional<User> userOptional = userRepository.findById(dbId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return Optional.ofNullable(user.getKeyPairs().get(user.getDefaultKid()));
+        } else {
+            return Optional.empty();
+        }
+    }
+
     private Map<String, KeyPairSerialized> generateKeyPair(String subject, Map<String, String> labels) {
         TimeUnit unit = TimeUnit.MILLISECONDS;
         Long duration = Long.parseLong(labels.get(AUTHX_CERTIFICATE_DURATION));
