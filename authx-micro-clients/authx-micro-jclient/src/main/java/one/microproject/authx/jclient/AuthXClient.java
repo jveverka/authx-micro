@@ -8,6 +8,6 @@ import java.util.Set;
 
 public interface AuthXClient {
 
-    TokenResponse getTokenForPassword(ClientCredentials clientCredentials, Set<String> scopes, UserCredentials userCredentials);
+    TokenResponse getTokenForPassword(ClientCredentials clientCredentials, String audience, Set<String> scopes, UserCredentials userCredentials);
 
 }

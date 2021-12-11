@@ -58,6 +58,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = dMapper.map(request);
         projectRepository.save(project);
         clientService.create(request.id(), request.adminClient());
+        userService.create(request.id(), request.adminClient().id(), request.adminUser());
         return dMapper.map(project);
     }
 

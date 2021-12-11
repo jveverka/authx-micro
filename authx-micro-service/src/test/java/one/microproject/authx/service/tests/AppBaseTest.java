@@ -1,12 +1,17 @@
 package one.microproject.authx.service.tests;
 
+import one.microproject.authx.jclient.AuthXClient;
+import one.microproject.authx.jclient.AuthXClientBuilder;
+import one.microproject.authx.service.service.DataInitService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.lang.NonNull;
@@ -15,11 +20,33 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import javax.annotation.PostConstruct;
+
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ContextConfiguration(initializers = AppBaseTest.Initializer.class)
 public abstract class AppBaseTest {
+
+    @Autowired
+    private DataInitService dataInitService;
+
+    private AuthXClient globalAdminClient;
+
+    @LocalServerPort
+    private int port;
+
+    @PostConstruct
+    public void init() {
+        globalAdminClient = new AuthXClientBuilder()
+                .withBaseUrl("http://localhost:" + port + "/authx")
+                .withProjectId(dataInitService.getGlobalAdminProjectId())
+                .build();
+    }
+
+    public AuthXClient getGlobalAdminClient() {
+        return globalAdminClient;
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(AppBaseTest.class);
 

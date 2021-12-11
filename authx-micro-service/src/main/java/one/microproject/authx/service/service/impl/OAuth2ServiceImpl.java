@@ -1,10 +1,11 @@
 package one.microproject.authx.service.service.impl;
 
+import one.microproject.authx.common.Constants;
 import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.KeyPairData;
-import one.microproject.authx.common.dto.KeyPairSerialized;
 import one.microproject.authx.common.dto.ProjectDto;
 import one.microproject.authx.common.dto.TokenClaims;
+import one.microproject.authx.common.dto.TokenType;
 import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.common.dto.UserDto;
 import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
@@ -23,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 
@@ -44,7 +47,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     }
 
     @Override
-    public TokenResponse getTokenForPassword(URI issuerUri, String projectId, ClientCredentials clientCredentials, Set<String> scopes, UserCredentials userCredentials) {
+    public TokenResponse getTokenForPassword(URI issuerUri, String projectId, ClientCredentials clientCredentials, String audience, Set<String> scopes, UserCredentials userCredentials) {
         Optional<ProjectDto> projectDto = projectService.get(projectId);
         if (projectDto.isEmpty()) {
             throw new OAuth2TokenException("Project not found !");
@@ -58,16 +61,23 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 ProjectDto project = projectDto.get();
                 UserDto user = userDto.get();
                 KeyPairData keyPairData = keyPairDataOptional.get();
-                TokenClaims accessClaims = null; //new TokenClaims();
-                TokenClaims refreshClaims = null; //new TokenClaims();
-                TokenClaims idClaims = null; //new TokenClaims();
+
+                Long accessDuration = LabelUtils.getAccessTokenDuration(DEFAULT_ACCESS_DURATION, project.labels(), user.labels());
+                Long refreshDuration = LabelUtils.getRefreshTokenDuration(DEFAULT_REFRESH_DURATION, project.labels(), user.labels());
+
+                Long epochMilli = Instant.now().getEpochSecond() * 1000L;
+                Date issuedAt = new Date(epochMilli);
+                Date accessExpiration = new Date(epochMilli + accessDuration);
+                Date refreshExpiration = new Date(epochMilli + refreshDuration);
+
+                TokenClaims accessClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, accessExpiration, TokenType.BEARER);
+                TokenClaims refreshClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, refreshExpiration, TokenType.REFRESH);
+                TokenClaims idClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, accessExpiration, TokenType.ID);
                 String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
                 String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
                 String idToken = TokenUtils.issueToken(idClaims, keyPairData.id(), keyPairData.privateKey());
-                Long expiresIn = LabelUtils.getAccessTokenDuration(DEFAULT_ACCESS_DURATION, project.labels(), user.labels());
-                Long refreshExpiresIn = LabelUtils.getRefreshTokenDuration(DEFAULT_REFRESH_DURATION, project.labels(), user.labels());
-                String tokenType = "Bearer";
-                return new TokenResponse(accessToken, expiresIn, refreshExpiresIn, refreshToken, tokenType, idToken);
+                String tokenType = Constants.BEARER;
+                return new TokenResponse(accessToken, (epochMilli + accessDuration), (epochMilli + refreshDuration), refreshToken, tokenType, idToken);
             } else {
                 throw new OAuth2TokenException("User not found !");
             }
@@ -77,13 +87,13 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     }
 
     @Override
-    public TokenResponse getTokenForClientCredentials(URI issuerUri, String projectId, ClientCredentials clientCredentials, Set<String> scopes) {
+    public TokenResponse getTokenForClientCredentials(URI issuerUri, String projectId, ClientCredentials clientCredentials, String audience, Set<String> scopes) {
         Boolean clientOk = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
         return null;
     }
 
     @Override
-    public TokenResponse getTokenForRefreshToken(URI issuerUri, String projectId, ClientCredentials clientCredentials, Set<String> scopes, String refreshToken) {
+    public TokenResponse getTokenForRefreshToken(URI issuerUri, String projectId, ClientCredentials clientCredentials, String audience, Set<String> scopes, String refreshToken) {
         Boolean clientOk = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
         return null;
     }

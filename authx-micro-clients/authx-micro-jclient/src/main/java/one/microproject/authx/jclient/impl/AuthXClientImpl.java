@@ -14,6 +14,7 @@ import one.microproject.authx.jclient.AuthXClient;
 import java.io.IOException;
 import java.util.Set;
 
+import static one.microproject.authx.common.utils.TokenUtils.mapScopes;
 import static one.microproject.authx.jclient.impl.Constants.CLIENT_ID;
 import static one.microproject.authx.jclient.impl.Constants.CLIENT_SECRET;
 import static one.microproject.authx.jclient.impl.Constants.DELIMITER;
@@ -42,13 +43,14 @@ public class AuthXClientImpl implements AuthXClient {
     }
 
     @Override
-    public TokenResponse getTokenForPassword(ClientCredentials clientCredentials, Set<String> scopes, UserCredentials userCredentials) {
+    public TokenResponse getTokenForPassword(ClientCredentials clientCredentials, String audience, Set<String> scopes, UserCredentials userCredentials) {
         try {
             Request request = new Request.Builder()
-                    .url(baseUrl + SERVICES_OAUTH2 + projectId + DELIMITER + TOKEN +
+                    .url(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + TOKEN +
                             "?grant_type=password" +
                             "&username=" + userCredentials.username() +
                             SCOPE + mapScopes(scopes) +
+                            "&audience=" + audience +
                             "&password=" + userCredentials.password() +
                             CLIENT_ID + clientCredentials.id() +
                             CLIENT_SECRET + clientCredentials.secret())
@@ -65,14 +67,6 @@ public class AuthXClientImpl implements AuthXClient {
         }
     }
 
-    private String mapScopes(Set<String> scopes) {
-        if (scopes == null) {
-            return "";
-        } else if (scopes.isEmpty()) {
-            return "";
-        } else {
-            return String.join(" ", scopes);
-        }
-    }
+
 
 }

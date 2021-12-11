@@ -25,5 +25,6 @@ project(':authx-micro-examples') {
 project(':authx-micro-service') {
     dependencies {
         implementation project(':authx-micro-common')
+        testImplementation project(':authx-micro-jclient')
     }
 }

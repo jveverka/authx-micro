@@ -53,7 +53,7 @@ public class AuthXClientTest {
                 .build();
         server.enqueue(new MockResponse().setBody(mapper.writeValueAsString(tokenResponse)));
 
-        TokenResponse response = authXClient.getTokenForPassword(clientCredentials, scopes, userCredentials);
+        TokenResponse response = authXClient.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
         assertEquals(tokenResponse.getAccessToken(), response.getAccessToken());
         assertEquals(tokenResponse.getExpiresIn(), response.getExpiresIn());
         assertEquals(tokenResponse.getRefreshExpiresIn(), response.getRefreshExpiresIn());

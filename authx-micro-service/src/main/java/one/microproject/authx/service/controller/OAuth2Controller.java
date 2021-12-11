@@ -123,7 +123,7 @@ public class OAuth2Controller {
                 Optional<ClientCredentials> ccOptional = getClientCredentials(request, clientId, clientSecret);
                 if (ccOptional.isPresent()) {
                     UserCredentials userCredentials = new UserCredentials(username, password);
-                    TokenResponse tokenResponse = oAuth2Service.getTokenForPassword(issuerUri, projectId, ccOptional.get(), scopes, userCredentials);
+                    TokenResponse tokenResponse = oAuth2Service.getTokenForPassword(issuerUri, projectId, ccOptional.get(), audience, scopes, userCredentials);
                     return ResponseEntity.ok(tokenResponse);
                 } else {
                     throw new OAuth2TokenException("Missing or invalid client credentials.");
@@ -132,7 +132,7 @@ public class OAuth2Controller {
             case CLIENT_CREDENTIALS -> {
                 Optional<ClientCredentials> ccOptional = getClientCredentials(request, clientId, clientSecret);
                 if (ccOptional.isPresent()) {
-                    TokenResponse tokenResponse = oAuth2Service.getTokenForClientCredentials(issuerUri, projectId, ccOptional.get(), scopes);
+                    TokenResponse tokenResponse = oAuth2Service.getTokenForClientCredentials(issuerUri, projectId, ccOptional.get(), audience, scopes);
                     return ResponseEntity.ok(tokenResponse);
                 } else {
                     throw new OAuth2TokenException("Missing or invalid client credentials.");
@@ -141,7 +141,7 @@ public class OAuth2Controller {
             case REFRESH_TOKEN -> {
                 Optional<ClientCredentials> ccOptional = getClientCredentials(request, clientId, clientSecret);
                 if (ccOptional.isPresent()) {
-                    TokenResponse tokenResponse = oAuth2Service.getTokenForRefreshToken(issuerUri, projectId, ccOptional.get(), scopes, refreshToken);
+                    TokenResponse tokenResponse = oAuth2Service.getTokenForRefreshToken(issuerUri, projectId, ccOptional.get(), audience, scopes, refreshToken);
                     return ResponseEntity.ok(tokenResponse);
                 } else {
                     throw new OAuth2TokenException("Missing or invalid client credentials.");

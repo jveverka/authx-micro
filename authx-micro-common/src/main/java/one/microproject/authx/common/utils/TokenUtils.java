@@ -35,7 +35,7 @@ public final class TokenUtils {
         builder.setExpiration(claims.expiration());
         builder.setIssuedAt(claims.issuedAt());
         builder.claim(TYPE_CLAIM, claims.type().getType());
-        builder.claim(SCOPE_CLAIM, mapScope(claims.scope()));
+        builder.claim(SCOPE_CLAIM, mapScopes(claims.scope()));
         builder.signWith(privateKey);
         return builder.compact();
     }
@@ -51,13 +51,13 @@ public final class TokenUtils {
         String aud = claims.getAudience();
         String tokenType = (String) claims.get(TYPE_CLAIM);
         String scopes = (String) claims.get(SCOPE_CLAIM);
-        Set<String> scope = mapScope(scopes);
+        Set<String> scope = mapScopes(scopes);
         Date expiration = claims.getExpiration();
         Date issuedAt = claims.getIssuedAt();
         return new TokenClaims(iss, sub, aud, scope, issuedAt, expiration, TokenType.getTokenType(tokenType));
     }
 
-    private static Set<String> mapScope(String scopes) {
+    public static Set<String> mapScopes(String scopes) {
         if (scopes == null) {
             return Set.of();
         }
@@ -72,7 +72,7 @@ public final class TokenUtils {
         return scope;
     }
 
-    private static String mapScope(Set<String> scope) {
+    public static String mapScopes(Set<String> scope) {
         if (scope == null) {
             return "";
         }
