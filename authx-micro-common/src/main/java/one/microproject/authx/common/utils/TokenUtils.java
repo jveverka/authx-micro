@@ -11,6 +11,8 @@ import one.microproject.authx.common.dto.TokenType;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class TokenUtils {
 
@@ -18,6 +20,7 @@ public final class TokenUtils {
     public static final String TYP_ID = "typ";
     public static final String TYP_VALUE = "JWT";
     public static final String TYPE_CLAIM = "typ";
+    public static final String SCOPE_CLAIM = "scope";
 
     private TokenUtils() {
     }
@@ -32,6 +35,7 @@ public final class TokenUtils {
         builder.setExpiration(claims.expiration());
         builder.setIssuedAt(claims.issuedAt());
         builder.claim(TYPE_CLAIM, claims.type().getType());
+        builder.claim(SCOPE_CLAIM, mapScope(claims.scope()));
         builder.signWith(privateKey);
         return builder.compact();
     }
@@ -45,10 +49,37 @@ public final class TokenUtils {
         String iss = claims.getIssuer();
         String sub = claims.getSubject();
         String aud = claims.getAudience();
-        String tokenType = (String) claims.get("typ");
+        String tokenType = (String) claims.get(TYPE_CLAIM);
+        String scopes = (String) claims.get(SCOPE_CLAIM);
+        Set<String> scope = mapScope(scopes);
         Date expiration = claims.getExpiration();
         Date issuedAt = claims.getIssuedAt();
-        return new TokenClaims(iss, sub, aud, issuedAt, expiration, TokenType.getTokenType(tokenType));
+        return new TokenClaims(iss, sub, aud, scope, issuedAt, expiration, TokenType.getTokenType(tokenType));
+    }
+
+    private static Set<String> mapScope(String scopes) {
+        if (scopes == null) {
+            return Set.of();
+        }
+        if (scopes.trim().length() == 0) {
+            return Set.of();
+        }
+        String[] s = scopes.trim().split(" ");
+        Set<String> scope = new HashSet<>();
+        for (String sc: s) {
+            scope.add(sc);
+        }
+        return scope;
+    }
+
+    private static String mapScope(Set<String> scope) {
+        if (scope == null) {
+            return "";
+        }
+        if (scope.isEmpty()) {
+            return "";
+        }
+        return String.join(" ", scope);
     }
 
 }

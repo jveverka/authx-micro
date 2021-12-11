@@ -1,7 +1,10 @@
 package one.microproject.authx.service.service.impl;
 
 import one.microproject.authx.common.dto.ClientCredentials;
+import one.microproject.authx.common.dto.KeyPairData;
+import one.microproject.authx.common.dto.KeyPairSerialized;
 import one.microproject.authx.common.dto.ProjectDto;
+import one.microproject.authx.common.dto.TokenClaims;
 import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.common.dto.UserDto;
 import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
@@ -50,12 +53,17 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         Boolean userOk = userService.verifySecret(projectId, userCredentials.username(), userCredentials.password());
         if (clientOk && userOk) {
             Optional<UserDto> userDto = userService.get(projectId, userCredentials.username());
-            if (userDto.isPresent()) {
+            Optional<KeyPairData> keyPairDataOptional = userService.getDefaultKeyPair(projectId, userCredentials.username());
+            if (userDto.isPresent() && keyPairDataOptional.isPresent()) {
                 ProjectDto project = projectDto.get();
                 UserDto user = userDto.get();
-                String accessToken = null; //TokenUtils.issueToken();
-                String refreshToken = null; //TokenUtils.issueToken();
-                String idToken = null; //TokenUtils.issueToken();
+                KeyPairData keyPairData = keyPairDataOptional.get();
+                TokenClaims accessClaims = null; //new TokenClaims();
+                TokenClaims refreshClaims = null; //new TokenClaims();
+                TokenClaims idClaims = null; //new TokenClaims();
+                String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
+                String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
+                String idToken = TokenUtils.issueToken(idClaims, keyPairData.id(), keyPairData.privateKey());
                 Long expiresIn = LabelUtils.getAccessTokenDuration(DEFAULT_ACCESS_DURATION, project.labels(), user.labels());
                 Long refreshExpiresIn = LabelUtils.getRefreshTokenDuration(DEFAULT_REFRESH_DURATION, project.labels(), user.labels());
                 String tokenType = "Bearer";

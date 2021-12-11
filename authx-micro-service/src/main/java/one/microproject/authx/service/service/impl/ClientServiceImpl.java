@@ -4,6 +4,7 @@ import one.microproject.authx.common.dto.ClientDto;
 import one.microproject.authx.common.dto.CreateClientRequest;
 import one.microproject.authx.common.dto.KeyPairData;
 import one.microproject.authx.common.dto.KeyPairSerialized;
+import one.microproject.authx.common.utils.CryptoUtils;
 import one.microproject.authx.common.utils.LabelUtils;
 import one.microproject.authx.service.exceptions.DataConflictException;
 import one.microproject.authx.service.model.Client;
@@ -125,12 +126,12 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Optional<KeyPairSerialized> getDefaultKeyPair(String projectId, String id) {
+    public Optional<KeyPairData> getDefaultKeyPair(String projectId, String id) {
         String dbId = createId(projectId, id);
         Optional<Client> clientOptional = clientRepository.findById(dbId);
         if (clientOptional.isPresent()) {
             Client client = clientOptional.get();
-            return Optional.ofNullable(client.getKeyPairs().get(client.getDefaultKid()));
+            return Optional.ofNullable(CryptoUtils.map(client.getKeyPairs().get(client.getDefaultKid())));
         } else {
             return Optional.empty();
         }

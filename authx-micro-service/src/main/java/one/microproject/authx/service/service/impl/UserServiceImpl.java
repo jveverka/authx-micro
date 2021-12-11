@@ -4,6 +4,7 @@ import one.microproject.authx.common.dto.CreateUserRequest;
 import one.microproject.authx.common.dto.KeyPairData;
 import one.microproject.authx.common.dto.KeyPairSerialized;
 import one.microproject.authx.common.dto.UserDto;
+import one.microproject.authx.common.utils.CryptoUtils;
 import one.microproject.authx.common.utils.LabelUtils;
 import one.microproject.authx.service.exceptions.DataConflictException;
 import one.microproject.authx.service.model.User;
@@ -122,12 +123,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<KeyPairSerialized> getDefaultKeyPair(String projectId, String id) {
+    public Optional<KeyPairData> getDefaultKeyPair(String projectId, String id) {
         String dbId = createId(projectId, id);
         Optional<User> userOptional = userRepository.findById(dbId);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            return Optional.ofNullable(user.getKeyPairs().get(user.getDefaultKid()));
+            return Optional.ofNullable(CryptoUtils.map(user.getKeyPairs().get(user.getDefaultKid())));
         } else {
             return Optional.empty();
         }

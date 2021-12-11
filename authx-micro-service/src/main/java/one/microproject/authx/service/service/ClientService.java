@@ -2,7 +2,7 @@ package one.microproject.authx.service.service;
 
 import one.microproject.authx.common.dto.ClientDto;
 import one.microproject.authx.common.dto.CreateClientRequest;
-import one.microproject.authx.common.dto.KeyPairSerialized;
+import one.microproject.authx.common.dto.KeyPairData;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +27,6 @@ public interface ClientService {
 
     Boolean verifySecret(String projectId, String id, String secret);
 
-    Optional<KeyPairSerialized> getDefaultKeyPair(String projectId, String id);
+    Optional<KeyPairData> getDefaultKeyPair(String projectId, String id);
 
 }
