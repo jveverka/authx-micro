@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class OAuth2ServiceImpl implements OAuth2Service {
@@ -70,9 +71,9 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 Date accessExpiration = new Date(epochMilli + accessDuration);
                 Date refreshExpiration = new Date(epochMilli + refreshDuration);
 
-                TokenClaims accessClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, accessExpiration, TokenType.BEARER);
-                TokenClaims refreshClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, refreshExpiration, TokenType.REFRESH);
-                TokenClaims idClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, accessExpiration, TokenType.ID);
+                TokenClaims accessClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, accessExpiration, TokenType.BEARER, UUID.randomUUID().toString());
+                TokenClaims refreshClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, refreshExpiration, TokenType.REFRESH, UUID.randomUUID().toString());
+                TokenClaims idClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, accessExpiration, TokenType.ID, UUID.randomUUID().toString());
                 String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
                 String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
                 String idToken = TokenUtils.issueToken(idClaims, keyPairData.id(), keyPairData.privateKey());
