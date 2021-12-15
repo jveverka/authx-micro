@@ -1,7 +1,10 @@
 package one.microproject.authx.common.tests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import one.microproject.authx.common.dto.KeyPairData;
@@ -20,6 +23,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static one.microproject.authx.common.utils.TokenUtils.KEY_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -97,6 +101,21 @@ class TokenUtilTest {
         String newEncodedHeader = Base64.getEncoder().withoutPadding().encodeToString(newHeader.getBytes());
         String newToken = newEncodedHeader + "." + tokenParts[1] + "." + tokenParts[2];
         assertThrows(MalformedJwtException.class, () -> TokenUtils.validate(newToken, keyPairData.x509Certificate()));
+    }
+
+    @Test
+    void testIssueAndParseTokenNoValidation() {
+        Long epochMilli = Instant.now().getEpochSecond() * 1000L;
+        Date issuedAt = new Date(epochMilli);
+        Date expiration = new Date(epochMilli + 10*1000L);
+        KeyPairData keyPairData = CryptoUtils.generateSelfSignedKeyPair("kid-001", "iss", Instant.now(), TimeUnit.MINUTES, 10L);
+        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti");
+        String token = TokenUtils.issueToken(tokenClaims, keyPairData.id(), keyPairData.privateKey());
+        Jwt<? extends Header, Claims> jwt = TokenUtils.getJwt(token);
+        assertNotNull(jwt.getHeader());
+        assertEquals("kid-001", jwt.getHeader().get(KEY_ID));
+        assertNotNull(jwt.getBody());
+        assertEquals("iss", jwt.getBody().getIssuer());
     }
 
 }

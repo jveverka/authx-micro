@@ -60,6 +60,11 @@ public final class TokenUtils {
         return new TokenClaims(iss, sub, aud, scope, issuedAt, expiration, TokenType.getTokenType(tokenType), jti);
     }
 
+    public static Jwt<? extends Header, Claims> getJwt(String token) {
+        String[] tokens = token.split("\\.");
+        return Jwts.parserBuilder().build().parse(tokens[0] + "." + tokens[1] + ".");
+    }
+
     public static Set<String> mapScopes(String scopes) {
         if (scopes == null) {
             return Set.of();

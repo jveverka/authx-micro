@@ -25,7 +25,7 @@ public class TokenCacheWriterServiceImpl implements TokenCacheWriterService {
 
     @Override
     @Transactional
-    public void saveIssuedToken(String projectId, String jti, String token, String kid, X509Certificate certificate) {
+    public void saveToken(String projectId, String jti, String token, String kid, X509Certificate certificate) {
         String id = createId(projectId, jti);
         CachedToken cachedToken = new CachedToken(id, token, kid, serializeX509Certificate(certificate));
         cacheTokenRepository.save(cachedToken);

@@ -12,7 +12,7 @@ public interface TokenCacheWriterService {
      * @param kid - unique Key ID used to verify token's signature.
      * @param certificate - X509 certificate for token signature verification.
      */
-    void saveIssuedToken(String projectId, String jti, String token, String kid, X509Certificate certificate);
+    void saveToken(String projectId, String jti, String token, String kid, X509Certificate certificate);
 
     /**
      * Remove JWT Token by it's unique ID.
