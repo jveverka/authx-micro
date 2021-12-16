@@ -1,8 +1,8 @@
-package one.microproject.authx.service.service.impl;
+package one.microproject.authx.jredis.impl;
 
-import one.microproject.authx.service.model.CachedToken;
-import one.microproject.authx.service.repository.CacheTokenRepository;
-import one.microproject.authx.service.service.TokenCacheWriterService;
+import one.microproject.authx.jredis.model.CachedToken;
+import one.microproject.authx.jredis.repository.CacheTokenRepository;
+import one.microproject.authx.jredis.TokenCacheWriterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,6 @@
-package one.microproject.authx.service.repository;
+package one.microproject.authx.jredis.repository;
 
-import one.microproject.authx.service.model.CachedToken;
+import one.microproject.authx.jredis.model.CachedToken;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

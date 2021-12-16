@@ -1,4 +1,4 @@
-package one.microproject.authx.service.model;
+package one.microproject.authx.jredis.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;

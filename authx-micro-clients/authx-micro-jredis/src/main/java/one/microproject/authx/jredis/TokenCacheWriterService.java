@@ -1,4 +1,4 @@
-package one.microproject.authx.service.service;
+package one.microproject.authx.jredis;
 
 import java.security.cert.X509Certificate;
 

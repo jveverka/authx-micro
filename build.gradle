@@ -19,12 +19,19 @@ project(':authx-micro-jclient') {
     }
 }
 
+project(':authx-micro-jredis') {
+    dependencies {
+        implementation project(':authx-micro-common')
+    }
+}
+
 project(':authx-micro-examples') {
 }
 
 project(':authx-micro-service') {
     dependencies {
         implementation project(':authx-micro-common')
+        implementation project(':authx-micro-jredis')
         testImplementation project(':authx-micro-jclient')
     }
 }

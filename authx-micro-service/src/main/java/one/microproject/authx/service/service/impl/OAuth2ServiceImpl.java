@@ -15,6 +15,8 @@ import one.microproject.authx.common.dto.oauth2.TokenResponse;
 import one.microproject.authx.common.dto.oauth2.UserInfoResponse;
 import one.microproject.authx.common.utils.LabelUtils;
 import one.microproject.authx.common.utils.TokenUtils;
+import one.microproject.authx.jredis.TokenCacheReaderService;
+import one.microproject.authx.jredis.TokenCacheWriterService;
 import one.microproject.authx.service.exceptions.OAuth2TokenException;
 import one.microproject.authx.service.service.ClientService;
 import one.microproject.authx.service.service.OAuth2Service;
@@ -40,11 +42,17 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     private final UserService userService;
     private final ClientService clientService;
 
+    private final TokenCacheReaderService tokenCacheReaderService;
+    private final TokenCacheWriterService tokenCacheWriterService;
+
     @Autowired
-    public OAuth2ServiceImpl(ProjectService projectService, UserService userService, ClientService clientService) {
+    public OAuth2ServiceImpl(ProjectService projectService, UserService userService, ClientService clientService,
+                             TokenCacheReaderService tokenCacheReaderService, TokenCacheWriterService tokenCacheWriterService) {
         this.projectService = projectService;
         this.userService = userService;
         this.clientService = clientService;
+        this.tokenCacheReaderService = tokenCacheReaderService;
+        this.tokenCacheWriterService = tokenCacheWriterService;
     }
 
     @Override
@@ -78,6 +86,8 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
                 String idToken = TokenUtils.issueToken(idClaims, keyPairData.id(), keyPairData.privateKey());
                 String tokenType = Constants.BEARER;
+                tokenCacheWriterService.saveToken(projectId, accessClaims.jti(), accessToken, keyPairData.id(), keyPairData.x509Certificate());
+                tokenCacheWriterService.saveToken(projectId, refreshClaims.jti(), refreshToken, keyPairData.id(), keyPairData.x509Certificate());
                 return new TokenResponse(accessToken, (epochMilli + accessDuration), (epochMilli + refreshDuration), refreshToken, tokenType, idToken);
             } else {
                 throw new OAuth2TokenException("User not found !");
