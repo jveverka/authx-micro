@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static one.microproject.authx.common.utils.ServiceUtils.createId;
 import static one.microproject.authx.common.utils.TokenUtils.JTI_CLAIM;
+import static one.microproject.authx.common.utils.TokenUtils.TYP_ID;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,7 +33,15 @@ public class TokenCacheReaderServiceImpl implements TokenCacheReaderService {
 
     @Override
     public Optional<TokenClaims> verify(String projectId, String jwt) {
+        return verify(projectId, jwt, null);
+    }
+
+    @Override
+    public Optional<TokenClaims> verify(String projectId, String jwt, String tokenTypeHint) {
         Jwt<? extends Header, Claims> jwtToken = TokenUtils.getJwt(jwt);
+        if (tokenTypeHint != null && !jwtToken.getBody().get(TYP_ID).equals(tokenTypeHint)) {
+            return Optional.empty();
+        }
         String id = createId(projectId, (String)jwtToken.getBody().get(JTI_CLAIM));
         Optional<CachedToken> cachedTokenOptional = cacheTokenRepository.findById(id);
         if (cachedTokenOptional.isPresent()) {
