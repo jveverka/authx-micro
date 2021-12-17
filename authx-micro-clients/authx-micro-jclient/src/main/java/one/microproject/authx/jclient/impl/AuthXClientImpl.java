@@ -1,6 +1,7 @@
 package one.microproject.authx.jclient.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -72,11 +73,15 @@ public class AuthXClientImpl implements AuthXClient {
 
     @Override
     public IntrospectResponse introspect(String token, String typeHint) {
-        //TODO: typeHint may be null !
         try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + INTROSPECT)
+                    .newBuilder();
+            httpBuilder.addQueryParameter("token", token);
+            if (typeHint != null) {
+                httpBuilder.addQueryParameter("token_type_hint", typeHint);
+            }
             Request request = new Request.Builder()
-                .url(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + INTROSPECT +
-                        "?token=" + token + "&token_type_hint=" + typeHint)
+                .url(httpBuilder.build())
                 .post(RequestBody.create("{}", MediaType.parse(APPLICATION_JSON)))
                 .build();
             Response response = client.newCall(request).execute();
@@ -92,17 +97,19 @@ public class AuthXClientImpl implements AuthXClient {
 
     @Override
     public void revoke(String token, String typeHint) {
-        //TODO: typeHint may be null !
         try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + REVOKE)
+                    .newBuilder();
+            httpBuilder.addQueryParameter("token", token);
+            if (typeHint != null) {
+                httpBuilder.addQueryParameter("token_type_hint", typeHint);
+            }
             Request request = new Request.Builder()
-                    .url(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + REVOKE +
-                            "?token=" + token + "&token_type_hint=" + typeHint)
+                    .url(httpBuilder.build())
                     .post(RequestBody.create("{}", MediaType.parse(APPLICATION_JSON)))
                     .build();
             Response response = client.newCall(request).execute();
-            if (response.code() == 200) {
-                return;
-            } else {
+            if (response.code() != 200) {
                 throw new AuthXClientException("Token Revoke Error: " + response.code());
             }
         } catch (IOException e) {
