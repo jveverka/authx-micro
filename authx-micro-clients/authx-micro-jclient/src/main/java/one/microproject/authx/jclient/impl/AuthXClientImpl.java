@@ -8,6 +8,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.UserCredentials;
+import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
 import one.microproject.authx.jclient.AuthXClient;
 
@@ -18,6 +19,8 @@ import static one.microproject.authx.common.utils.TokenUtils.mapScopes;
 import static one.microproject.authx.jclient.impl.Constants.CLIENT_ID;
 import static one.microproject.authx.jclient.impl.Constants.CLIENT_SECRET;
 import static one.microproject.authx.jclient.impl.Constants.DELIMITER;
+import static one.microproject.authx.jclient.impl.Constants.INTROSPECT;
+import static one.microproject.authx.jclient.impl.Constants.REVOKE;
 import static one.microproject.authx.jclient.impl.Constants.SERVICES_OAUTH2;
 import static one.microproject.authx.jclient.impl.Constants.TOKEN;
 import static one.microproject.authx.jclient.impl.Constants.SCOPE;
@@ -60,13 +63,52 @@ public class AuthXClientImpl implements AuthXClient {
             if (response.code() == 200) {
                 return mapper.readValue(response.body().string(), TokenResponse.class);
             } else {
-                throw new AuthXClientException("Username/Password Auth Error !");
+                throw new AuthXClientException("Username/Password Auth Error: " + response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
         }
     }
 
+    @Override
+    public IntrospectResponse introspect(String token, String typeHint) {
+        //TODO: typeHint may be null !
+        try {
+            Request request = new Request.Builder()
+                .url(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + INTROSPECT +
+                        "?token=" + token + "&token_type_hint=" + typeHint)
+                .post(RequestBody.create("{}", MediaType.parse(APPLICATION_JSON)))
+                .build();
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200) {
+                return mapper.readValue(response.body().string(), IntrospectResponse.class);
+            } else {
+                throw new AuthXClientException("Token Introspect Error: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new AuthXClientException(e);
+        }
+    }
+
+    @Override
+    public void revoke(String token, String typeHint) {
+        //TODO: typeHint may be null !
+        try {
+            Request request = new Request.Builder()
+                    .url(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + REVOKE +
+                            "?token=" + token + "&token_type_hint=" + typeHint)
+                    .post(RequestBody.create("{}", MediaType.parse(APPLICATION_JSON)))
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200) {
+                return;
+            } else {
+                throw new AuthXClientException("Token Revoke Error: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new AuthXClientException(e);
+        }
+    }
 
 
 }

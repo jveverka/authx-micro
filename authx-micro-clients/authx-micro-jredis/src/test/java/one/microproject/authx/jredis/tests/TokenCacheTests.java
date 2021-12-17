@@ -45,7 +45,7 @@ class TokenCacheTests extends AppBaseTest {
         tokenCacheWriterService.saveToken("p-01", "jti", token, "key-001", keyPairData.x509Certificate());
         Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify("p-01", token);
         assertTrue(verifiedClaims.isPresent());
-        tokenCacheWriterService.removeToken("p-01", "jti");
+        tokenCacheWriterService.removeTokenById("p-01", "jti");
         verifiedClaims = tokenCacheReaderService.verify("p-01", token);
         assertTrue(verifiedClaims.isEmpty());
     }

@@ -22,6 +22,8 @@ import one.microproject.authx.service.service.ClientService;
 import one.microproject.authx.service.service.OAuth2Service;
 import one.microproject.authx.service.service.ProjectService;
 import one.microproject.authx.service.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,8 @@ import java.util.UUID;
 
 @Service
 public class OAuth2ServiceImpl implements OAuth2Service {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2ServiceImpl.class);
 
     private final Long DEFAULT_ACCESS_DURATION = 24*60*60*1000L;
     private final Long DEFAULT_REFRESH_DURATION = 30*24*60*60*1000L;
@@ -57,6 +61,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public TokenResponse getTokenForPassword(URI issuerUri, String projectId, ClientCredentials clientCredentials, String audience, Set<String> scopes, UserCredentials userCredentials) {
+        LOGGER.info("getTokenForPassword: {} {}", issuerUri, projectId);
         Optional<ProjectDto> projectDto = projectService.get(projectId);
         if (projectDto.isEmpty()) {
             throw new OAuth2TokenException("Project not found !");
@@ -99,39 +104,72 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public TokenResponse getTokenForClientCredentials(URI issuerUri, String projectId, ClientCredentials clientCredentials, String audience, Set<String> scopes) {
+        LOGGER.info("getTokenForClientCredentials: {} {}", issuerUri, projectId);
+        Optional<ProjectDto> projectDto = projectService.get(projectId);
+        if (projectDto.isEmpty()) {
+            throw new OAuth2TokenException("Project not found !");
+        }
         Boolean clientOk = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
-        return null;
+        if (clientOk) {
+            throw new UnsupportedOperationException("Not implemented yet !");
+        } else {
+            throw new OAuth2TokenException("Not Authorized or Not Found !");
+        }
     }
 
     @Override
     public TokenResponse getTokenForRefreshToken(URI issuerUri, String projectId, ClientCredentials clientCredentials, String audience, Set<String> scopes, String refreshToken) {
+        LOGGER.info("getTokenForRefreshToken: {} {}", issuerUri, projectId);
+        Optional<ProjectDto> projectDto = projectService.get(projectId);
+        if (projectDto.isEmpty()) {
+            throw new OAuth2TokenException("Project not found !");
+        }
         Boolean clientOk = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
-        return null;
+        if (clientOk) {
+            throw new UnsupportedOperationException("Not implemented yet !");
+        } else {
+            throw new OAuth2TokenException("Not Authorized or Not Found !");
+        }
     }
 
     @Override
     public ProviderConfigurationResponse getProviderConfiguration(URI issuerUri, String projectId) {
-        return null;
+        throw new UnsupportedOperationException("Not implemented yet !");
     }
 
     @Override
     public JWKResponse getJWKResponse(String projectId) {
-        return null;
+        throw new UnsupportedOperationException("Not implemented yet !");
     }
 
     @Override
     public IntrospectResponse getIntrospectResponse(String projectId, String token, String tokenTypeHint) {
-        return null;
+        //TODO: tokenTypeHint may be null !
+        LOGGER.info("getIntrospectResponse: {} {}", projectId, tokenTypeHint);
+        Optional<TokenClaims> claimsOptional = tokenCacheReaderService.verify(projectId, token);
+        if (claimsOptional.isPresent()) {
+            return new IntrospectResponse(Boolean.TRUE);
+        } else {
+            return new IntrospectResponse(Boolean.FALSE);
+        }
     }
 
     @Override
     public void revoke(String projectId, String token, String tokenTypeHint) {
-
+        //TODO: tokenTypeHint may be null !
+        LOGGER.info("revoke: {} {}", projectId, tokenTypeHint);
+        Optional<TokenClaims> tokenClaims = tokenCacheReaderService.verify(projectId, token);
+        if (tokenClaims.isPresent()) {
+            tokenCacheWriterService.removeToken(projectId, token);
+            return;
+        } else {
+            throw new OAuth2TokenException("Token Revoke Error !");
+        }
     }
 
     @Override
     public Optional<UserInfoResponse> getUserInfo(String projectId, String token) {
-        return Optional.empty();
+        throw new UnsupportedOperationException("Not implemented yet !");
     }
 
 }

@@ -19,6 +19,13 @@ public interface TokenCacheWriterService {
      * @param projectId - unique project ID.
      * @param jti - unique ID of JWT Token.
      */
-    void removeToken(String projectId, String jti);
+    void removeTokenById(String projectId, String jti);
+
+    /**
+     * Remove JWT Token by it's unique ID.
+     * @param projectId - unique project ID.
+     * @param token - JWT token to remove.
+     */
+    void removeToken(String projectId, String token);
 
 }
