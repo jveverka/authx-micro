@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.6'
 
 services:
 
@@ -20,7 +20,7 @@ services:
       - MONGODB_PASSWORD=s3cr3t
 
   mongodb:
-    image: mongo:5.0.3-focal
+    image: mongo:5.0.5-focal
     ports:
       - 27017:27017
     environment:

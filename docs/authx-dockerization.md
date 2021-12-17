@@ -2,7 +2,7 @@
 
 ### Build Docker Image
 ```
-#export VERSION=1.0.0-RELEASE
+#export VERSION=1.0.1-RELEASE
 #export ARCH="amd64"
 #export ARCH="arm64v8"
 
