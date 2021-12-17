@@ -5,6 +5,8 @@ server:
     context-path: /authx
 
 spring:
+  application:
+    name: authx-micro-service
   redis:
     host: localhost
     port: 6379

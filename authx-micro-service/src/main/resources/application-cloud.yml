@@ -5,6 +5,8 @@ server:
     context-path: ${CONTEXT_PATH}
 
 spring:
+  application:
+    name: authx-micro-service
   redis:
     host: ${REDIS_HOST}
     port: ${REDIS_PORT}
