@@ -1,3 +1,6 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Java17](https://img.shields.io/badge/java-17-blue)](https://img.shields.io/badge/java-17-blue)
+[![Gradle](https://img.shields.io/badge/gradle-v7.3-blue)](https://img.shields.io/badge/gradle-v7.3-blue)
 [![Build and Test](https://github.com/jveverka/authx-micro/actions/workflows/main.yml/badge.svg)](https://github.com/jveverka/authx-micro/actions/workflows/main.yml)
 
 # authx-micro
