@@ -18,7 +18,7 @@ public interface OAuth2Service {
 
     TokenResponse getTokenForClientCredentials(URI issuerUri, String projectId, ClientCredentials clientCredentials, String audience, Set<String> scopes);
 
-    TokenResponse getTokenForRefreshToken(URI issuerUri, String projectId, ClientCredentials clientCredentials, String audience, Set<String> scopes, String refreshToken);
+    TokenResponse getTokenForRefreshToken(String projectId, String refreshToken, ClientCredentials clientCredentials);
 
     ProviderConfigurationResponse getProviderConfiguration(URI issuerUri, String projectId);
 

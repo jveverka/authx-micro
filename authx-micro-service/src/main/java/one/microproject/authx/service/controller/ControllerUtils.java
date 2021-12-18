@@ -1,6 +1,5 @@
 package one.microproject.authx.service.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.service.service.impl.UrlMapper;
 

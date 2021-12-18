@@ -3,6 +3,7 @@ package one.microproject.authx.jredis.impl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwt;
+import one.microproject.authx.common.dto.TokenType;
 import one.microproject.authx.common.utils.TokenUtils;
 import one.microproject.authx.jredis.model.CachedToken;
 import one.microproject.authx.jredis.repository.CacheTokenRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 
 import static one.microproject.authx.common.utils.CryptoUtils.serializeX509Certificate;
 import static one.microproject.authx.common.utils.ServiceUtils.createId;
@@ -30,10 +32,37 @@ public class TokenCacheWriterServiceImpl implements TokenCacheWriterService {
 
     @Override
     @Transactional
-    public void saveToken(String projectId, String jti, String token, String kid, X509Certificate certificate) {
+    public void saveAccessToken(String projectId, String jti, String refreshJti, String token, String kid, X509Certificate certificate, Long timeToLive) {
         String id = createId(projectId, jti);
-        CachedToken cachedToken = new CachedToken(id, token, kid, serializeX509Certificate(certificate));
+        CachedToken cachedToken = new CachedToken(id, token, kid, serializeX509Certificate(certificate), refreshJti, TokenType.BEARER.getType(), timeToLive);
         cacheTokenRepository.save(cachedToken);
+    }
+
+    @Override
+    @Transactional
+    public void saveRefreshToken(String projectId, String jti, String accessJti, String token, String kid, X509Certificate certificate, Long timeToLive) {
+        String id = createId(projectId, jti);
+        CachedToken cachedToken = new CachedToken(id, token, kid, serializeX509Certificate(certificate), accessJti, TokenType.REFRESH.getType(), timeToLive);
+        cacheTokenRepository.save(cachedToken);
+    }
+
+    @Override
+    @Transactional
+    public void saveRefreshedAccessToken(String projectId, String jti, String refreshJti, String token, String kid, X509Certificate certificate, Long timeToLive) {
+        String accessId = createId(projectId, jti);
+        String refreshId = createId(projectId, refreshJti);
+        Optional<CachedToken> refreshTokenOptional = cacheTokenRepository.findById(refreshId);
+        if (refreshTokenOptional.isPresent()) {
+            CachedToken refreshToken = refreshTokenOptional.get();
+            String accessIdToDelete = createId(projectId, refreshToken.getRelatedTokenId());
+            cacheTokenRepository.deleteById(accessIdToDelete);
+            refreshToken.setRelatedTokenId(jti);
+            CachedToken accessToken = new CachedToken(accessId, token, kid, serializeX509Certificate(certificate), refreshJti, TokenType.BEARER.getType(), timeToLive);
+            cacheTokenRepository.save(refreshToken);
+            cacheTokenRepository.save(accessToken);
+        } else {
+            throw new TokenCacheException("Refresh token not found !");
+        }
     }
 
     @Override

@@ -7,6 +7,8 @@ import one.microproject.authx.common.utils.CryptoUtils;
 import one.microproject.authx.common.utils.TokenUtils;
 import one.microproject.authx.jredis.TokenCacheReaderService;
 import one.microproject.authx.jredis.TokenCacheWriterService;
+import one.microproject.authx.jredis.model.CachedToken;
+import one.microproject.authx.jredis.repository.CacheTokenRepository;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TokenCacheTests extends AppBaseTest {
 
+    private static final Long TimeToLiveAccess = 10L*1000L;
+    private static final Long TimeToLiveRefresh = 20L*1000L;
+
     @BeforeAll
     public static void init() {
         Security.addProvider(new BouncyCastleProvider());
@@ -34,20 +39,74 @@ class TokenCacheTests extends AppBaseTest {
     @Autowired
     TokenCacheWriterService tokenCacheWriterService;
 
+    @Autowired
+    CacheTokenRepository cacheTokenRepository;
+
     @Test
-    void testSaveAndVerifyToken() {
+    void testSaveAndVerifyAccessToken() {
         Long epochMilli = Instant.now().getEpochSecond() * 1000L;
         Date issuedAt = new Date(epochMilli);
-        Date expiration = new Date(epochMilli + 10*1000L);
+        Date accessExpiration = new Date(epochMilli + TimeToLiveAccess*1000L);
         KeyPairData keyPairData = generateKeyPair("key-001", "sub", TimeUnit.HOURS, 1L);
-        TokenClaims claims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti");
-        String token = TokenUtils.issueToken(claims, keyPairData.id(), keyPairData.privateKey());
-        tokenCacheWriterService.saveToken("p-01", "jti", token, "key-001", keyPairData.x509Certificate());
-        Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify("p-01", token);
+        TokenClaims accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "jti");
+        String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
+        tokenCacheWriterService.saveAccessToken("p-01", "jti", "NA", accessToken, "key-001", keyPairData.x509Certificate(), TimeToLiveAccess);
+        Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify("p-01", accessToken);
         assertTrue(verifiedClaims.isPresent());
         tokenCacheWriterService.removeTokenById("p-01", "jti");
-        verifiedClaims = tokenCacheReaderService.verify("p-01", token);
+        verifiedClaims = tokenCacheReaderService.verify("p-01", accessToken);
         assertTrue(verifiedClaims.isEmpty());
+    }
+
+    @Test
+    void testSaveAndVerifyRefreshToken() {
+        Long epochMilli = Instant.now().getEpochSecond() * 1000L;
+        Date issuedAt = new Date(epochMilli);
+        Date refreshExpiration = new Date(epochMilli + TimeToLiveRefresh*1000L);
+        KeyPairData keyPairData = generateKeyPair("key-001", "sub", TimeUnit.HOURS, 1L);
+        TokenClaims refreshClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, refreshExpiration, TokenType.REFRESH, "jti");
+        String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
+        tokenCacheWriterService.saveRefreshToken("p-01", "jti", "NA", refreshToken, "key-001", keyPairData.x509Certificate(), TimeToLiveRefresh);
+        Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify("p-01", refreshToken);
+        assertTrue(verifiedClaims.isPresent());
+        tokenCacheWriterService.removeTokenById("p-01", "jti");
+        verifiedClaims = tokenCacheReaderService.verify("p-01", refreshToken);
+        assertTrue(verifiedClaims.isEmpty());
+    }
+
+    @Test
+    void testRefreshTokenProcedure() {
+        Long epochMilli = Instant.now().getEpochSecond() * 1000L;
+        Date issuedAt = new Date(epochMilli);
+        Date accessExpiration = new Date(epochMilli + TimeToLiveAccess*1000L);
+        Date refreshExpiration = new Date(epochMilli + TimeToLiveRefresh*1000L);
+        KeyPairData keyPairData = generateKeyPair("key-001", "sub", TimeUnit.HOURS, 1L);
+
+        TokenClaims accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "access-001");
+        TokenClaims refreshClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, refreshExpiration, TokenType.REFRESH, "refresh-001");
+
+        String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
+        String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
+
+        tokenCacheWriterService.saveAccessToken("p-01", "access-001", "refresh-001", accessToken, "key-001", keyPairData.x509Certificate(), TimeToLiveAccess);
+        tokenCacheWriterService.saveRefreshToken("p-01", "refresh-001", "access-001", refreshToken, "key-001", keyPairData.x509Certificate(), TimeToLiveRefresh);
+
+        Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify("p-01", accessToken);
+        assertTrue(verifiedClaims.isPresent());
+        verifiedClaims = tokenCacheReaderService.verify("p-01", refreshToken);
+        assertTrue(verifiedClaims.isPresent());
+
+        accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "access-002");
+        accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
+        tokenCacheWriterService.saveRefreshedAccessToken("p-01", "access-002", "refresh-001", accessToken, "key-001", keyPairData.x509Certificate(), TimeToLiveAccess);
+
+        Optional<CachedToken> cachedTokenOptional = cacheTokenRepository.findById("p-01-refresh-001");
+        assertTrue(cachedTokenOptional.isPresent());
+        cachedTokenOptional = cacheTokenRepository.findById("p-01-access-002");
+        assertTrue(cachedTokenOptional.isPresent());
+        cachedTokenOptional = cacheTokenRepository.findById("p-01-access-001");
+        assertTrue(cachedTokenOptional.isEmpty());
+
     }
 
     private KeyPairData generateKeyPair(String id, String subject, TimeUnit unit, Long duration) {

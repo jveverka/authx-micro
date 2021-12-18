@@ -39,7 +39,7 @@ public class TokenCacheReaderServiceImpl implements TokenCacheReaderService {
     @Override
     public Optional<TokenClaims> verify(String projectId, String jwt, String tokenTypeHint) {
         Jwt<? extends Header, Claims> jwtToken = TokenUtils.getJwt(jwt);
-        if (tokenTypeHint != null && !jwtToken.getBody().get(TYP_ID).equals(tokenTypeHint)) {
+        if (tokenTypeHint != null && tokenTypeHint.length() > 0 && !jwtToken.getBody().get(TYP_ID).equals(tokenTypeHint)) {
             return Optional.empty();
         }
         String id = createId(projectId, (String)jwtToken.getBody().get(JTI_CLAIM));

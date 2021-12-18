@@ -141,7 +141,7 @@ public class OAuth2Controller {
             case REFRESH_TOKEN -> {
                 Optional<ClientCredentials> ccOptional = getClientCredentials(request, clientId, clientSecret);
                 if (ccOptional.isPresent()) {
-                    TokenResponse tokenResponse = oAuth2Service.getTokenForRefreshToken(issuerUri, projectId, ccOptional.get(), audience, scopes, refreshToken);
+                    TokenResponse tokenResponse = oAuth2Service.getTokenForRefreshToken(projectId, refreshToken, ccOptional.get());
                     return ResponseEntity.ok(tokenResponse);
                 } else {
                     throw new OAuth2TokenException("Missing or invalid client credentials.");

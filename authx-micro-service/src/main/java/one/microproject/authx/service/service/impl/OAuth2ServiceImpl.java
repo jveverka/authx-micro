@@ -84,15 +84,17 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 Date accessExpiration = new Date(epochMilli + accessDuration);
                 Date refreshExpiration = new Date(epochMilli + refreshDuration);
 
-                TokenClaims accessClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, accessExpiration, TokenType.BEARER, UUID.randomUUID().toString());
-                TokenClaims refreshClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, refreshExpiration, TokenType.REFRESH, UUID.randomUUID().toString());
-                TokenClaims idClaims = new TokenClaims(issuerUri.toString(), projectId, audience, scopes, issuedAt, accessExpiration, TokenType.ID, UUID.randomUUID().toString());
+                String accessJit = UUID.randomUUID().toString();
+                String refreshJit = UUID.randomUUID().toString();
+                TokenClaims accessClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, accessExpiration, TokenType.BEARER, accessJit);
+                TokenClaims refreshClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, refreshExpiration, TokenType.REFRESH, refreshJit);
+                TokenClaims idClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, accessExpiration, TokenType.ID, UUID.randomUUID().toString());
                 String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
                 String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
                 String idToken = TokenUtils.issueToken(idClaims, keyPairData.id(), keyPairData.privateKey());
                 String tokenType = Constants.BEARER;
-                tokenCacheWriterService.saveToken(projectId, accessClaims.jti(), accessToken, keyPairData.id(), keyPairData.x509Certificate());
-                tokenCacheWriterService.saveToken(projectId, refreshClaims.jti(), refreshToken, keyPairData.id(), keyPairData.x509Certificate());
+                tokenCacheWriterService.saveAccessToken(projectId, accessClaims.jti(), refreshJit, accessToken, keyPairData.id(), keyPairData.x509Certificate(), accessDuration);
+                tokenCacheWriterService.saveRefreshToken(projectId, refreshClaims.jti(), accessJit, refreshToken, keyPairData.id(), keyPairData.x509Certificate(), refreshDuration);
                 return new TokenResponse(accessToken, (epochMilli + accessDuration), (epochMilli + refreshDuration), refreshToken, tokenType, idToken);
             } else {
                 throw new OAuth2TokenException("User not found !");
@@ -118,15 +120,37 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     }
 
     @Override
-    public TokenResponse getTokenForRefreshToken(URI issuerUri, String projectId, ClientCredentials clientCredentials, String audience, Set<String> scopes, String refreshToken) {
-        LOGGER.info("getTokenForRefreshToken: {} {}", issuerUri, projectId);
+    public TokenResponse getTokenForRefreshToken(String projectId, String refreshToken, ClientCredentials clientCredentials) {
+        //TODO: use client Id and secret for request validation (https://datatracker.ietf.org/doc/html/rfc7009)
+        LOGGER.info("getTokenForRefreshToken: {}", projectId);
         Optional<ProjectDto> projectDto = projectService.get(projectId);
         if (projectDto.isEmpty()) {
             throw new OAuth2TokenException("Project not found !");
         }
-        Boolean clientOk = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
-        if (clientOk) {
-            throw new UnsupportedOperationException("Not implemented yet !");
+        Optional<TokenClaims> claimsOptional = tokenCacheReaderService.verify(projectId, refreshToken, TokenType.REFRESH.getType());
+        if (claimsOptional.isPresent()) {
+            TokenClaims refreshClaims = claimsOptional.get();
+            Optional<UserDto> userDto = userService.get(projectId, refreshClaims.subject());
+            Optional<KeyPairData> keyPairDataOptional = userService.getDefaultKeyPair(projectId, refreshClaims.subject());
+            if (userDto.isPresent() && keyPairDataOptional.isPresent()) {
+                ProjectDto project = projectDto.get();
+                UserDto user = userDto.get();
+                KeyPairData keyPairData = keyPairDataOptional.get();
+
+                Long accessDuration = LabelUtils.getAccessTokenDuration(DEFAULT_ACCESS_DURATION, project.labels(), user.labels());
+                Long epochMilli = Instant.now().getEpochSecond() * 1000L;
+                Date issuedAt = new Date(epochMilli);
+                Date accessExpiration = new Date(epochMilli + accessDuration);
+                String accessJit = UUID.randomUUID().toString();
+                TokenClaims accessClaims = new TokenClaims(refreshClaims.issuer(), refreshClaims.subject(), refreshClaims.audience(), refreshClaims.scope(), issuedAt, accessExpiration, TokenType.BEARER, accessJit);
+
+                String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
+                tokenCacheWriterService.saveRefreshedAccessToken(projectId, accessClaims.jti(), refreshClaims.jti(), accessToken, keyPairData.id(), keyPairData.x509Certificate(), accessDuration);
+                String tokenType = Constants.BEARER;
+                return new TokenResponse(accessToken, (epochMilli + accessDuration), refreshClaims.expiration().getTime(), refreshToken, tokenType, null);
+            } else {
+                throw new OAuth2TokenException("Not Authorized or Not Found !");
+            }
         } else {
             throw new OAuth2TokenException("Not Authorized or Not Found !");
         }
@@ -134,19 +158,21 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public ProviderConfigurationResponse getProviderConfiguration(URI issuerUri, String projectId) {
+        //TODO: finish implementation
         throw new UnsupportedOperationException("Not implemented yet !");
     }
 
     @Override
     public JWKResponse getJWKResponse(String projectId) {
+        //TODO: finish implementation
         throw new UnsupportedOperationException("Not implemented yet !");
     }
 
     @Override
     public IntrospectResponse getIntrospectResponse(String projectId, String token, String tokenTypeHint) {
-        //TODO: tokenTypeHint may be null !
+        //TODO: use client Id and secret for request validation (https://datatracker.ietf.org/doc/html/rfc7662)
         LOGGER.info("getIntrospectResponse: {} {}", projectId, tokenTypeHint);
-        Optional<TokenClaims> claimsOptional = tokenCacheReaderService.verify(projectId, token);
+        Optional<TokenClaims> claimsOptional = tokenCacheReaderService.verify(projectId, token, tokenTypeHint);
         if (claimsOptional.isPresent()) {
             return new IntrospectResponse(Boolean.TRUE);
         } else {
@@ -156,9 +182,9 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public void revoke(String projectId, String token, String tokenTypeHint) {
-        //TODO: tokenTypeHint may be null !
+        //TODO: use client Id and secret for request validation (https://datatracker.ietf.org/doc/html/rfc7009)
         LOGGER.info("revoke: {} {}", projectId, tokenTypeHint);
-        Optional<TokenClaims> tokenClaims = tokenCacheReaderService.verify(projectId, token);
+        Optional<TokenClaims> tokenClaims = tokenCacheReaderService.verify(projectId, token, tokenTypeHint);
         if (tokenClaims.isPresent()) {
             tokenCacheWriterService.removeToken(projectId, token);
             return;
@@ -169,7 +195,13 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public Optional<UserInfoResponse> getUserInfo(String projectId, String token) {
-        throw new UnsupportedOperationException("Not implemented yet !");
+        Optional<TokenClaims> tokenClaims = tokenCacheReaderService.verify(projectId, token);
+        if (tokenClaims.isPresent()) {
+            TokenClaims claims = tokenClaims.get();
+            return Optional.of(new UserInfoResponse(claims.subject()));
+        } else {
+            throw new OAuth2TokenException("Not Authorized or Not Found !");
+        }
     }
 
 }
