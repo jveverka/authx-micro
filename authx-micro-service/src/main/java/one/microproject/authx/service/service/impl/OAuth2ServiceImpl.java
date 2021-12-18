@@ -121,7 +121,6 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public TokenResponse getTokenForRefreshToken(String projectId, String refreshToken, ClientCredentials clientCredentials) {
-        //TODO: use client Id and secret for request validation (https://datatracker.ietf.org/doc/html/rfc7009)
         LOGGER.info("getTokenForRefreshToken: {}", projectId);
         Optional<ProjectDto> projectDto = projectService.get(projectId);
         if (projectDto.isEmpty()) {
@@ -135,14 +134,18 @@ public class OAuth2ServiceImpl implements OAuth2Service {
             if (userDto.isPresent() && keyPairDataOptional.isPresent()) {
                 ProjectDto project = projectDto.get();
                 UserDto user = userDto.get();
-                KeyPairData keyPairData = keyPairDataOptional.get();
+                Boolean result = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
+                if (!result) {
+                    throw new OAuth2TokenException("Not Authorized or Not Found !");
+                }
 
+                KeyPairData keyPairData = keyPairDataOptional.get();
                 Long accessDuration = LabelUtils.getAccessTokenDuration(DEFAULT_ACCESS_DURATION, project.labels(), user.labels());
                 Long epochMilli = Instant.now().getEpochSecond() * 1000L;
                 Date issuedAt = new Date(epochMilli);
                 Date accessExpiration = new Date(epochMilli + accessDuration);
-                String accessJit = UUID.randomUUID().toString();
-                TokenClaims accessClaims = new TokenClaims(refreshClaims.issuer(), refreshClaims.subject(), refreshClaims.audience(), refreshClaims.scope(), issuedAt, accessExpiration, TokenType.BEARER, accessJit);
+                String accessJti = UUID.randomUUID().toString();
+                TokenClaims accessClaims = new TokenClaims(refreshClaims.issuer(), refreshClaims.subject(), refreshClaims.audience(), refreshClaims.scope(), issuedAt, accessExpiration, TokenType.BEARER, accessJti);
 
                 String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
                 tokenCacheWriterService.saveRefreshedAccessToken(projectId, accessClaims.jti(), refreshClaims.jti(), accessToken, keyPairData.id(), keyPairData.x509Certificate(), accessDuration);

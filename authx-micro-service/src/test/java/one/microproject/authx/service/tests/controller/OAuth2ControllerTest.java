@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class OAuth2ControllerTest extends AppBaseTest  {
+class OAuth2ControllerTest extends AppBaseTest  {
 
     @Test
     void testGetTokenForPassword() {
@@ -22,29 +22,54 @@ public class OAuth2ControllerTest extends AppBaseTest  {
         ClientCredentials clientCredentials = new ClientCredentials("admin-client", "secret");
         Set<String> scopes = Set.of();
         UserCredentials userCredentials = new UserCredentials("admin-user", "s3cr3t");
-        TokenResponse tokenForPassword = authXClient.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
-        assertNotNull(tokenForPassword);
-        assertNotNull(tokenForPassword.getAccessToken());
-        assertNotNull(tokenForPassword.getRefreshToken());
+        TokenResponse tokensForPassword = authXClient.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
+        assertNotNull(tokensForPassword);
+        assertNotNull(tokensForPassword.getAccessToken());
+        assertNotNull(tokensForPassword.getRefreshToken());
 
-        IntrospectResponse introspectResponse = authXClient.introspect(tokenForPassword.getAccessToken(), "");
+        IntrospectResponse introspectResponse = authXClient.introspect(tokensForPassword.getAccessToken(), "");
         assertNotNull(introspectResponse);
         assertTrue(introspectResponse.getActive());
 
-        introspectResponse = authXClient.introspect(tokenForPassword.getRefreshToken(), "");
+        introspectResponse = authXClient.introspect(tokensForPassword.getRefreshToken(), "");
         assertNotNull(introspectResponse);
         assertTrue(introspectResponse.getActive());
 
-        authXClient.revoke(tokenForPassword.getAccessToken(), "");
-        authXClient.revoke(tokenForPassword.getRefreshToken(), "");
+        authXClient.revoke(tokensForPassword.getAccessToken(), "");
+        authXClient.revoke(tokensForPassword.getRefreshToken(), "");
 
-        introspectResponse = authXClient.introspect(tokenForPassword.getAccessToken(), "");
+        introspectResponse = authXClient.introspect(tokensForPassword.getAccessToken(), "");
         assertNotNull(introspectResponse);
         assertFalse(introspectResponse.getActive());
 
-        introspectResponse = authXClient.introspect(tokenForPassword.getRefreshToken(), "");
+        introspectResponse = authXClient.introspect(tokensForPassword.getRefreshToken(), "");
         assertNotNull(introspectResponse);
         assertFalse(introspectResponse.getActive());
+    }
+
+    @Test
+    void testRefreshToken() {
+        AuthXClient authXClient = getGlobalAdminClient();
+        ClientCredentials clientCredentials = new ClientCredentials("admin-client", "secret");
+        Set<String> scopes = Set.of();
+        UserCredentials userCredentials = new UserCredentials("admin-user", "s3cr3t");
+        TokenResponse tokensForPassword = authXClient.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
+
+        IntrospectResponse introspectResponse = authXClient.introspect(tokensForPassword.getAccessToken(), "");
+        assertTrue(introspectResponse.getActive());
+        introspectResponse = authXClient.introspect(tokensForPassword.getRefreshToken(), "");
+        assertTrue(introspectResponse.getActive());
+
+        TokenResponse tokensForRefresh = authXClient.refreshToken(clientCredentials, tokensForPassword.getRefreshToken());
+
+        introspectResponse = authXClient.introspect(tokensForPassword.getAccessToken(), "");
+        assertFalse(introspectResponse.getActive());
+        introspectResponse = authXClient.introspect(tokensForPassword.getRefreshToken(), "");
+        assertTrue(introspectResponse.getActive());
+        introspectResponse = authXClient.introspect(tokensForRefresh.getAccessToken(), "");
+        assertTrue(introspectResponse.getActive());
+        introspectResponse = authXClient.introspect(tokensForRefresh.getRefreshToken(), "");
+        assertTrue(introspectResponse.getActive());
     }
 
 }

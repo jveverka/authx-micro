@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TokenCacheTests extends AppBaseTest {
@@ -97,8 +98,8 @@ class TokenCacheTests extends AppBaseTest {
         assertTrue(verifiedClaims.isPresent());
 
         accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "access-002");
-        accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
-        tokenCacheWriterService.saveRefreshedAccessToken("p-01", "access-002", "refresh-001", accessToken, "key-001", keyPairData.x509Certificate(), TimeToLiveAccess);
+        String refreshedAccessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
+        tokenCacheWriterService.saveRefreshedAccessToken("p-01", "access-002", "refresh-001", refreshedAccessToken, "key-001", keyPairData.x509Certificate(), TimeToLiveAccess);
 
         Optional<CachedToken> cachedTokenOptional = cacheTokenRepository.findById("p-01-refresh-001");
         assertTrue(cachedTokenOptional.isPresent());
@@ -107,6 +108,12 @@ class TokenCacheTests extends AppBaseTest {
         cachedTokenOptional = cacheTokenRepository.findById("p-01-access-001");
         assertTrue(cachedTokenOptional.isEmpty());
 
+        verifiedClaims = tokenCacheReaderService.verify("p-01", accessToken);
+        assertFalse(verifiedClaims.isPresent());
+        verifiedClaims = tokenCacheReaderService.verify("p-01", refreshToken);
+        assertTrue(verifiedClaims.isPresent());
+        verifiedClaims = tokenCacheReaderService.verify("p-01", refreshedAccessToken);
+        assertTrue(verifiedClaims.isPresent());
     }
 
     private KeyPairData generateKeyPair(String id, String subject, TimeUnit unit, Long duration) {

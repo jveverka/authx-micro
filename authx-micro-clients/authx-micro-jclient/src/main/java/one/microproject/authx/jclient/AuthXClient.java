@@ -15,4 +15,6 @@ public interface AuthXClient {
 
     void revoke(String token, String typeHint);
 
+    TokenResponse refreshToken(ClientCredentials clientCredentials, String refreshToken);
+
 }

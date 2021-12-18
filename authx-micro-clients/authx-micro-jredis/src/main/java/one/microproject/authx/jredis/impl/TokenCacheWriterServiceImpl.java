@@ -48,18 +48,18 @@ public class TokenCacheWriterServiceImpl implements TokenCacheWriterService {
 
     @Override
     @Transactional
-    public void saveRefreshedAccessToken(String projectId, String jti, String refreshJti, String token, String kid, X509Certificate certificate, Long timeToLive) {
-        String accessId = createId(projectId, jti);
+    public void saveRefreshedAccessToken(String projectId, String accessJti, String refreshJti, String token, String kid, X509Certificate certificate, Long timeToLive) {
+        String accessId = createId(projectId, accessJti);
         String refreshId = createId(projectId, refreshJti);
         Optional<CachedToken> refreshTokenOptional = cacheTokenRepository.findById(refreshId);
         if (refreshTokenOptional.isPresent()) {
             CachedToken refreshToken = refreshTokenOptional.get();
             String accessIdToDelete = createId(projectId, refreshToken.getRelatedTokenId());
             cacheTokenRepository.deleteById(accessIdToDelete);
-            refreshToken.setRelatedTokenId(jti);
+            refreshToken.setRelatedTokenId(accessJti);
             CachedToken accessToken = new CachedToken(accessId, token, kid, serializeX509Certificate(certificate), refreshJti, TokenType.BEARER.getType(), timeToLive);
-            cacheTokenRepository.save(refreshToken);
             cacheTokenRepository.save(accessToken);
+            cacheTokenRepository.save(refreshToken);
         } else {
             throw new TokenCacheException("Refresh token not found !");
         }

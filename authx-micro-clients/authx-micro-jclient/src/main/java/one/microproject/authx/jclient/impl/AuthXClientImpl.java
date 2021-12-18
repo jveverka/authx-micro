@@ -117,5 +117,27 @@ public class AuthXClientImpl implements AuthXClient {
         }
     }
 
+    @Override
+    public TokenResponse refreshToken(ClientCredentials clientCredentials, String refreshToken) {
+        try {
+            Request request = new Request.Builder()
+                    .url(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + TOKEN +
+                            "?grant_type=refresh_token" +
+                            "&refresh_token=" + refreshToken +
+                            CLIENT_ID + clientCredentials.id() +
+                            CLIENT_SECRET + clientCredentials.secret())
+                    .post(RequestBody.create("{}", MediaType.parse(APPLICATION_FORM_URLENCODED)))
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200) {
+                return mapper.readValue(response.body().string(), TokenResponse.class);
+            } else {
+                throw new AuthXClientException("Refresh token Error: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new AuthXClientException(e);
+        }
+    }
+
 
 }
