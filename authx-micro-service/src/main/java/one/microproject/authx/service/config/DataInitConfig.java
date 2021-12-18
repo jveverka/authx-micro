@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
+import java.util.Set;
 
 @Configuration
 public class DataInitConfig {
@@ -43,8 +44,8 @@ public class DataInitConfig {
         LOGGER.info("##CONFIG:  Project: {}", projectName);
         LOGGER.info("##CONFIG:    Admin: {}", adminUser);
         LOGGER.info("##CONFIG:    Client: {}", clientId);
-        CreateUserRequest adminUserRequest = new CreateUserRequest(adminUser, "", "Global Admin", adminPassword, Map.of());
-        CreateClientRequest adminClientRequest = new CreateClientRequest(clientId, "Global Admin Client", false, clientSecret, Map.of());
+        CreateUserRequest adminUserRequest = new CreateUserRequest(adminUser, "", "Global Admin", adminPassword, Map.of(), Set.of(), Set.of());
+        CreateClientRequest adminClientRequest = new CreateClientRequest(clientId, "Global Admin Client", false, clientSecret, Map.of(), Set.of(), Set.of());
         return new CreateProjectRequest(projectName, "Global Admins", Map.of(), adminUserRequest, adminClientRequest);
     }
 

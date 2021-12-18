@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.mongodb.assertions.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,8 +23,8 @@ class ClientServiceTest extends AppBaseTest {
 
     @Test
     void testClientAddAndRemove() {
-        CreateClientRequest createClientRequest1 = new CreateClientRequest("c1", "d11", true, "s11", Map.of());
-        CreateClientRequest createClientRequest2 = new CreateClientRequest("c1", "d21", true, "s21", Map.of());
+        CreateClientRequest createClientRequest1 = new CreateClientRequest("c1", "d11", true, "s11", Map.of(), Set.of(), Set.of());
+        CreateClientRequest createClientRequest2 = new CreateClientRequest("c1", "d21", true, "s21", Map.of(), Set.of(), Set.of());
         ClientDto client1 = clientService.create("p-01", createClientRequest1);
         ClientDto client2 = clientService.create("p-02", createClientRequest2);
 

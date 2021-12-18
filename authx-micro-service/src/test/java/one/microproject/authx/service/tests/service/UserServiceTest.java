@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.mongodb.assertions.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +26,7 @@ public class UserServiceTest extends AppBaseTest {
     void testUserAddRemove() {
         String projectId = "p-01";
         String clientId = "c-01";
-        CreateUserRequest request = new CreateUserRequest("u-01", "user@email.com", "d", "s01", Map.of());
+        CreateUserRequest request = new CreateUserRequest("u-01", "user@email.com", "d", "s01", Map.of(), Set.of(), Set.of());
         UserDto userDto = userService.create(projectId, clientId, request);
         assertNotNull(userDto);
         assertEquals(request.id(), userDto.id());

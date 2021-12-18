@@ -8,8 +8,11 @@ import one.microproject.authx.service.model.Project;
 import one.microproject.authx.service.model.User;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class DMapper {
@@ -28,7 +31,7 @@ public class DMapper {
 
     public Client map(String dbId, String projectId, String secretHash, CreateClientRequest clientRequest, String defaultKid, Map<String, KeyPairSerialized> keyPairs) {
         return new Client(dbId, clientRequest.id(), projectId, clientRequest.description(),
-                secretHash, defaultKid, clientRequest.labels(), keyPairs);
+                secretHash, defaultKid, clientRequest.labels(), keyPairs, map(clientRequest.groups()), map(clientRequest.roles()));
     }
 
     public UserDto map(User user) {
@@ -36,7 +39,8 @@ public class DMapper {
     }
 
     public User map(String dbId, String projectId, String clientId, String secretHash, CreateUserRequest request, String defaultKid, Map<String, KeyPairSerialized> keyPairs) {
-        return new User(dbId, request.id(), projectId, clientId, request.email(), request.description(), secretHash, defaultKid, request.labels(), keyPairs);
+        return new User(dbId, request.id(), projectId, clientId, request.email(), request.description(), secretHash, defaultKid, request.labels(), keyPairs,
+                map(request.groups()), map(request.roles()));
     }
 
     public Group map(String dbId, CreateGroupRequest request) {
@@ -53,6 +57,14 @@ public class DMapper {
 
     public KeyPairSerialized map(KeyPairData keyPairData) {
         return CryptoUtils.map(keyPairData);
+    }
+
+    public List<String> map(Set<String> ids) {
+        return new ArrayList<>(ids);
+    }
+
+    public Set<String> map(List<String> ids) {
+        return new HashSet<>(ids);
     }
 
 }

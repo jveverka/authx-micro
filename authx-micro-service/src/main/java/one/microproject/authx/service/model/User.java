@@ -4,6 +4,7 @@ import one.microproject.authx.common.dto.KeyPairSerialized;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
 import java.util.Map;
 
 @Document
@@ -21,12 +22,15 @@ public class User {
     private String defaultKid;
     private Map<String, String> labels;
     private Map<String, KeyPairSerialized> keyPairs;
+    private List<String> groups;
+    private List<String> roles;
 
     public User() {
     }
 
     public User(String id, String userId, String projectId, String clientId, String email, String description, String secret,
-                String defaultKid, Map<String, String> labels, Map<String, KeyPairSerialized> keyPairs) {
+                String defaultKid, Map<String, String> labels, Map<String, KeyPairSerialized> keyPairs,
+                List<String> groups, List<String> roles) {
         this.id = id;
         this.userId = userId;
         this.projectId = projectId;
@@ -37,6 +41,8 @@ public class User {
         this.defaultKid = defaultKid;
         this.labels = labels;
         this.keyPairs = keyPairs;
+        this.groups = groups;
+        this.roles = roles;
     }
 
     public String getId() {
@@ -117,6 +123,22 @@ public class User {
 
     public void setKeyPairs(Map<String, KeyPairSerialized> keyPairs) {
         this.keyPairs = keyPairs;
+    }
+
+    public List<String> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(List<String> groups) {
+        this.groups = groups;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 
 }
