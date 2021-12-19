@@ -43,7 +43,7 @@ public class DMapper {
                 map(request.groups()), map(request.roles()));
     }
 
-    public Group map(String dbId, CreateGroupRequest request) {
+    public Group map(String dbId, GroupDto request) {
         return new Group(dbId, request.id(), request.projectId(), request.description(), request.labels());
     }
 
@@ -67,7 +67,7 @@ public class DMapper {
         return new HashSet<>(ids);
     }
 
-    public Group map(String dbId, String projectId, CreateGroupRequest createGroupRequest) {
+    public Group map(String dbId, String projectId, GroupDto createGroupRequest) {
         return new Group(dbId, createGroupRequest.id(), projectId, createGroupRequest.description(), createGroupRequest.labels());
     }
 

@@ -1,6 +1,5 @@
 package one.microproject.authx.service.service.impl;
 
-import one.microproject.authx.common.dto.CreateGroupRequest;
 import one.microproject.authx.common.dto.GroupDto;
 import one.microproject.authx.service.exceptions.DataConflictException;
 import one.microproject.authx.service.model.Group;
@@ -31,7 +30,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
-    public GroupDto create(String projectId, CreateGroupRequest request) {
+    public GroupDto create(String projectId, GroupDto request) {
         String dbId = createId(projectId, request.id());
         Optional<Group> groupOptional = groupRepository.findById(dbId);
         if (groupOptional.isPresent()) {

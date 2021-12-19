@@ -1,6 +1,5 @@
 package one.microproject.authx.service.service;
 
-import one.microproject.authx.common.dto.CreateGroupRequest;
 import one.microproject.authx.common.dto.GroupDto;
 
 import java.util.List;
@@ -8,7 +7,7 @@ import java.util.Optional;
 
 public interface GroupService {
 
-    GroupDto create(String projectId, CreateGroupRequest request);
+    GroupDto create(String projectId, GroupDto request);
 
     List<GroupDto> getAll();
 

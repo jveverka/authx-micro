@@ -1,4 +1,6 @@
 package one.microproject.authx.common.dto;
 
-public record RoleDto() {
+import java.util.Set;
+
+public record RoleDto(String id, String projectId, String description, Set<String> roleIds) {
 }
