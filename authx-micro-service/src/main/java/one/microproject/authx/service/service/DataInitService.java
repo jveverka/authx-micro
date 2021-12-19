@@ -1,7 +1,9 @@
 package one.microproject.authx.service.service;
 
+import java.util.List;
+
 public interface DataInitService {
 
-    String getGlobalAdminProjectId();
+    List<String> getGlobalAdminProjectIds();
 
 }

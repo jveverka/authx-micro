@@ -33,8 +33,7 @@ public class AuthXServiceTest extends AppBaseTest {
         Optional<Authx> authx = authXService.getAuthxInfo();
         assertTrue(authx.isPresent());
         assertEquals(authxDto.id(), authx.get().getId());
-        assertEquals(createProjectRequest.id(), authx.get().getGlobalAdminProjectId());
-        assertEquals(dataInitService.getGlobalAdminProjectId(), authx.get().getGlobalAdminProjectId());
+        assertTrue(authx.get().getGlobalAdminProjectIds().contains(createProjectRequest.id()));
     }
 
 }

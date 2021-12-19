@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,7 +26,7 @@ public class DataInitServiceImpl implements DataInitService {
     private final ProjectService projectService;
     private final AuthXService authXService;
 
-    private String globalAdminProjectId;
+    private List<String> globalAdminProjectIds;
 
     @Autowired
     public DataInitServiceImpl(AuthxDto authxDto, CreateProjectRequest initialModel,
@@ -39,32 +40,39 @@ public class DataInitServiceImpl implements DataInitService {
     @PostConstruct
     public void init() {
         LOGGER.info("INIT: Authx data model init ...");
-        globalAdminProjectId = initialModel.id();
+        globalAdminProjectIds = List.of(initialModel.id());
         LOGGER.info("INIT: Checking initial Authx model.");
         Optional<Authx> authxInfo = authXService.getAuthxInfo();
+        boolean createGlobalAdminProject = false;
         if (authxInfo.isPresent()) {
             Authx authx = authxInfo.get();
-            LOGGER.info("INIT: Using Authx model {} {}.", authx.getId(), authx.getGlobalAdminProjectId());
-            globalAdminProjectId = authx.getGlobalAdminProjectId();
+            LOGGER.info("INIT: Using Authx model {} {}.", authx.getId(), authx.getGlobalAdminProjectIds());
+            globalAdminProjectIds = authx.getGlobalAdminProjectIds();
         } else {
-            LOGGER.info("INIT: Creating Authx model {} {}.", authxDto.id(), globalAdminProjectId);
-            authXService.create(authxDto, globalAdminProjectId);
+            LOGGER.info("INIT: Creating Authx model {} {}.", authxDto.id(), globalAdminProjectIds);
+            authXService.createOrUpdate(authxDto, globalAdminProjectIds);
+            createGlobalAdminProject = true;
         }
-        LOGGER.info("INIT: Checking initial data model.");
-        Optional<ProjectDto> projectDto = projectService.get(globalAdminProjectId);
-        if (projectDto.isPresent()) {
-            LOGGER.info("INIT: Using Global Admind Project {}.", globalAdminProjectId);
+        if (createGlobalAdminProject) {
+            LOGGER.info("INIT: Checking initial data model.");
+            String globalAdminProjectId = initialModel.id();
+            Optional<ProjectDto> projectDto = projectService.get(globalAdminProjectId);
+            if (projectDto.isPresent()) {
+                LOGGER.info("INIT: Using Global Admin Project {}.", globalAdminProjectId);
+            } else {
+                LOGGER.info("INIT: Creating Global Admin Project {}.", globalAdminProjectId);
+                CreateProjectRequest initModel = new CreateProjectRequest(globalAdminProjectId, initialModel.description(),
+                        initialModel.labels(), initialModel.adminUser(), initialModel.adminClient());
+                projectService.create(initModel);
+            }
         } else {
-            LOGGER.info("INIT: Creating Global Admind Project {}.", globalAdminProjectId);
-            CreateProjectRequest initModel = new CreateProjectRequest(globalAdminProjectId, initialModel.description(),
-                    initialModel.labels(), initialModel.adminUser(), initialModel.adminClient());
-            projectService.create(initModel);
+            LOGGER.info("INIT: Global Admin Project create skipped !");
         }
     }
 
     @Override
-    public String getGlobalAdminProjectId() {
-        return globalAdminProjectId;
+    public List<String> getGlobalAdminProjectIds() {
+        return globalAdminProjectIds;
     }
 
 }

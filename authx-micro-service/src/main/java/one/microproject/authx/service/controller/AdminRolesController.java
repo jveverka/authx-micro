@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/api/v1/admin/roles")
+@RequestMapping(path = "/api/v1/admin/project/roles")
 public class AdminRolesController {
     //List role on project
     //Create role for project

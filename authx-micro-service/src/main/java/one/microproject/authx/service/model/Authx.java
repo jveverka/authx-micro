@@ -3,20 +3,22 @@ package one.microproject.authx.service.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document
 public class Authx {
 
     @Id
     private String id;
 
-    private String globalAdminProjectId;
+    private List<String> globalAdminProjectIds;
 
     public Authx() {
     }
 
-    public Authx(String id, String globalAdminProjectId) {
+    public Authx(String id, List<String> globalAdminProjectIds) {
         this.id = id;
-        this.globalAdminProjectId = globalAdminProjectId;
+        this.globalAdminProjectIds = globalAdminProjectIds;
     }
 
     public String getId() {
@@ -27,12 +29,12 @@ public class Authx {
         this.id = id;
     }
 
-    public String getGlobalAdminProjectId() {
-        return globalAdminProjectId;
+    public List<String> getGlobalAdminProjectIds() {
+        return globalAdminProjectIds;
     }
 
-    public void setGlobalAdminProjectId(String globalAdminProjectId) {
-        this.globalAdminProjectId = globalAdminProjectId;
+    public void setGlobalAdminProjectIds(List<String> globalAdminProjectIds) {
+        this.globalAdminProjectIds = globalAdminProjectIds;
     }
 
 }

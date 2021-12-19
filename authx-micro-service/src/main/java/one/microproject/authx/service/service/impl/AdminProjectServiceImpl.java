@@ -1,7 +1,5 @@
 package one.microproject.authx.service.service.impl;
 
-import one.microproject.authx.common.dto.BuildProjectRequest;
-import one.microproject.authx.common.dto.ProjectDto;
 import one.microproject.authx.common.dto.ProjectReportDto;
 import one.microproject.authx.common.dto.ResponseMessage;
 import one.microproject.authx.common.dto.UpdateProjectRequest;
@@ -17,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,11 +41,6 @@ public class AdminProjectServiceImpl implements AdminProjectService {
     }
 
     @Override
-    public List<ProjectDto> getAll() {
-        return projectService.getAll();
-    }
-
-    @Override
     public Optional<ProjectReportDto> getProjectReport(String projectId) {
         return Optional.empty();
     }
@@ -58,32 +50,5 @@ public class AdminProjectServiceImpl implements AdminProjectService {
         return null;
     }
 
-    @Override
-    public ResponseMessage buildProject(BuildProjectRequest buildProjectRequest) {
-        String projectId = buildProjectRequest.createProjectRequest().id();
-        LOGGER.info("Building project id={}", projectId);
-        Optional<ProjectDto> projectDtoOptional = projectService.get(projectId);
-        if (projectDtoOptional.isPresent()) {
-            return ResponseMessage.error("Project id=" + projectId + " already exists.");
-        }
-        return ResponseMessage.ok("Project id=" + projectId + " created.");
-    }
-
-    @Override
-    public ResponseMessage deleteRecursively(String projectId) {
-        LOGGER.info("Delete project id={} recursively !", projectId);
-        Optional<ProjectDto> projectDtoOptional = projectService.get(projectId);
-        if (projectDtoOptional.isEmpty()) {
-            return ResponseMessage.error("Project id=" + projectId + " not found.");
-        } else {
-            projectService.remove(projectId);
-            userService.removeAll(projectId);
-            clientService.removeAll(projectId);
-            permissionService.removeAll(projectId);
-            roleService.removeAll(projectId);
-            groupService.removeAll(projectId);
-            return ResponseMessage.ok("Project id=" + projectId + " deleted.");
-        }
-    }
 
 }

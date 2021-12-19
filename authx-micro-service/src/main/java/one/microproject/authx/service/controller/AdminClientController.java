@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/api/v1/admin/clients")
+@RequestMapping(path = "/api/v1/admin/project/clients")
 public class AdminClientController {
     //TODO:
     //List clients on project

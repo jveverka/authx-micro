@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api/v1/admin/projects")
+@RequestMapping(path = "/api/v1/admin/project/projects")
 public class AdminProjectController {
 
     private final AdminProjectService adminService;
@@ -31,39 +31,14 @@ public class AdminProjectController {
         this.adminService = adminService;
     }
 
-    @GetMapping()
-    public ResponseEntity<List<ProjectDto>> getAll() {
-        return ResponseEntity.ok(adminService.getAll());
-    }
-
     @GetMapping("/{project-id}")
     public ResponseEntity<ProjectReportDto> get(@PathVariable("project-id") String projectId) {
         return ResponseEntity.of(adminService.getProjectReport(projectId));
     }
 
-    @PutMapping("/build")
-    public ResponseEntity<ResponseMessage> buildProject(@RequestBody BuildProjectRequest buildProjectRequest) {
-        ResponseMessage responseMessage = adminService.buildProject(buildProjectRequest);
-        if (responseMessage.success()) {
-            return ResponseEntity.ok(responseMessage);
-        } else {
-            return new ResponseEntity<>(responseMessage, HttpStatus.CONFLICT);
-        }
-    }
-
     @PostMapping("/{project-id}")
     public ResponseEntity<ResponseMessage> update(@RequestBody UpdateProjectRequest updateProjectRequest) {
         ResponseMessage responseMessage = adminService.update(updateProjectRequest);
-        if (responseMessage.success()) {
-            return ResponseEntity.ok(responseMessage);
-        } else {
-            return new ResponseEntity<>(responseMessage, HttpStatus.CONFLICT);
-        }
-    }
-
-    @DeleteMapping("/{project-id}")
-    public ResponseEntity<ResponseMessage> deleteRecursively(@PathVariable("project-id") String projectId) {
-        ResponseMessage responseMessage = adminService.deleteRecursively(projectId);
         if (responseMessage.success()) {
             return ResponseEntity.ok(responseMessage);
         } else {

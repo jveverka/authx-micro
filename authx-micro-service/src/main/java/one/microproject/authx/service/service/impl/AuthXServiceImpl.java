@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,7 +29,7 @@ public class AuthXServiceImpl implements AuthXService {
 
     @Override
     @Transactional
-    public void create(AuthxDto authxDto, String globalAdminProjectId) {
+    public void createOrUpdate(AuthxDto authxDto, List<String> globalAdminProjectId) {
         authxRepository.deleteAll();
         Authx authx = new Authx(authxDto.id(), globalAdminProjectId);
         authxRepository.save(authx);

@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/api/v1/admin/users")
+@RequestMapping(path = "/api/v1/admin/project/users")
 public class AdminUserController {
     //TODO:
     //List users on project

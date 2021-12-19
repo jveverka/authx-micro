@@ -40,7 +40,7 @@ public abstract class AppBaseTest {
     public void init() {
         globalAdminClient = new AuthXClientBuilder()
                 .withBaseUrl("http://localhost:" + port + "/authx")
-                .withProjectId(dataInitService.getGlobalAdminProjectId())
+                .withProjectId(dataInitService.getGlobalAdminProjectIds().get(0))
                 .build();
     }
 
