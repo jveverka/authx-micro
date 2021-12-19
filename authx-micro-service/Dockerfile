@@ -28,4 +28,6 @@ ENV MONGODB_PORT 27017
 ENV CONTEXT_PATH "/authx"
 ENV AUTHX_LOG_LEVEL INFO
 ENV ROOT_LOG_LEVEL INFO
+ENV AUTHX_INTERNAL_URL "http://localhost:8080/authx"
+ENV AUTHX_EXTERNAL_URL "http://localhost:8080/authx"
 ENTRYPOINT ["/authx-micro-service-start.sh"]

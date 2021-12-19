@@ -3,7 +3,7 @@ version: '3.6'
 services:
 
   authx-service:
-    image: jurajveverka/authx-micro-service:1.0.5-amd64
+    image: jurajveverka/authx-micro-service:1.0.6-amd64
     build:
       context: .
       dockerfile: Dockerfile
