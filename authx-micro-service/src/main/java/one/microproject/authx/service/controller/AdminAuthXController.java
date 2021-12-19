@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Only Global Admins are authorized.
+ */
 @RestController
 @RequestMapping(path = "/api/v1/admin/authx")
 public class AdminAuthXController {
