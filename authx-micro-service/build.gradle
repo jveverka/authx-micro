@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'one.microproject'
-version = '1.0.0-RELEASE'
+version = '1.0.2-RELEASE'
 
 repositories {
     mavenCentral()
