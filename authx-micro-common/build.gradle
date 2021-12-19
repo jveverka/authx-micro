@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'one.microproject'
-version = '1.0.2-SNAPSHOT'
+version = "${authXVersion}"
 
 repositories {
     mavenCentral()

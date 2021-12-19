@@ -14,7 +14,7 @@ AuthX is simplified version of [iam-service](https://github.com/jveverka/iam-ser
 * __Client Credentials__ - wip
 * __Refresh Token__ - wip
 
-### Endpoints
+### REST Endpoints
 ```
 http://localhost:7777/actuator/health
 http://localhost:7777/actuator/prometheus
@@ -22,9 +22,9 @@ http://localhost:7777/actuator/prometheus
  
 ### Technical documentation
 * [Security Model](docs/authx-security-model.md)
-* [Build and run locally.](docs/authx-build-and-run.md)
 * [Internal Data Model.](docs/authx-data-model.md)
 * [Authx in Docker.](docs/authx-dockerization.md)
+* [Build and run locally.](docs/authx-build-and-run.md)
 
 #### RFCs and Specifications
 * [RFC6749](https://tools.ietf.org/html/rfc6749) - OAuth 2.0 Authorization Framework

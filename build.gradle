@@ -1,13 +1,15 @@
 
 subprojects {
     apply plugin: 'java'
+
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+
+    ext.authXVersion = '1.0.4'
 
     repositories {
         mavenCentral()
     }
-
 }
 
 project(':authx-micro-common') {
