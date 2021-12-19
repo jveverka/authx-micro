@@ -51,7 +51,7 @@ management:
 
 logging:
   level:
-    root: INFO
+    root: ${ROOT_LOG_LEVEL}
     one:
       microproject:
-        authx: INFO
+        authx: ${AUTHX_LOG_LEVEL}

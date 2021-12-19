@@ -1,15 +1,18 @@
 
+ext.globalAuthXVersion = '1.0.5'
+
 subprojects {
     apply plugin: 'java'
 
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 
-    ext.authXVersion = '1.0.4'
+    ext.authXVersion = "${globalAuthXVersion}"
 
     repositories {
         mavenCentral()
     }
+
 }
 
 project(':authx-micro-common') {
@@ -37,3 +40,10 @@ project(':authx-micro-service') {
         testImplementation project(':authx-micro-jclient')
     }
 }
+
+tasks.register('getversion') {
+    doFirst {
+        print "AUTHX_VERSION=${globalAuthXVersion}"
+    }
+}
+

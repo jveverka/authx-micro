@@ -2,9 +2,9 @@
 
 ### Build Docker Image
 ```
-#export AUTHX_VERSION=$authXVersion
-#export ARCH="amd64"
-#export ARCH="arm64v8"
+#export AUTHX_VERSION=$(gradle getversion | grep AUTHX_VERSION | awk -F "=" '{ print $2 }')
+#export ARCH=amd64
+#export ARCH=arm64v8
 
 docker build -t jurajveverka/authx-micro-service:${AUTHX_VERSION}-${ARCH} \
   --build-arg ARCH=${ARCH} \

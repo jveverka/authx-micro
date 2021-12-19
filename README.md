@@ -2,6 +2,7 @@
 [![Java17](https://img.shields.io/badge/java-17-blue)](https://img.shields.io/badge/java-17-blue)
 [![Gradle](https://img.shields.io/badge/gradle-v7.3-blue)](https://img.shields.io/badge/gradle-v7.3-blue)
 [![Build and Test](https://github.com/jveverka/authx-micro/actions/workflows/main.yml/badge.svg)](https://github.com/jveverka/authx-micro/actions/workflows/main.yml)
+[![Docker](https://img.shields.io/badge/docker-blue)](https://hub.docker.com/r/jurajveverka/authx-micro-service)
 
 # authx-micro
 Minimalistic standalone OAuth2 authentication and authorization server. Project is compliant with subset of OpenID-connect and OAuth2 and other related specifications.
@@ -19,10 +20,20 @@ docker-compose -f authx-docker-compose.yml up -d
 * __Refresh Token__ - wip
 
 ### REST Endpoints
-```
-http://localhost:7777/actuator/health
-http://localhost:7777/actuator/prometheus
-```
+* OAuth2 endpoints
+  ```
+  http://localhost:8080/authx/api/v1/oauth2
+  ```
+* Admin endpoints
+  ```
+  http://localhost:8080/authx/api/v1/admin/authx
+  http://localhost:8080/authx/api/v1/admin/project
+  ```
+* Management endpoints
+  ```
+  http://localhost:7777/actuator/health
+  http://localhost:7777/actuator/prometheus
+  ```
  
 ### Technical documentation
 * [Security Model](docs/authx-security-model.md)
