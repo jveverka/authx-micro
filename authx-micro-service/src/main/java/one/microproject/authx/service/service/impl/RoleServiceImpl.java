@@ -36,7 +36,9 @@ public class RoleServiceImpl implements RoleService {
         if (roleOptional.isPresent()) {
             throw new DataConflictException("Role id already exists.");
         }
-        return null;
+        Role role = dMapper.map(dbId, projectId, request);
+        roleRepository.save(role);
+        return dMapper.map(role);
     }
 
     @Override

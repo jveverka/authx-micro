@@ -36,7 +36,9 @@ public class PermissionServiceImpl implements PermissionService {
         if (optionalPermission.isPresent()) {
             throw new DataConflictException("Permission id already exists.");
         }
-        return null;
+        Permission permission = dMapper.map(dbId, projectId, request);
+        permissionRepository.save(permission);
+        return dMapper.map(permission);
     }
 
     @Override
