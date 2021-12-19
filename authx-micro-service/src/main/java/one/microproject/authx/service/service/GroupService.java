@@ -18,7 +18,7 @@ public interface GroupService {
 
     void remove(String projectId, String id);
 
-    List<GroupDto> removeAll(String projectId);
+    void removeAll(String projectId);
 
     void removeAll();
 

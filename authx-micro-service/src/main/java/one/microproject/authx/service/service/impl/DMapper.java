@@ -67,4 +67,8 @@ public class DMapper {
         return new HashSet<>(ids);
     }
 
+    public Group map(String dbId, String projectId, CreateGroupRequest createGroupRequest) {
+        return new Group(dbId, createGroupRequest.id(), projectId, createGroupRequest.description(), createGroupRequest.labels());
+    }
+
 }
