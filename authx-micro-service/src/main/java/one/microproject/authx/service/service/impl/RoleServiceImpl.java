@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static one.microproject.authx.common.utils.ServiceUtils.createId;
 
@@ -40,18 +41,18 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<RoleDto> getAll() {
-        return null;
+        return roleRepository.findAll().stream().map(dMapper::map).collect(Collectors.toList());
     }
 
     @Override
     public List<RoleDto> getAll(String projectId) {
-        return null;
+        return roleRepository.findAll(projectId).stream().map(dMapper::map).collect(Collectors.toList());
     }
 
     @Override
     public Optional<RoleDto> get(String projectId, String id) {
         String dbId = createId(projectId, id);
-        return Optional.empty();
+        return roleRepository.findById(dbId).map(dMapper::map);
     }
 
     @Override

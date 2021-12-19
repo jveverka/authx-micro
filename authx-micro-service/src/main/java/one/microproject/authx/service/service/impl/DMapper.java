@@ -4,7 +4,9 @@ import one.microproject.authx.common.dto.*;
 import one.microproject.authx.common.utils.CryptoUtils;
 import one.microproject.authx.service.model.Client;
 import one.microproject.authx.service.model.Group;
+import one.microproject.authx.service.model.Permission;
 import one.microproject.authx.service.model.Project;
+import one.microproject.authx.service.model.Role;
 import one.microproject.authx.service.model.User;
 import org.springframework.stereotype.Component;
 
@@ -47,10 +49,6 @@ public class DMapper {
         return new Group(dbId, request.id(), request.projectId(), request.description(), request.labels());
     }
 
-    public GroupDto map(Group group) {
-        return new GroupDto(group.getGroupId(), group.getProjectId(), group.getDescription(), group.getLabels());
-    }
-
     public KeyPairData map(KeyPairSerialized keyPairSerialized) {
         return CryptoUtils.map(keyPairSerialized);
     }
@@ -67,8 +65,28 @@ public class DMapper {
         return new HashSet<>(ids);
     }
 
+    public GroupDto map(Group group) {
+        return new GroupDto(group.getGroupId(), group.getProjectId(), group.getDescription(), group.getLabels());
+    }
+
     public Group map(String dbId, String projectId, GroupDto createGroupRequest) {
         return new Group(dbId, createGroupRequest.id(), projectId, createGroupRequest.description(), createGroupRequest.labels());
+    }
+
+    public RoleDto map(Role role) {
+        return new RoleDto(role.getRoleId(), role.getProjectId(), role.getDescription(), map(role.getPermissionIds()));
+    }
+
+    public Role map(String dbId, String projectId, RoleDto roleDto) {
+        return new Role(dbId, roleDto.id(), projectId, roleDto.description(), map(roleDto.permissionIds()));
+    }
+
+    public PermissionDto map(Permission permission) {
+        return new PermissionDto(permission.getPermissionId(), permission.getProjectId(), permission.getDescription(), permission.getService(), permission.getResource(), permission.getAction());
+    }
+
+    public Permission map(String dbId, String projectId, PermissionDto permissionDto) {
+        return new Permission(dbId, permissionDto.id(), projectId, permissionDto.description(), permissionDto.service(), permissionDto.resource(), permissionDto.action());
     }
 
 }

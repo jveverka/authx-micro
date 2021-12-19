@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static one.microproject.authx.common.utils.ServiceUtils.createId;
 
@@ -40,18 +41,18 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public List<PermissionDto> getAll() {
-        return null;
+        return permissionRepository.findAll().stream().map(dMapper::map).collect(Collectors.toList());
     }
 
     @Override
     public List<PermissionDto> getAll(String projectId) {
-        return null;
+        return permissionRepository.findAll(projectId).stream().map(dMapper::map).collect(Collectors.toList());
     }
 
     @Override
     public Optional<PermissionDto> get(String projectId, String id) {
         String dbId = createId(projectId, id);
-        return Optional.empty();
+        return permissionRepository.findById(dbId).map(dMapper::map);
     }
 
     @Override
