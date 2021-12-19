@@ -36,3 +36,8 @@ test {
         events "passed", "skipped", "failed"
     }
 }
+
+jar {
+    //do not create build/libs/authx-micro-service-*-plain.jar file
+    enabled = false
+}

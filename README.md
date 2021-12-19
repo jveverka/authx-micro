@@ -9,6 +9,10 @@ Minimalistic standalone OAuth2 authentication and authorization server. Project 
 __Disclaimer:__ This project is __WIP__ ! First release is expected __EOF Dec.2021__. 
 AuthX is simplified version of [iam-service](https://github.com/jveverka/iam-service) supporting more data access scenarios.
 
+```
+curl https://raw.githubusercontent.com/jveverka/authx-micro/main/authx-micro-service/authx-docker-compose.yml -o authx-docker-compose.yml
+docker-compose -f authx-docker-compose.yml up -d 
+```
 ## Supported OAuth2 flows
 * __Password Credentials__ - wip
 * __Client Credentials__ - wip
