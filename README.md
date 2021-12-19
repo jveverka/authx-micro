@@ -10,10 +10,19 @@ Minimalistic standalone OAuth2 authentication and authorization server. Project 
 __Disclaimer:__ This project is __WIP__ ! First release is expected __EOF Dec.2021__. 
 AuthX is simplified version of [iam-service](https://github.com/jveverka/iam-service) supporting more data access scenarios.
 
+### Test with docker-compose 
 ```
 curl https://raw.githubusercontent.com/jveverka/authx-micro/main/authx-micro-service/authx-docker-compose.yml -o authx-docker-compose.yml
 docker-compose -f authx-docker-compose.yml up -d 
+curl http://localhost:7777/actuator/health
+curl http://localhost:8080/authx/api/v1/system/info
 ```
+##### OpenAPI 3.0 (swagger)
+```
+http://localhost:8080/authx/v3/api-docs
+http://localhost:8080/authx/swagger-ui/index.html?configUrl=/authx/v3/api-docs/swagger-config
+```
+
 ## Supported OAuth2 flows
 * __Password Credentials__ - wip
 * __Client Credentials__ - wip
