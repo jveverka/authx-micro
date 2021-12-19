@@ -7,12 +7,14 @@ import one.microproject.authx.service.model.Authx;
 import one.microproject.authx.service.service.AuthXService;
 import one.microproject.authx.service.service.DataInitService;
 import one.microproject.authx.service.service.ProjectService;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.security.Security;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +41,11 @@ public class DataInitServiceImpl implements DataInitService {
 
     @PostConstruct
     public void init() {
+
+        LOGGER.info("## CONFIG: initializing Bouncy Castle Provider (BCP) ...");
+        Security.addProvider(new BouncyCastleProvider());
+        LOGGER.info("## CONFIG: BCP initialized.");
+
         LOGGER.info("INIT: Authx data model init ...");
         globalAdminProjectIds = List.of(initialModel.id());
         LOGGER.info("INIT: Checking initial Authx model.");
