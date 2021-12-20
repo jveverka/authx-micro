@@ -3,6 +3,7 @@ package one.microproject.authx.service.service.impl;
 import one.microproject.authx.common.dto.ClientDto;
 import one.microproject.authx.common.dto.CreateProjectRequest;
 import one.microproject.authx.common.dto.ProjectDto;
+import one.microproject.authx.common.dto.UpdateProjectRequest;
 import one.microproject.authx.common.dto.UserDto;
 import one.microproject.authx.service.exceptions.DataConflictException;
 import one.microproject.authx.service.model.Project;
@@ -89,6 +90,18 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public void removeAll() {
         projectRepository.deleteAll();
+    }
+
+    @Override
+    public void update(UpdateProjectRequest request) {
+        Optional<Project> projectOptional = projectRepository.findById(request.id());
+        if (projectOptional.isEmpty()) {
+            throw new DataConflictException("Project not found.");
+        }
+        Project project = projectOptional.get();
+        project.setDescription(request.description());
+        project.setLabels(request.labels());
+        projectRepository.save(project);
     }
 
 }

@@ -1,11 +1,9 @@
 package one.microproject.authx.service.controller;
 
 import one.microproject.authx.common.dto.ProjectReportDto;
-import one.microproject.authx.common.dto.ResponseMessage;
 import one.microproject.authx.common.dto.UpdateProjectRequest;
 import one.microproject.authx.service.service.AdminProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,13 +32,9 @@ public class AdminProjectController {
     }
 
     @PostMapping("/{project-id}")
-    public ResponseEntity<ResponseMessage> update(@RequestBody UpdateProjectRequest updateProjectRequest) {
-        ResponseMessage responseMessage = adminService.update(updateProjectRequest);
-        if (responseMessage.success()) {
-            return ResponseEntity.ok(responseMessage);
-        } else {
-            return new ResponseEntity<>(responseMessage, HttpStatus.CONFLICT);
-        }
+    public ResponseEntity<Void> update(@RequestBody UpdateProjectRequest updateProjectRequest) {
+        adminService.update(updateProjectRequest);
+        return ResponseEntity.ok().build();
     }
 
 }
