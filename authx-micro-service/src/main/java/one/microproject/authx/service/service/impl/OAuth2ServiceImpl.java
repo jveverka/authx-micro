@@ -93,8 +93,8 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
                 String idToken = TokenUtils.issueToken(idClaims, keyPairData.id(), keyPairData.privateKey());
                 String tokenType = Constants.BEARER;
-                tokenCacheWriterService.saveAccessToken(projectId, accessClaims.jti(), refreshJit, accessToken, keyPairData.id(), keyPairData.x509Certificate(), accessDuration);
-                tokenCacheWriterService.saveRefreshToken(projectId, refreshClaims.jti(), accessJit, refreshToken, keyPairData.id(), keyPairData.x509Certificate(), refreshDuration);
+                tokenCacheWriterService.saveAccessToken(projectId, accessClaims.jti(), refreshJit, accessToken, keyPairData.x509Certificate(), accessDuration);
+                tokenCacheWriterService.saveRefreshToken(projectId, refreshClaims.jti(), accessJit, refreshToken, keyPairData.x509Certificate(), refreshDuration);
                 return new TokenResponse(accessToken, (epochMilli + accessDuration), (epochMilli + refreshDuration), refreshToken, tokenType, idToken);
             } else {
                 throw new OAuth2TokenException("User not found !");
@@ -148,7 +148,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 TokenClaims accessClaims = new TokenClaims(refreshClaims.issuer(), refreshClaims.subject(), refreshClaims.audience(), refreshClaims.scope(), issuedAt, accessExpiration, TokenType.BEARER, accessJti);
 
                 String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
-                tokenCacheWriterService.saveRefreshedAccessToken(projectId, accessClaims.jti(), refreshClaims.jti(), accessToken, keyPairData.id(), keyPairData.x509Certificate(), accessDuration);
+                tokenCacheWriterService.saveRefreshedAccessToken(projectId, accessClaims.jti(), refreshClaims.jti(), accessToken, keyPairData.x509Certificate(), accessDuration);
                 String tokenType = Constants.BEARER;
                 return new TokenResponse(accessToken, (epochMilli + accessDuration), refreshClaims.expiration().getTime(), refreshToken, tokenType, null);
             } else {

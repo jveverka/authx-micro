@@ -13,7 +13,7 @@ public class CachedToken {
     @Id
     private String id;
     private String token;
-    private String kid;
+    private String projectId;
     private String x509Certificate;
 
     @Indexed
@@ -26,10 +26,10 @@ public class CachedToken {
     public CachedToken() {
     }
 
-    public CachedToken(String id, String token, String kid, String x509Certificate, String relatedTokenId, String typ, Long timeToLive) {
+    public CachedToken(String id, String token, String projectId, String x509Certificate, String relatedTokenId, String typ, Long timeToLive) {
         this.id = id;
         this.token = token;
-        this.kid = kid;
+        this.projectId = projectId;
         this.x509Certificate = x509Certificate;
         this.relatedTokenId = relatedTokenId;
         this.typ = typ;
@@ -52,12 +52,8 @@ public class CachedToken {
         this.token = token;
     }
 
-    public String getKid() {
-        return kid;
-    }
-
-    public void setKid(String kid) {
-        this.kid = kid;
+    public String getProjectId() {
+        return projectId;
     }
 
     public String getX509Certificate() {

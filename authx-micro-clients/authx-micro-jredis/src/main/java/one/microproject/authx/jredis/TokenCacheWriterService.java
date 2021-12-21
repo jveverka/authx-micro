@@ -10,11 +10,10 @@ public interface TokenCacheWriterService {
      * @param jti - unique ID of JWT Token.
      * @param refreshJti - jit of related refresh token.
      * @param token - JWT access token.
-     * @param kid - unique Key ID used to verify token's signature.
      * @param certificate - X509 certificate for token signature verification.
      * @param timeToLive - token expiration interval in seconds.
      */
-    void saveAccessToken(String projectId, String jti, String refreshJti, String token, String kid, X509Certificate certificate, Long timeToLive);
+    void saveAccessToken(String projectId, String jti, String refreshJti, String token, X509Certificate certificate, Long timeToLive);
 
     /**
      * Save JWT refresh token and corresponding X509 certificate in cache by it unique ProjectId and JTI.
@@ -22,11 +21,10 @@ public interface TokenCacheWriterService {
      * @param jti - unique ID of JWT Token.
      * @param accessJti - jit of related access token.
      * @param token - JWT refresh token.
-     * @param kid - unique Key ID used to verify token's signature.
      * @param certificate - X509 certificate for token signature verification.
      * @param timeToLive - token expiration interval in seconds.
      */
-    void saveRefreshToken(String projectId, String jti, String accessJti, String token, String kid, X509Certificate certificate, Long timeToLive);
+    void saveRefreshToken(String projectId, String jti, String accessJti, String token, X509Certificate certificate, Long timeToLive);
 
     /**
      * Save new Access Token after successful refresh,
@@ -34,11 +32,10 @@ public interface TokenCacheWriterService {
      * @param jti - unique ID of refreshed access JWT Token.
      * @param refreshJti - unique ID of related refresh JWT Token.
      * @param token - new JWT access token.
-     * @param kid - unique Key ID used to verify token's signature.
      * @param certificate - X509 certificate for token signature verification.
      * @param timeToLive - token expiration interval in seconds.
      */
-    void saveRefreshedAccessToken(String projectId, String jti, String refreshJti, String token, String kid, X509Certificate certificate, Long timeToLive);
+    void saveRefreshedAccessToken(String projectId, String jti, String refreshJti, String token, X509Certificate certificate, Long timeToLive);
 
     /**
      * Remove JWT Token by it's unique ID.

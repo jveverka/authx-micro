@@ -32,23 +32,23 @@ public class TokenCacheWriterServiceImpl implements TokenCacheWriterService {
 
     @Override
     @Transactional
-    public void saveAccessToken(String projectId, String jti, String refreshJti, String token, String kid, X509Certificate certificate, Long timeToLive) {
+    public void saveAccessToken(String projectId, String jti, String refreshJti, String token, X509Certificate certificate, Long timeToLive) {
         String id = createId(projectId, jti);
-        CachedToken cachedToken = new CachedToken(id, token, kid, serializeX509Certificate(certificate), refreshJti, TokenType.BEARER.getType(), timeToLive);
+        CachedToken cachedToken = new CachedToken(id, token, projectId, serializeX509Certificate(certificate), refreshJti, TokenType.BEARER.getType(), timeToLive);
         cacheTokenRepository.save(cachedToken);
     }
 
     @Override
     @Transactional
-    public void saveRefreshToken(String projectId, String jti, String accessJti, String token, String kid, X509Certificate certificate, Long timeToLive) {
+    public void saveRefreshToken(String projectId, String jti, String accessJti, String token, X509Certificate certificate, Long timeToLive) {
         String id = createId(projectId, jti);
-        CachedToken cachedToken = new CachedToken(id, token, kid, serializeX509Certificate(certificate), accessJti, TokenType.REFRESH.getType(), timeToLive);
+        CachedToken cachedToken = new CachedToken(id, token, projectId, serializeX509Certificate(certificate), accessJti, TokenType.REFRESH.getType(), timeToLive);
         cacheTokenRepository.save(cachedToken);
     }
 
     @Override
     @Transactional
-    public void saveRefreshedAccessToken(String projectId, String accessJti, String refreshJti, String token, String kid, X509Certificate certificate, Long timeToLive) {
+    public void saveRefreshedAccessToken(String projectId, String accessJti, String refreshJti, String token, X509Certificate certificate, Long timeToLive) {
         String accessId = createId(projectId, accessJti);
         String refreshId = createId(projectId, refreshJti);
         Optional<CachedToken> refreshTokenOptional = cacheTokenRepository.findById(refreshId);
@@ -57,7 +57,7 @@ public class TokenCacheWriterServiceImpl implements TokenCacheWriterService {
             String accessIdToDelete = createId(projectId, refreshToken.getRelatedTokenId());
             cacheTokenRepository.deleteById(accessIdToDelete);
             refreshToken.setRelatedTokenId(accessJti);
-            CachedToken accessToken = new CachedToken(accessId, token, kid, serializeX509Certificate(certificate), refreshJti, TokenType.BEARER.getType(), timeToLive);
+            CachedToken accessToken = new CachedToken(accessId, token, projectId, serializeX509Certificate(certificate), refreshJti, TokenType.BEARER.getType(), timeToLive);
             cacheTokenRepository.save(accessToken);
             cacheTokenRepository.save(refreshToken);
         } else {

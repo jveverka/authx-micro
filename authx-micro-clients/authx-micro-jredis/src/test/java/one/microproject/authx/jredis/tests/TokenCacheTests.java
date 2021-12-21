@@ -51,7 +51,7 @@ class TokenCacheTests extends AppBaseTest {
         KeyPairData keyPairData = generateKeyPair("key-001", "sub", TimeUnit.HOURS, 1L);
         TokenClaims accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "jti");
         String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
-        tokenCacheWriterService.saveAccessToken("p-01", "jti", "NA", accessToken, "key-001", keyPairData.x509Certificate(), TimeToLiveAccess);
+        tokenCacheWriterService.saveAccessToken("p-01", "jti", "NA", accessToken, keyPairData.x509Certificate(), TimeToLiveAccess);
         Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify("p-01", accessToken);
         assertTrue(verifiedClaims.isPresent());
         tokenCacheWriterService.removeTokenById("p-01", "jti");
@@ -67,7 +67,7 @@ class TokenCacheTests extends AppBaseTest {
         KeyPairData keyPairData = generateKeyPair("key-001", "sub", TimeUnit.HOURS, 1L);
         TokenClaims refreshClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, refreshExpiration, TokenType.REFRESH, "jti");
         String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
-        tokenCacheWriterService.saveRefreshToken("p-01", "jti", "NA", refreshToken, "key-001", keyPairData.x509Certificate(), TimeToLiveRefresh);
+        tokenCacheWriterService.saveRefreshToken("p-01", "jti", "NA", refreshToken, keyPairData.x509Certificate(), TimeToLiveRefresh);
         Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify("p-01", refreshToken);
         assertTrue(verifiedClaims.isPresent());
         tokenCacheWriterService.removeTokenById("p-01", "jti");
@@ -89,8 +89,8 @@ class TokenCacheTests extends AppBaseTest {
         String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
         String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
 
-        tokenCacheWriterService.saveAccessToken("p-01", "access-001", "refresh-001", accessToken, "key-001", keyPairData.x509Certificate(), TimeToLiveAccess);
-        tokenCacheWriterService.saveRefreshToken("p-01", "refresh-001", "access-001", refreshToken, "key-001", keyPairData.x509Certificate(), TimeToLiveRefresh);
+        tokenCacheWriterService.saveAccessToken("p-01", "access-001", "refresh-001", accessToken, keyPairData.x509Certificate(), TimeToLiveAccess);
+        tokenCacheWriterService.saveRefreshToken("p-01", "refresh-001", "access-001", refreshToken, keyPairData.x509Certificate(), TimeToLiveRefresh);
 
         Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify("p-01", accessToken);
         assertTrue(verifiedClaims.isPresent());
@@ -99,7 +99,7 @@ class TokenCacheTests extends AppBaseTest {
 
         accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "access-002");
         String refreshedAccessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
-        tokenCacheWriterService.saveRefreshedAccessToken("p-01", "access-002", "refresh-001", refreshedAccessToken, "key-001", keyPairData.x509Certificate(), TimeToLiveAccess);
+        tokenCacheWriterService.saveRefreshedAccessToken("p-01", "access-002", "refresh-001", refreshedAccessToken, keyPairData.x509Certificate(), TimeToLiveAccess);
 
         Optional<CachedToken> cachedTokenOptional = cacheTokenRepository.findById("p-01-refresh-001");
         assertTrue(cachedTokenOptional.isPresent());
