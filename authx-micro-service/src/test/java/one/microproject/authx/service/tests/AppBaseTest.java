@@ -2,6 +2,7 @@ package one.microproject.authx.service.tests;
 
 import one.microproject.authx.jclient.AuthXClient;
 import one.microproject.authx.jclient.AuthXClientBuilder;
+import one.microproject.authx.jclient.AuthXOAuth2Client;
 import one.microproject.authx.service.service.DataInitService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
@@ -31,20 +32,25 @@ public abstract class AppBaseTest {
     @Autowired
     private DataInitService dataInitService;
 
-    private AuthXClient globalAdminClient;
+    private AuthXClient adminClient;
+    private AuthXOAuth2Client globalAdminClient;
 
     @LocalServerPort
     private int port;
 
     @PostConstruct
     public void init() {
-        globalAdminClient = new AuthXClientBuilder()
+        adminClient = new AuthXClientBuilder()
                 .withBaseUrl("http://localhost:" + port + "/authx")
-                .withProjectId(dataInitService.getGlobalAdminProjectIds().get(0))
                 .build();
+        globalAdminClient = adminClient.getAuthXOAuth2Client(dataInitService.getGlobalAdminProjectIds().get(0));
     }
 
-    public AuthXClient getGlobalAdminClient() {
+    public AuthXClient getAuthXClient() {
+        return adminClient;
+    }
+
+    public AuthXOAuth2Client getGlobalAdminOAuth2Client() {
         return globalAdminClient;
     }
 

@@ -4,7 +4,7 @@ import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
-import one.microproject.authx.jclient.AuthXClient;
+import one.microproject.authx.jclient.AuthXOAuth2Client;
 import one.microproject.authx.service.tests.AppBaseTest;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ class OAuth2ControllerTest extends AppBaseTest  {
 
     @Test
     void testGetTokenForPassword() {
-        AuthXClient authXClient = getGlobalAdminClient();
+        AuthXOAuth2Client authXClient = getGlobalAdminOAuth2Client();
         ClientCredentials clientCredentials = new ClientCredentials("admin-client", "secret");
         Set<String> scopes = Set.of();
         UserCredentials userCredentials = new UserCredentials("admin-user", "s3cr3t");
@@ -49,7 +49,7 @@ class OAuth2ControllerTest extends AppBaseTest  {
 
     @Test
     void testRefreshToken() {
-        AuthXClient authXClient = getGlobalAdminClient();
+        AuthXOAuth2Client authXClient = getGlobalAdminOAuth2Client();
         ClientCredentials clientCredentials = new ClientCredentials("admin-client", "secret");
         Set<String> scopes = Set.of();
         UserCredentials userCredentials = new UserCredentials("admin-user", "s3cr3t");

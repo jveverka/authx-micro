@@ -1,4 +1,4 @@
-package one.microproject.authx.common.dto.oauth2;
+package one.microproject.authx.common.dto;
 
 import java.util.List;
 

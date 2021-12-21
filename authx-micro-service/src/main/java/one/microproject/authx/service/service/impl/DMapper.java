@@ -1,7 +1,9 @@
 package one.microproject.authx.service.service.impl;
 
 import one.microproject.authx.common.dto.*;
+import one.microproject.authx.common.dto.AuthxInfo;
 import one.microproject.authx.common.utils.CryptoUtils;
+import one.microproject.authx.service.model.Authx;
 import one.microproject.authx.service.model.Client;
 import one.microproject.authx.service.model.Group;
 import one.microproject.authx.service.model.Permission;
@@ -47,6 +49,14 @@ public class DMapper {
 
     public Group map(String dbId, GroupDto request) {
         return new Group(dbId, request.id(), request.projectId(), request.description(), request.labels());
+    }
+
+    public Authx map(AuthxDto authxDto) {
+        return new Authx(authxDto.id(), authxDto.globalAdminProjectIds());
+    }
+
+    public AuthxDto map(Authx authx) {
+        return new AuthxDto(authx.getId(), authx.getGlobalAdminProjectIds());
     }
 
     public KeyPairData map(KeyPairSerialized keyPairSerialized) {

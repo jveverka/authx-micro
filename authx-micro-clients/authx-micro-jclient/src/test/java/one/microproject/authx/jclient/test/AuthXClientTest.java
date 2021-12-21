@@ -7,8 +7,8 @@ import okhttp3.mockwebserver.MockWebServer;
 import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
-import one.microproject.authx.jclient.AuthXClient;
-import one.microproject.authx.jclient.AuthXClientBuilder;
+import one.microproject.authx.jclient.AuthXOAuth2Client;
+import one.microproject.authx.jclient.AuthXOAuth2ClientBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -47,7 +47,7 @@ public class AuthXClientTest {
         Set<String> scopes = Set.of();
         UserCredentials userCredentials = new UserCredentials("user", "password");
 
-        AuthXClient authXClient = new AuthXClientBuilder()
+        AuthXOAuth2Client authXClient = new AuthXOAuth2ClientBuilder()
                 .withBaseUrl(url)
                 .withProjectId(projectId)
                 .build();

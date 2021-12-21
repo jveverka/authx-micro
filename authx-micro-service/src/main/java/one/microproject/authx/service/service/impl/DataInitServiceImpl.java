@@ -49,15 +49,15 @@ public class DataInitServiceImpl implements DataInitService {
         LOGGER.info("INIT: Authx data model init ...");
         globalAdminProjectIds = List.of(initialModel.id());
         LOGGER.info("INIT: Checking initial Authx model.");
-        Optional<Authx> authxInfo = authXService.getAuthxInfo();
+        Optional<AuthxDto> authxInfo = authXService.getAuthxInfo();
         boolean createGlobalAdminProject = false;
         if (authxInfo.isPresent()) {
-            Authx authx = authxInfo.get();
-            LOGGER.info("INIT: Using Authx model {} {}.", authx.getId(), authx.getGlobalAdminProjectIds());
-            globalAdminProjectIds = authx.getGlobalAdminProjectIds();
+            AuthxDto authx = authxInfo.get();
+            LOGGER.info("INIT: Using Authx model {} {}.", authx.id(), authx.globalAdminProjectIds());
+            globalAdminProjectIds = authx.globalAdminProjectIds();
         } else {
             LOGGER.info("INIT: Creating Authx model {} {}.", authxDto.id(), globalAdminProjectIds);
-            authXService.createOrUpdate(authxDto, globalAdminProjectIds);
+            authXService.createOrUpdate(new AuthxDto(authxDto.id(), globalAdminProjectIds));
             createGlobalAdminProject = true;
         }
         if (createGlobalAdminProject) {

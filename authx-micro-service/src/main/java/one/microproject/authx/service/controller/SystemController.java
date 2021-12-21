@@ -1,8 +1,8 @@
 package one.microproject.authx.service.controller;
 
+import one.microproject.authx.common.dto.AuthxDto;
 import one.microproject.authx.common.dto.ProjectDto;
-import one.microproject.authx.common.dto.oauth2.AuthxInfo;
-import one.microproject.authx.service.model.Authx;
+import one.microproject.authx.common.dto.AuthxInfo;
 import one.microproject.authx.service.service.AuthXService;
 import one.microproject.authx.service.service.ProjectService;
 import org.slf4j.Logger;
@@ -23,15 +23,15 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping(path = "/api/v1/system")
-public class StatusController {
+public class SystemController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StatusController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystemController.class);
 
     private final AuthXService authXService;
     private final ProjectService projectService;
 
     @Autowired
-    public StatusController(AuthXService authXService, ProjectService projectService) {
+    public SystemController(AuthXService authXService, ProjectService projectService) {
         this.authXService = authXService;
         this.projectService = projectService;
     }
@@ -39,11 +39,11 @@ public class StatusController {
     @GetMapping("/info")
     public ResponseEntity<AuthxInfo> getAuthxInfo() {
         LOGGER.info("getAuthxInfo");
-        Optional<Authx> authxOptional = authXService.getAuthxInfo();
+        Optional<AuthxDto> authxOptional = authXService.getAuthxInfo();
         if (authxOptional.isPresent()) {
-            Authx authx = authxOptional.get();
+            AuthxDto authx = authxOptional.get();
             List<String> projectIds = projectService.getAll().stream().map(ProjectDto::id).collect(Collectors.toList());
-            AuthxInfo authxInfo = new AuthxInfo(authx.getId(), projectIds);
+            AuthxInfo authxInfo = new AuthxInfo(authx.id(), projectIds);
             return ResponseEntity.ok(authxInfo);
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

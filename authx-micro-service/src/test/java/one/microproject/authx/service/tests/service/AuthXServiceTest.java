@@ -30,10 +30,10 @@ public class AuthXServiceTest extends AppBaseTest {
 
     @Test
     void testInitialDataModel() {
-        Optional<Authx> authx = authXService.getAuthxInfo();
+        Optional<AuthxDto> authx = authXService.getAuthxInfo();
         assertTrue(authx.isPresent());
-        assertEquals(authxDto.id(), authx.get().getId());
-        assertTrue(authx.get().getGlobalAdminProjectIds().contains(createProjectRequest.id()));
+        assertEquals(authxDto.id(), authx.get().id());
+        assertTrue(authx.get().globalAdminProjectIds().contains(createProjectRequest.id()));
     }
 
 }

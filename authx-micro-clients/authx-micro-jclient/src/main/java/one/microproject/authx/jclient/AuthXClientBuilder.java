@@ -7,17 +7,11 @@ import one.microproject.authx.jclient.impl.AuthXClientImpl;
 public class AuthXClientBuilder {
 
     private String baseUrl = "http://localhost:8080/authx";
-    private String projectId = "global-admins";
     private OkHttpClient client = new OkHttpClient();
     private ObjectMapper mapper = new ObjectMapper();
 
     public AuthXClientBuilder withBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
-        return this;
-    }
-
-    public AuthXClientBuilder withProjectId(String projectId) {
-        this.projectId = projectId;
         return this;
     }
 
@@ -32,7 +26,6 @@ public class AuthXClientBuilder {
     }
 
     public AuthXClient build() {
-        return new AuthXClientImpl(baseUrl, projectId, client, mapper);
+        return new AuthXClientImpl(baseUrl, client, mapper);
     }
-
 }
