@@ -28,7 +28,6 @@ import static one.microproject.authx.jclient.impl.Constants.SCOPE;
 
 public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
 
-    public static final String BEARER_PREFIX = "Bearer ";
     public static final String AUTHORIZATION = "Authorization";
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";

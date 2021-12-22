@@ -3,6 +3,7 @@ package one.microproject.authx.jredis.impl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.MalformedJwtException;
 import one.microproject.authx.common.dto.TokenClaims;
 import one.microproject.authx.common.utils.CryptoUtils;
 import one.microproject.authx.common.utils.TokenUtils;
@@ -37,7 +38,12 @@ public class TokenCacheReaderServiceImpl implements TokenCacheReaderService {
 
     @Override
     public Optional<TokenClaims> verify(String jwt, String tokenTypeHint) {
-        Jwt<? extends Header, Claims> jwtToken = TokenUtils.getJwt(jwt);
+        Jwt<? extends Header, Claims> jwtToken;
+        try {
+            jwtToken = TokenUtils.getJwt(jwt);
+        } catch (NullPointerException | IndexOutOfBoundsException | MalformedJwtException e) {
+            return Optional.empty();
+        }
         if (tokenTypeHint != null && tokenTypeHint.length() > 0 && !jwtToken.getBody().get(TYP_ID).equals(tokenTypeHint)) {
             return Optional.empty();
         }

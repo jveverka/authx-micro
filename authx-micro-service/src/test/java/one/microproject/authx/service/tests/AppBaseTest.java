@@ -1,5 +1,8 @@
 package one.microproject.authx.service.tests;
 
+import one.microproject.authx.common.dto.ClientCredentials;
+import one.microproject.authx.common.dto.UserCredentials;
+import one.microproject.authx.common.dto.oauth2.TokenResponse;
 import one.microproject.authx.jclient.AuthXClient;
 import one.microproject.authx.jclient.AuthXClientBuilder;
 import one.microproject.authx.jclient.AuthXOAuth2Client;
@@ -22,6 +25,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.annotation.PostConstruct;
+import java.util.Set;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -34,16 +38,22 @@ public abstract class AppBaseTest {
 
     private AuthXClient adminClient;
     private AuthXOAuth2Client globalAdminClient;
+    private String baseUrl;
 
     @LocalServerPort
     private int port;
 
     @PostConstruct
     public void init() {
+        baseUrl = "http://localhost:" + port + "/authx";
         adminClient = new AuthXClientBuilder()
-                .withBaseUrl("http://localhost:" + port + "/authx")
+                .withBaseUrl(baseUrl)
                 .build();
         globalAdminClient = adminClient.getAuthXOAuth2Client(dataInitService.getGlobalAdminProjectIds().get(0));
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
     }
 
     public AuthXClient getAuthXClient() {
@@ -52,6 +62,13 @@ public abstract class AppBaseTest {
 
     public AuthXOAuth2Client getGlobalAdminOAuth2Client() {
         return globalAdminClient;
+    }
+
+    public TokenResponse getGlobalAdminTokens() {
+        ClientCredentials clientCredentials = new ClientCredentials("admin-client", "secret");
+        Set<String> scopes = Set.of();
+        UserCredentials userCredentials = new UserCredentials("admin-user", "s3cr3t");
+        return globalAdminClient.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AppBaseTest.class);

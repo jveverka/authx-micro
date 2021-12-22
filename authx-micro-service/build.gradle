@@ -35,6 +35,17 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println("----------------------------------------------------------------------------------------")
+            println("${result.resultType} " +
+                    "(${result.testCount} tests, " +
+                    "${result.successfulTestCount} successes, " +
+                    "${result.failedTestCount} failures, " +
+                    "${result.skippedTestCount} skipped)")
+            println("----------------------------------------------------------------------------------------")
+        }
+    }
 }
 
 jar {
