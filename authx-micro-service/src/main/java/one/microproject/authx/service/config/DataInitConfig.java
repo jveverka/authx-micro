@@ -45,7 +45,7 @@ public class DataInitConfig {
         LOGGER.info("##CONFIG:  Project: {}", projectName);
         LOGGER.info("##CONFIG:    Admin: {}", adminUser);
         LOGGER.info("##CONFIG:    Client: {}", clientId);
-        CreateUserRequest adminUserRequest = new CreateUserRequest(adminUser, "", "Global Admin", adminPassword, Map.of(), Set.of(), Set.of());
+        CreateUserRequest adminUserRequest = new CreateUserRequest(adminUser, "", "Global Admin", adminPassword, Map.of(), Set.of(), Set.of(), clientId);
         CreateClientRequest adminClientRequest = new CreateClientRequest(clientId, "Global Admin Client", false, clientSecret, Map.of(), Set.of(), Set.of());
         return new CreateProjectRequest(projectName, "Global Admins", Map.of(), adminUserRequest, adminClientRequest);
     }

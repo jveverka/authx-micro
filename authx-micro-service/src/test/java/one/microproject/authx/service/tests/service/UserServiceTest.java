@@ -26,8 +26,8 @@ public class UserServiceTest extends AppBaseTest {
     void testUserAddRemove() {
         String projectId = "p-01";
         String clientId = "c-01";
-        CreateUserRequest request = new CreateUserRequest("u-01", "user@email.com", "d", "s01", Map.of(), Set.of(), Set.of());
-        UserDto userDto = userService.create(projectId, clientId, request);
+        CreateUserRequest request = new CreateUserRequest("u-01", "user@email.com", "d", "s01", Map.of(), Set.of(), Set.of(), clientId);
+        UserDto userDto = userService.create(projectId, request);
         assertNotNull(userDto);
         assertEquals(request.id(), userDto.id());
 

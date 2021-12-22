@@ -61,7 +61,23 @@ public class AdminAuthXServiceImpl implements AdminAuthXService {
         if (projectDtoOptional.isPresent()) {
             return ResponseMessage.error("Project id=" + projectId + " already exists.");
         }
+        //TODO: validate data
         projectService.create(buildProjectRequest.createProjectRequest());
+        buildProjectRequest.groups().forEach(
+                g -> groupService.create(projectId, g)
+        );
+        buildProjectRequest.permissions().forEach(
+                p -> permissionService.create(projectId, p)
+        );
+        buildProjectRequest.roles().forEach(
+                r -> roleService.create(projectId, r)
+        );
+        buildProjectRequest.clients().forEach(
+                c -> clientService.create(projectId, c)
+        );
+        buildProjectRequest.users().forEach(
+                u -> userService.create(projectId, u)
+        );
         return ResponseMessage.ok("Project id=" + projectId + " created.");
     }
 

@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface UserService {
 
-    UserDto create(String projectId, String clientId, CreateUserRequest request);
+    UserDto create(String projectId, CreateUserRequest request);
 
     List<UserDto> getAll();
 
