@@ -49,13 +49,13 @@ class TokenCacheTests extends AppBaseTest {
         Date issuedAt = new Date(epochMilli);
         Date accessExpiration = new Date(epochMilli + TimeToLiveAccess*1000L);
         KeyPairData keyPairData = generateKeyPair("key-001", "sub", TimeUnit.HOURS, 1L);
-        TokenClaims accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "jti");
+        TokenClaims accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "jti", "p-01");
         String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
         tokenCacheWriterService.saveAccessToken("p-01", "jti", "NA", accessToken, keyPairData.x509Certificate(), TimeToLiveAccess);
-        Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify("p-01", accessToken);
+        Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify(accessToken);
         assertTrue(verifiedClaims.isPresent());
-        tokenCacheWriterService.removeTokenById("p-01", "jti");
-        verifiedClaims = tokenCacheReaderService.verify("p-01", accessToken);
+        tokenCacheWriterService.removeTokenById("jti");
+        verifiedClaims = tokenCacheReaderService.verify(accessToken);
         assertTrue(verifiedClaims.isEmpty());
     }
 
@@ -65,13 +65,13 @@ class TokenCacheTests extends AppBaseTest {
         Date issuedAt = new Date(epochMilli);
         Date refreshExpiration = new Date(epochMilli + TimeToLiveRefresh*1000L);
         KeyPairData keyPairData = generateKeyPair("key-001", "sub", TimeUnit.HOURS, 1L);
-        TokenClaims refreshClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, refreshExpiration, TokenType.REFRESH, "jti");
+        TokenClaims refreshClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, refreshExpiration, TokenType.REFRESH, "jti", "p-01");
         String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
         tokenCacheWriterService.saveRefreshToken("p-01", "jti", "NA", refreshToken, keyPairData.x509Certificate(), TimeToLiveRefresh);
-        Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify("p-01", refreshToken);
+        Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify(refreshToken);
         assertTrue(verifiedClaims.isPresent());
-        tokenCacheWriterService.removeTokenById("p-01", "jti");
-        verifiedClaims = tokenCacheReaderService.verify("p-01", refreshToken);
+        tokenCacheWriterService.removeTokenById( "jti");
+        verifiedClaims = tokenCacheReaderService.verify( refreshToken);
         assertTrue(verifiedClaims.isEmpty());
     }
 
@@ -83,8 +83,8 @@ class TokenCacheTests extends AppBaseTest {
         Date refreshExpiration = new Date(epochMilli + TimeToLiveRefresh*1000L);
         KeyPairData keyPairData = generateKeyPair("key-001", "sub", TimeUnit.HOURS, 1L);
 
-        TokenClaims accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "access-001");
-        TokenClaims refreshClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, refreshExpiration, TokenType.REFRESH, "refresh-001");
+        TokenClaims accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "access-001", "p-01");
+        TokenClaims refreshClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, refreshExpiration, TokenType.REFRESH, "refresh-001", "p-01");
 
         String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
         String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
@@ -92,27 +92,27 @@ class TokenCacheTests extends AppBaseTest {
         tokenCacheWriterService.saveAccessToken("p-01", "access-001", "refresh-001", accessToken, keyPairData.x509Certificate(), TimeToLiveAccess);
         tokenCacheWriterService.saveRefreshToken("p-01", "refresh-001", "access-001", refreshToken, keyPairData.x509Certificate(), TimeToLiveRefresh);
 
-        Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify("p-01", accessToken);
+        Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify(accessToken);
         assertTrue(verifiedClaims.isPresent());
-        verifiedClaims = tokenCacheReaderService.verify("p-01", refreshToken);
+        verifiedClaims = tokenCacheReaderService.verify(refreshToken);
         assertTrue(verifiedClaims.isPresent());
 
-        accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "access-002");
+        accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "access-002", "p-01");
         String refreshedAccessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
         tokenCacheWriterService.saveRefreshedAccessToken("p-01", "access-002", "refresh-001", refreshedAccessToken, keyPairData.x509Certificate(), TimeToLiveAccess);
 
-        Optional<CachedToken> cachedTokenOptional = cacheTokenRepository.findById("p-01-refresh-001");
+        Optional<CachedToken> cachedTokenOptional = cacheTokenRepository.findById("refresh-001");
         assertTrue(cachedTokenOptional.isPresent());
-        cachedTokenOptional = cacheTokenRepository.findById("p-01-access-002");
+        cachedTokenOptional = cacheTokenRepository.findById("access-002");
         assertTrue(cachedTokenOptional.isPresent());
-        cachedTokenOptional = cacheTokenRepository.findById("p-01-access-001");
+        cachedTokenOptional = cacheTokenRepository.findById("access-001");
         assertTrue(cachedTokenOptional.isEmpty());
 
-        verifiedClaims = tokenCacheReaderService.verify("p-01", accessToken);
+        verifiedClaims = tokenCacheReaderService.verify(accessToken);
         assertFalse(verifiedClaims.isPresent());
-        verifiedClaims = tokenCacheReaderService.verify("p-01", refreshToken);
+        verifiedClaims = tokenCacheReaderService.verify(refreshToken);
         assertTrue(verifiedClaims.isPresent());
-        verifiedClaims = tokenCacheReaderService.verify("p-01", refreshedAccessToken);
+        verifiedClaims = tokenCacheReaderService.verify(refreshedAccessToken);
         assertTrue(verifiedClaims.isPresent());
     }
 

@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
 
-import static one.microproject.authx.common.utils.ServiceUtils.createId;
 import static one.microproject.authx.common.utils.TokenUtils.JTI_CLAIM;
 import static one.microproject.authx.common.utils.TokenUtils.TYP_ID;
 
@@ -32,17 +31,17 @@ public class TokenCacheReaderServiceImpl implements TokenCacheReaderService {
     }
 
     @Override
-    public Optional<TokenClaims> verify(String projectId, String jwt) {
-        return verify(projectId, jwt, null);
+    public Optional<TokenClaims> verify(String jwt) {
+        return verify(jwt, null);
     }
 
     @Override
-    public Optional<TokenClaims> verify(String projectId, String jwt, String tokenTypeHint) {
+    public Optional<TokenClaims> verify(String jwt, String tokenTypeHint) {
         Jwt<? extends Header, Claims> jwtToken = TokenUtils.getJwt(jwt);
         if (tokenTypeHint != null && tokenTypeHint.length() > 0 && !jwtToken.getBody().get(TYP_ID).equals(tokenTypeHint)) {
             return Optional.empty();
         }
-        String id = createId(projectId, (String)jwtToken.getBody().get(JTI_CLAIM));
+        String id = (String)jwtToken.getBody().get(JTI_CLAIM);
         Optional<CachedToken> cachedTokenOptional = cacheTokenRepository.findById(id);
         if (cachedTokenOptional.isPresent()) {
             X509Certificate x509Certificate = CryptoUtils.deserializeX509Certificate(cachedTokenOptional.get().getX509Certificate());

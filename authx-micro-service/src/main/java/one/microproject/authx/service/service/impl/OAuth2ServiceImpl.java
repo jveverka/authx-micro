@@ -39,8 +39,8 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2ServiceImpl.class);
 
-    private final Long DEFAULT_ACCESS_DURATION = 24*60*60*1000L;
-    private final Long DEFAULT_REFRESH_DURATION = 30*24*60*60*1000L;
+    private static final Long DEFAULT_ACCESS_DURATION = 24*60*60*1000L;
+    private static final Long DEFAULT_REFRESH_DURATION = 30*24*60*60*1000L;
 
     private final ProjectService projectService;
     private final UserService userService;
@@ -86,9 +86,9 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
                 String accessJit = UUID.randomUUID().toString();
                 String refreshJit = UUID.randomUUID().toString();
-                TokenClaims accessClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, accessExpiration, TokenType.BEARER, accessJit);
-                TokenClaims refreshClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, refreshExpiration, TokenType.REFRESH, refreshJit);
-                TokenClaims idClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, accessExpiration, TokenType.ID, UUID.randomUUID().toString());
+                TokenClaims accessClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, accessExpiration, TokenType.BEARER, accessJit, projectId);
+                TokenClaims refreshClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, refreshExpiration, TokenType.REFRESH, refreshJit, projectId);
+                TokenClaims idClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, accessExpiration, TokenType.ID, UUID.randomUUID().toString(), projectId);
                 String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
                 String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
                 String idToken = TokenUtils.issueToken(idClaims, keyPairData.id(), keyPairData.privateKey());
@@ -126,7 +126,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         if (projectDto.isEmpty()) {
             throw new OAuth2TokenException("Project not found !");
         }
-        Optional<TokenClaims> claimsOptional = tokenCacheReaderService.verify(projectId, refreshToken, TokenType.REFRESH.getType());
+        Optional<TokenClaims> claimsOptional = tokenCacheReaderService.verify(refreshToken, TokenType.REFRESH.getType());
         if (claimsOptional.isPresent()) {
             TokenClaims refreshClaims = claimsOptional.get();
             Optional<UserDto> userDto = userService.get(projectId, refreshClaims.subject());
@@ -145,7 +145,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 Date issuedAt = new Date(epochMilli);
                 Date accessExpiration = new Date(epochMilli + accessDuration);
                 String accessJti = UUID.randomUUID().toString();
-                TokenClaims accessClaims = new TokenClaims(refreshClaims.issuer(), refreshClaims.subject(), refreshClaims.audience(), refreshClaims.scope(), issuedAt, accessExpiration, TokenType.BEARER, accessJti);
+                TokenClaims accessClaims = new TokenClaims(refreshClaims.issuer(), refreshClaims.subject(), refreshClaims.audience(), refreshClaims.scope(), issuedAt, accessExpiration, TokenType.BEARER, accessJti, refreshClaims.projectId());
 
                 String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
                 tokenCacheWriterService.saveRefreshedAccessToken(projectId, accessClaims.jti(), refreshClaims.jti(), accessToken, keyPairData.x509Certificate(), accessDuration);
@@ -175,7 +175,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     public IntrospectResponse getIntrospectResponse(String projectId, String token, String tokenTypeHint) {
         //TODO: use client Id and secret for request validation (https://datatracker.ietf.org/doc/html/rfc7662)
         LOGGER.info("getIntrospectResponse: {} {}", projectId, tokenTypeHint);
-        Optional<TokenClaims> claimsOptional = tokenCacheReaderService.verify(projectId, token, tokenTypeHint);
+        Optional<TokenClaims> claimsOptional = tokenCacheReaderService.verify(token, tokenTypeHint);
         if (claimsOptional.isPresent()) {
             return new IntrospectResponse(Boolean.TRUE);
         } else {
@@ -187,9 +187,9 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     public void revoke(String projectId, String token, String tokenTypeHint) {
         //TODO: use client Id and secret for request validation (https://datatracker.ietf.org/doc/html/rfc7009)
         LOGGER.info("revoke: {} {}", projectId, tokenTypeHint);
-        Optional<TokenClaims> tokenClaims = tokenCacheReaderService.verify(projectId, token, tokenTypeHint);
+        Optional<TokenClaims> tokenClaims = tokenCacheReaderService.verify(token, tokenTypeHint);
         if (tokenClaims.isPresent()) {
-            tokenCacheWriterService.removeToken(projectId, token);
+            tokenCacheWriterService.removeToken(token);
             return;
         } else {
             throw new OAuth2TokenException("Token Revoke Error !");
@@ -198,7 +198,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public Optional<UserInfoResponse> getUserInfo(String projectId, String token) {
-        Optional<TokenClaims> tokenClaims = tokenCacheReaderService.verify(projectId, token);
+        Optional<TokenClaims> tokenClaims = tokenCacheReaderService.verify(token);
         if (tokenClaims.isPresent()) {
             TokenClaims claims = tokenClaims.get();
             return Optional.of(new UserInfoResponse(claims.subject()));

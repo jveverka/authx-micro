@@ -44,7 +44,7 @@ class TokenUtilTest {
         Date issuedAt = new Date(epochMilli);
         Date expiration = new Date(epochMilli + 10*1000L);
         KeyPairData keyPairData = CryptoUtils.generateSelfSignedKeyPair("kid-001", "iss", Instant.now(), TimeUnit.MINUTES, 10L);
-        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti");
+        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti", "p-01");
         String token = TokenUtils.issueToken(tokenClaims, keyPairData.id(), keyPairData.privateKey());
         TokenClaims claims = TokenUtils.validate(token, keyPairData.x509Certificate());
         assertNotNull(claims);
@@ -57,7 +57,7 @@ class TokenUtilTest {
         Date issuedAt = new Date(epochMilli - ONE_HOUR_MILLIS);
         Date expiration = new Date(epochMilli + 10*1000L - ONE_HOUR_MILLIS);
         KeyPairData keyPairData = CryptoUtils.generateSelfSignedKeyPair("kid-001", "iss", Instant.now(), TimeUnit.MINUTES, 10L);
-        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti");
+        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti", "p-01");
         String token = TokenUtils.issueToken(tokenClaims, keyPairData.id(), keyPairData.privateKey());
         assertThrows(ExpiredJwtException.class, () -> TokenUtils.validate(token, keyPairData.x509Certificate()));
     }
@@ -69,7 +69,7 @@ class TokenUtilTest {
         Date expiration = new Date(epochMilli + 10*1000L);
         KeyPairData keyPairData01 = CryptoUtils.generateSelfSignedKeyPair("kid-001", "iss", Instant.now(), TimeUnit.MINUTES, 10L);
         KeyPairData keyPairData02 = CryptoUtils.generateSelfSignedKeyPair("kid-001", "iss", Instant.now(), TimeUnit.MINUTES, 10L);
-        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti");
+        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti", "p-01");
         String token = TokenUtils.issueToken(tokenClaims, keyPairData01.id(), keyPairData01.privateKey());
         assertThrows(SignatureException.class, () -> TokenUtils.validate(token, keyPairData02.x509Certificate()));
     }
@@ -80,7 +80,7 @@ class TokenUtilTest {
         Date issuedAt = new Date(epochMilli);
         Date expiration = new Date(epochMilli + 10*1000L);
         KeyPairData keyPairData = CryptoUtils.generateSelfSignedKeyPair("kid-001", "iss", Instant.now(), TimeUnit.MINUTES, 10L);
-        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti");
+        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti", "p-01");
         String token = TokenUtils.issueToken(tokenClaims, keyPairData.id(), keyPairData.privateKey());
         String[] tokenParts = token.split("\\.");
         String tokenNoSignature = tokenParts[0] + "." + tokenParts[1];
@@ -93,7 +93,7 @@ class TokenUtilTest {
         Date issuedAt = new Date(epochMilli);
         Date expiration = new Date(epochMilli + 10*1000L);
         KeyPairData keyPairData = CryptoUtils.generateSelfSignedKeyPair("kid-001", "iss", Instant.now(), TimeUnit.MINUTES, 10L);
-        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti");
+        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti", "p-01");
         String token = TokenUtils.issueToken(tokenClaims, keyPairData.id(), keyPairData.privateKey());
         String[] tokenParts = token.split("\\.");
         String decodedHeader = new String(Base64.getDecoder().decode(tokenParts[0]));
@@ -109,7 +109,7 @@ class TokenUtilTest {
         Date issuedAt = new Date(epochMilli);
         Date expiration = new Date(epochMilli + 10*1000L);
         KeyPairData keyPairData = CryptoUtils.generateSelfSignedKeyPair("kid-001", "iss", Instant.now(), TimeUnit.MINUTES, 10L);
-        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti");
+        TokenClaims tokenClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, expiration, TokenType.BEARER, "jti", "p-01");
         String token = TokenUtils.issueToken(tokenClaims, keyPairData.id(), keyPairData.privateKey());
         Jwt<? extends Header, Claims> jwt = TokenUtils.getJwt(token);
         assertNotNull(jwt.getHeader());

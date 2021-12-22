@@ -14,4 +14,8 @@ public interface AdminAuthXService {
 
     ResponseMessage deleteRecursively(String projectId);
 
+    boolean isGlobalAdminProject(String projectId);
+
+    boolean isAdminUser(String projectId, String userId);
+
 }

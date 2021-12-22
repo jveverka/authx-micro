@@ -15,6 +15,8 @@ public interface ProjectService {
 
     Optional<ProjectDto> get(String id);
 
+    boolean isAdmin(String id, String userId);
+
     void remove(String id);
 
     void removeAll();

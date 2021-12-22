@@ -4,7 +4,6 @@ import one.microproject.authx.common.dto.AuthxDto;
 import one.microproject.authx.common.dto.BuildProjectRequest;
 import one.microproject.authx.common.dto.ProjectDto;
 import one.microproject.authx.common.dto.ResponseMessage;
-import one.microproject.authx.service.model.Authx;
 import one.microproject.authx.service.service.AdminAuthXService;
 import one.microproject.authx.service.service.AuthXService;
 import one.microproject.authx.service.service.ClientService;
@@ -62,6 +61,7 @@ public class AdminAuthXServiceImpl implements AdminAuthXService {
         if (projectDtoOptional.isPresent()) {
             return ResponseMessage.error("Project id=" + projectId + " already exists.");
         }
+        projectService.create(buildProjectRequest.createProjectRequest());
         return ResponseMessage.ok("Project id=" + projectId + " created.");
     }
 
@@ -94,6 +94,20 @@ public class AdminAuthXServiceImpl implements AdminAuthXService {
             groupService.removeAll(projectId);
             return ResponseMessage.ok("Project id=" + projectId + " deleted.");
         }
+    }
+
+    @Override
+    public boolean isGlobalAdminProject(String projectId) {
+        Optional<AuthxDto> authxInfo = authXService.getAuthxInfo();
+        if (authxInfo.isPresent()) {
+            return authxInfo.get().globalAdminProjectIds().stream().anyMatch(p -> p.equals(projectId));
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isAdminUser(String projectId, String userId) {
+        return projectService.isAdmin(projectId, userId);
     }
 
 }

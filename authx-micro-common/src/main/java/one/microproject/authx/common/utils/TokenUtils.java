@@ -22,6 +22,7 @@ public final class TokenUtils {
     public static final String TYPE_CLAIM = "typ";
     public static final String SCOPE_CLAIM = "scope";
     public static final String JTI_CLAIM = "jti";
+    public static final String PID_CLAIM = "pid";
 
     private TokenUtils() {
     }
@@ -38,6 +39,7 @@ public final class TokenUtils {
         builder.claim(TYPE_CLAIM, claims.type().getType());
         builder.claim(SCOPE_CLAIM, mapScopes(claims.scope()));
         builder.claim(JTI_CLAIM, claims.jti());
+        builder.claim(PID_CLAIM, claims.projectId());
         builder.signWith(privateKey);
         return builder.compact();
     }
@@ -57,7 +59,8 @@ public final class TokenUtils {
         Set<String> scope = mapScopes(scopes);
         Date expiration = claims.getExpiration();
         Date issuedAt = claims.getIssuedAt();
-        return new TokenClaims(iss, sub, aud, scope, issuedAt, expiration, TokenType.getTokenType(tokenType), jti);
+        String projectId = (String) claims.get(PID_CLAIM);
+        return new TokenClaims(iss, sub, aud, scope, issuedAt, expiration, TokenType.getTokenType(tokenType), jti, projectId);
     }
 
     public static Jwt<? extends Header, Claims> getJwt(String token) {

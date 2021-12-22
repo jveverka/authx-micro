@@ -74,6 +74,15 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public boolean isAdmin(String id, String userId) {
+        Optional<Project> projectOptional = projectRepository.findById(id);
+        if (projectOptional.isPresent()) {
+            return projectOptional.get().getAdminIds().contains(userId);
+        }
+        return false;
+    }
+
+    @Override
     @Transactional
     public void remove(String id) {
         Optional<Project> projectOptional = projectRepository.findById(id);

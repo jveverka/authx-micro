@@ -1,6 +1,8 @@
 package one.microproject.authx.service.config;
 
+import one.microproject.authx.common.dto.TokenClaims;
 import one.microproject.authx.jredis.TokenCacheReaderService;
+import one.microproject.authx.service.service.AdminAuthXService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +32,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     private static final String PROJECT_ADMIN_RESOURCES = "/api/v1/admin/project/**";
 
     private final TokenCacheReaderService tokenCacheReaderService;
+    private final AdminAuthXService adminAuthXService;
 
     @Autowired
-    public AuthenticationFilter(TokenCacheReaderService tokenCacheReaderService) {
+    public AuthenticationFilter(TokenCacheReaderService tokenCacheReaderService, AdminAuthXService adminAuthXService) {
         this.tokenCacheReaderService = tokenCacheReaderService;
+        this.adminAuthXService = adminAuthXService;
     }
 
     @Override
@@ -49,12 +53,29 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         String token = authHeader.substring(BEARER_PREFIX.length());
-        //tokenCacheReaderService.verify();
+        Optional<TokenClaims> claims = tokenCacheReaderService.verify(token);
+        if (claims.isEmpty()) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            return;
+        }
+        TokenClaims tokenClaims = claims.get();
         AntPathMatcher matcher = new AntPathMatcher();
+        boolean isGlobalAdminProject = adminAuthXService.isGlobalAdminProject(tokenClaims.projectId());
+        boolean isAdminUser = adminAuthXService.isAdminUser(tokenClaims.projectId(), tokenClaims.subject());
         if (matcher.match(GLOBAL_ADMIN_RESOURCES, request.getServletPath())) {
-
+            if (isGlobalAdminProject && isAdminUser) {
+                request.setAttribute(TokenClaims.class.getCanonicalName(), tokenClaims);
+            } else {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                return;
+            }
         } else if (matcher.match(PROJECT_ADMIN_RESOURCES, request.getServletPath())) {
-
+            if (isAdminUser) {
+                request.setAttribute(TokenClaims.class.getCanonicalName(), tokenClaims);
+            } else {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                return;
+            }
         } else {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             return;
