@@ -6,6 +6,7 @@ curl https://raw.githubusercontent.com/jveverka/authx-micro/main/docs/authx-serv
 docker-compose -f authx-docker-compose.yml up -d 
 curl http://localhost:7777/actuator/health
 curl http://localhost:8080/authx/api/v1/system/info
+docker-compose -f authx-docker-compose.yml down -v --rmi all --remove-orphans
 ```
 
 ### Kubernetes
