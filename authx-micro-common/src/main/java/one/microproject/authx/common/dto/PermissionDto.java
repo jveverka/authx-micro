@@ -1,4 +1,11 @@
 package one.microproject.authx.common.dto;
 
-public record PermissionDto(String id, String projectId, String description, String service, String resource, String action) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record PermissionDto(@JsonProperty("id") String id,
+                            @JsonProperty("projectId") String projectId,
+                            @JsonProperty("description") String description,
+                            @JsonProperty("service") String service,
+                            @JsonProperty("resource") String resource,
+                            @JsonProperty("action") String action) {
 }

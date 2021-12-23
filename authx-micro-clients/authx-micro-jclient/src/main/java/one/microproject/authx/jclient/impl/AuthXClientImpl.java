@@ -8,6 +8,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import one.microproject.authx.common.dto.AuthxInfo;
 import one.microproject.authx.common.dto.BuildProjectRequest;
+import one.microproject.authx.common.dto.ProjectReportDto;
 import one.microproject.authx.common.dto.ResponseMessage;
 import one.microproject.authx.jclient.AuthXClient;
 import one.microproject.authx.jclient.AuthXOAuth2Client;
@@ -19,6 +20,7 @@ import static one.microproject.authx.jclient.impl.AuthXOAuth2ClientImpl.APPLICAT
 import static one.microproject.authx.jclient.impl.AuthXOAuth2ClientImpl.AUTHORIZATION;
 import static one.microproject.authx.jclient.impl.Constants.DELIMITER;
 import static one.microproject.authx.jclient.impl.Constants.SERVICES_ADMIN_AUTHX;
+import static one.microproject.authx.jclient.impl.Constants.SERVICES_ADMIN_PROJECTS;
 import static one.microproject.authx.jclient.impl.Constants.SERVICES_SYSTEM;
 
 public class AuthXClientImpl implements AuthXClient {
@@ -59,10 +61,11 @@ public class AuthXClientImpl implements AuthXClient {
     @Override
     public ResponseMessage buildProject(String token, BuildProjectRequest buildProjectRequest) {
         try {
+            String jsonBody = mapper.writeValueAsString(buildProjectRequest);
             Request request = new Request.Builder()
                     .addHeader(AUTHORIZATION, BEARER_PREFIX + token)
-                    .url(baseUrl + SERVICES_ADMIN_AUTHX + DELIMITER + "/build")
-                    .put(RequestBody.create("{}", MediaType.parse(APPLICATION_JSON)))
+                    .url(baseUrl + SERVICES_ADMIN_AUTHX + "/build")
+                    .put(RequestBody.create(jsonBody, MediaType.parse(APPLICATION_JSON)))
                     .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
@@ -80,12 +83,31 @@ public class AuthXClientImpl implements AuthXClient {
         try {
             Request request = new Request.Builder()
                     .addHeader(AUTHORIZATION, BEARER_PREFIX + token)
-                    .url(baseUrl + SERVICES_ADMIN_AUTHX + DELIMITER + "/project/" + projectId)
+                    .url(baseUrl + SERVICES_ADMIN_AUTHX + "/project/" + projectId)
                     .delete()
                     .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
                 return mapper.readValue(response.body().string(), ResponseMessage.class);
+            } else {
+                throw new AuthXClientException("Refresh token Error: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new AuthXClientException(e);
+        }
+    }
+
+    @Override
+    public ProjectReportDto getProjectReport(String token, String projectId) {
+        try {
+            Request request = new Request.Builder()
+                    .addHeader(AUTHORIZATION, BEARER_PREFIX + token)
+                    .url(baseUrl + SERVICES_ADMIN_PROJECTS + DELIMITER + projectId)
+                    .get()
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200) {
+                return mapper.readValue(response.body().string(), ProjectReportDto.class);
             } else {
                 throw new AuthXClientException("Refresh token Error: " + response.code());
             }

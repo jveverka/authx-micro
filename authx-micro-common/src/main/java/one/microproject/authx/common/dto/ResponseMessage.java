@@ -1,6 +1,10 @@
 package one.microproject.authx.common.dto;
 
-public record ResponseMessage(Boolean success, String code, String message) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record ResponseMessage(@JsonProperty("success") Boolean success,
+                              @JsonProperty("code") String code,
+                              @JsonProperty("message") String message) {
 
     public static final String OK = "OK";
     public static final String ERROR = "ERROR";

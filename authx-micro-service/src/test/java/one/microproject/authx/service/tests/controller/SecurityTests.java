@@ -39,6 +39,24 @@ class SecurityTests extends AppBaseTest {
         );
     }
 
+    private static Stream<Arguments> provideForTestDeleteAccessNoToken() {
+        return Stream.of(
+                Arguments.of("/api/v1/admin/authx/project/p-001")
+        );
+    }
+
+    private static Stream<Arguments> provideForTestGetAccessNoToken() {
+        return Stream.of(
+                Arguments.of("/api/v1/admin/project/projects/p-001")
+        );
+    }
+
+    private static Stream<Arguments> provideForTestPostAccessNoToken() {
+        return Stream.of(
+                Arguments.of("/api/v1/admin/project/projects/p-001")
+        );
+    }
+
     @ParameterizedTest()
     @MethodSource("provideForTestPutAccessNoToken")
     void testPutAccessNoToken(String url) {
@@ -49,12 +67,6 @@ class SecurityTests extends AppBaseTest {
         assertEquals(401, put("Bearer xxxxx", url));
         assertEquals(401, put("Bearer xxxxx.xxxxxx.xxxxx", url));
         assertEquals(401, put("Bearer " + generateValidButUnregisteredToken(), url));
-    }
-
-    private static Stream<Arguments> provideForTestDeleteAccessNoToken() {
-        return Stream.of(
-                Arguments.of("/api/v1/admin/authx/project/p-001")
-        );
     }
 
     @ParameterizedTest()
@@ -69,6 +81,29 @@ class SecurityTests extends AppBaseTest {
         assertEquals(401, delete("Bearer " + generateValidButUnregisteredToken(), url));
     }
 
+    @ParameterizedTest()
+    @MethodSource("provideForTestGetAccessNoToken")
+    void testDeleteGetNoToken(String url) {
+        assertEquals(401, get(null, url));
+        assertEquals(401, get("", url));
+        assertEquals(401, get("Bearer", url));
+        assertEquals(401, get("Bearer ", url));
+        assertEquals(401, get("Bearer xxxxx", url));
+        assertEquals(401, get("Bearer xxxxx.xxxxxx.xxxxx", url));
+        assertEquals(401, get("Bearer " + generateValidButUnregisteredToken(), url));
+    }
+
+    @ParameterizedTest()
+    @MethodSource("provideForTestPostAccessNoToken")
+    void testDeletePostNoToken(String url) {
+        assertEquals(401, post(null, url));
+        assertEquals(401, post("", url));
+        assertEquals(401, post("Bearer", url));
+        assertEquals(401, post("Bearer ", url));
+        assertEquals(401, post("Bearer xxxxx", url));
+        assertEquals(401, post("Bearer xxxxx.xxxxxx.xxxxx", url));
+        assertEquals(401, post("Bearer " + generateValidButUnregisteredToken(), url));
+    }
 
     private int put(String token, String url) {
         try {

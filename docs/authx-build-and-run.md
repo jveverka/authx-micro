@@ -7,3 +7,11 @@
 ```
 gradle clean build test
 ```
+
+### Check Dependencies
+```
+gradle :authx-micro-service:dependencies
+gradle :authx-micro-common:dependencies
+gradle :authx-micro-clients:authx-micro-jclient:dependencies
+gradle :authx-micro-clients:authx-micro-jredis:dependencies
+```
