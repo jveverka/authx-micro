@@ -3,7 +3,7 @@ version: '3.6'
 services:
 
   authx-service:
-    image: jurajveverka/authx-micro-service:1.1.0-amd64
+    image: jurajveverka/authx-micro-service:1.1.1-amd64
     ports:
       - 8080:8080
       - 7777:7777
@@ -15,6 +15,8 @@ services:
       - MONGODB_DB=admin
       - MONGODB_USERNAME=root
       - MONGODB_PASSWORD=s3cr3t
+      - ADMIN_USER_PASSWORD=secret
+      - ADMIN_CLIENT_SECRET=secret
 
   mongodb:
     image: mongo:5.0.5-focal

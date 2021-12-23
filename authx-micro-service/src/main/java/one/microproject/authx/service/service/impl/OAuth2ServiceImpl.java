@@ -66,9 +66,10 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public TokenResponse getTokenForPassword(URI issuerUri, String projectId, ClientCredentials clientCredentials, String requestedAudience, Set<String> requestedScopes, UserCredentials userCredentials) {
-        LOGGER.info("getTokenForPassword: {} {}", issuerUri, projectId);
+        LOGGER.info("getTokenForPassword: {} {} {} {}", issuerUri, projectId, clientCredentials.id(), userCredentials.username());
         Optional<ProjectDto> projectDto = projectService.get(projectId);
         if (projectDto.isEmpty()) {
+            LOGGER.warn("Project not found {}", projectId);
             throw new OAuth2TokenException("Project not found !");
         }
         Boolean clientOk = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
@@ -77,6 +78,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
             Optional<UserDto> userDto = userService.get(projectId, userCredentials.username());
             Optional<KeyPairData> keyPairDataOptional = userService.getDefaultKeyPair(projectId, userCredentials.username());
             if (userDto.isPresent() && keyPairDataOptional.isPresent()) {
+                LOGGER.info("Generating tokens for {} {} {} {}", issuerUri, projectId, clientCredentials.id(), userCredentials.username());
                 ProjectDto project = projectDto.get();
                 UserDto user = userDto.get();
                 KeyPairData keyPairData = keyPairDataOptional.get();
@@ -107,9 +109,11 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 tokenCacheWriterService.saveRefreshToken(projectId, refreshClaims.jti(), accessJit, refreshToken, keyPairData.x509Certificate(), refreshDuration);
                 return new TokenResponse(accessToken, (epochMilli + accessDuration), (epochMilli + refreshDuration), refreshToken, tokenType, idToken);
             } else {
+                LOGGER.warn("User not found: {}", userCredentials.username());
                 throw new OAuth2TokenException("User not found !");
             }
         } else {
+            LOGGER.warn("Not Authorized or Not Found: {} {}", clientOk, userOk);
             throw new OAuth2TokenException("Not Authorized or Not Found !");
         }
     }
@@ -134,6 +138,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         LOGGER.info("getTokenForRefreshToken: {}", projectId);
         Optional<ProjectDto> projectDto = projectService.get(projectId);
         if (projectDto.isEmpty()) {
+            LOGGER.warn("Project not found {}", projectId);
             throw new OAuth2TokenException("Project not found !");
         }
         Optional<TokenClaims> claimsOptional = tokenCacheReaderService.verify(refreshToken, TokenType.REFRESH.getType());
@@ -223,12 +228,16 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     private Set<String> getScopes(Set<String> requestedScopes, Set<PermissionDto> permissions) {
         Set<String> result = new HashSet<>();
-        permissions.forEach(p -> {
-            String permission = p.resource() + "." + p.service() + "." + p.action();
-            result.add(permission);
-        });
-        if (!requestedScopes.isEmpty()) {
-            //TODO: add scope filtering
+        if (permissions != null) {
+            permissions.forEach(p -> {
+                String permission = p.resource() + "." + p.service() + "." + p.action();
+                result.add(permission);
+            });
+        }
+        if (requestedScopes != null) {
+            if (!requestedScopes.isEmpty()) {
+                //TODO: add scope filtering
+            }
         }
         return result;
     }
