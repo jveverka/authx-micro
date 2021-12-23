@@ -64,10 +64,16 @@ public class DMapper {
     }
 
     public List<String> map(Set<String> ids) {
+        if (ids == null) {
+            return List.of();
+        }
         return new ArrayList<>(ids);
     }
 
     public Set<String> map(List<String> ids) {
+        if (ids == null) {
+            return Set.of();
+        }
         return new HashSet<>(ids);
     }
 
