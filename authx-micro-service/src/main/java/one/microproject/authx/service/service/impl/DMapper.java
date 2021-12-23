@@ -30,7 +30,7 @@ public class DMapper {
     }
 
     public ClientDto map(Client client) {
-        return new ClientDto(client.getClientId(), client.getDescription(), client.getLabels());
+        return new ClientDto(client.getClientId(), client.getDescription(), client.getLabels(), map(client.getRoles()), map(client.getGroups()));
     }
 
     public Client map(String dbId, String projectId, String secretHash, CreateClientRequest clientRequest, String defaultKid, Map<String, KeyPairSerialized> keyPairs) {
@@ -39,7 +39,7 @@ public class DMapper {
     }
 
     public UserDto map(User user) {
-        return new UserDto(user.getUserId(), user.getClientId(), user.getEmail(), user.getDescription(), user.getSecret(), user.getLabels());
+        return new UserDto(user.getUserId(), user.getClientId(), user.getEmail(), user.getDescription(), user.getSecret(), user.getLabels(), map(user.getRoles()), map(user.getGroups()));
     }
 
     public User map(String dbId, String projectId, String clientId, String secretHash, CreateUserRequest request, String defaultKid, Map<String, KeyPairSerialized> keyPairs) {

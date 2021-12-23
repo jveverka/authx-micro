@@ -4,6 +4,7 @@ import one.microproject.authx.common.dto.PermissionDto;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface PermissionService {
 
@@ -20,5 +21,7 @@ public interface PermissionService {
     void removeAll(String projectId);
 
     void removeAll();
+
+    Set<PermissionDto> getPermissions(Set<String> ids);
 
 }

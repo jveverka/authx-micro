@@ -3,7 +3,6 @@ FROM ${ARCH}/eclipse-temurin:17-jdk-focal
 
 COPY build/libs/authx-micro-service-*.jar /authx-micro-service.jar
 COPY authx-micro-service-start.sh /authx-micro-service-start.sh
-COPY src/main/resources/application.yml /application.yml
 COPY src/main/resources/application-cloud.yml /application-cloud.yml
 
 RUN apt update

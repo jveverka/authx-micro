@@ -14,9 +14,9 @@ import java.util.Set;
 
 public interface OAuth2Service {
 
-    TokenResponse getTokenForPassword(URI issuerUri, String projectId, ClientCredentials clientCredentials, String audience, Set<String> scopes, UserCredentials userCredentials);
+    TokenResponse getTokenForPassword(URI issuerUri, String projectId, ClientCredentials clientCredentials, String requestedAudience, Set<String> requestedScopes, UserCredentials userCredentials);
 
-    TokenResponse getTokenForClientCredentials(URI issuerUri, String projectId, ClientCredentials clientCredentials, String audience, Set<String> scopes);
+    TokenResponse getTokenForClientCredentials(URI issuerUri, String projectId, ClientCredentials clientCredentials, String requestedAudience, Set<String> requestedScopes);
 
     TokenResponse getTokenForRefreshToken(String projectId, String refreshToken, ClientCredentials clientCredentials);
 
