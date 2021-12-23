@@ -3,10 +3,7 @@ version: '3.6'
 services:
 
   authx-service:
-    image: jurajveverka/authx-micro-service:1.0.9-amd64
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: jurajveverka/authx-micro-service:1.1.0-amd64
     ports:
       - 8080:8080
       - 7777:7777

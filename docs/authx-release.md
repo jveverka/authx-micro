@@ -3,7 +3,9 @@
 0. Clone this repository.
 1. Update release ``authXVersion`` in: 
    * [build.gradle](../build.gradle)
-   * [authx-docker-compose.yml](../authx-micro-service/authx-docker-compose.yml)
+   * [authx-docker-compose.yml](authx-service-deployments/authx-docker-compose.yml)
+   * [README.md](authx-service-deployments/README.md)
+   * [authx-service-deployment.yml](authx-service-deployments/k8s/authx-service-deployment.yml)
 2. Export environment variable ``AUTHX_VERSION``
    ```
    export AUTHX_VERSION=$authXVersion

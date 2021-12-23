@@ -12,11 +12,13 @@ AuthX is simplified version of [iam-service](https://github.com/jveverka/iam-ser
 
 ### Test with docker-compose 
 ```
-curl https://raw.githubusercontent.com/jveverka/authx-micro/main/authx-micro-service/authx-docker-compose.yml -o authx-docker-compose.yml
+curl https://raw.githubusercontent.com/jveverka/authx-micro/main/docs/authx-service-deployments/authx-docker-compose.yml -o authx-docker-compose.yml
 docker-compose -f authx-docker-compose.yml up -d 
 curl http://localhost:7777/actuator/health
 curl http://localhost:8080/authx/api/v1/system/info
 ```
+See other [deployments scenarios](docs/authx-service-deployments);
+
 ##### OpenAPI 3.0 (swagger)
 ```
 http://localhost:8080/authx/v3/api-docs

@@ -1,0 +1,32 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: authx-service
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: authx-service
+  namespace: authx-service
+type: Opaque
+data:
+  MONGODB_PASSWORD: c2VjcmV0
+  ADMIN_USER_PASSWORD: c2VjcmV0
+  ADMIN_CLIENT_SECRET: c2VjcmV0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authx-service
+  namespace: authx-service
+spec:
+  selector:
+    app: authx-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      nodePort: 30081
+  type: LoadBalancer
+#  externalIPs:
+#    - 192.168.44.210
