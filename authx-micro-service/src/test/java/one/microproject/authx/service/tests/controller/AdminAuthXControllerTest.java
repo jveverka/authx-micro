@@ -44,8 +44,8 @@ class AdminAuthXControllerTest extends AppBaseTest {
         CreateUserRequest adminUser = new CreateUserRequest("admin-user-001", "admin@pid-001", "", "", Map.of(), Set.of(), Set.of(), "id");
         CreateClientRequest adminClient = new CreateClientRequest("admin-client-001", "", false, "", Map.of(), Set.of(), Set.of());
         CreateProjectRequest cp = new CreateProjectRequest("pid-001", "desc", Map.of(), adminUser, adminClient);
-        List<GroupDto> groups = List.of(new GroupDto("g-001", "pid-001", "description", Map.of()));
-        List<PermissionDto> permissions = List.of(new PermissionDto("p-001", "pid-001", "description", "service", "resource", "action"));
+        List<GroupDto> groups = List.of(new GroupDto("g-001", "description", Map.of()));
+        List<PermissionDto> permissions = List.of(new PermissionDto("p-001", "description", "service", "resource", "action"));
         return new BuildProjectRequest(cp, groups, List.of(), permissions, List.of(), List.of());
     }
 

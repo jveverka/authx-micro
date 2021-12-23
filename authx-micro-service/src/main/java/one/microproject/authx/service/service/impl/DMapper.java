@@ -30,7 +30,7 @@ public class DMapper {
     }
 
     public ClientDto map(Client client) {
-        return new ClientDto(client.getClientId(), client.getProjectId(), client.getDescription(), client.getLabels());
+        return new ClientDto(client.getClientId(), client.getDescription(), client.getLabels());
     }
 
     public Client map(String dbId, String projectId, String secretHash, CreateClientRequest clientRequest, String defaultKid, Map<String, KeyPairSerialized> keyPairs) {
@@ -45,10 +45,6 @@ public class DMapper {
     public User map(String dbId, String projectId, String clientId, String secretHash, CreateUserRequest request, String defaultKid, Map<String, KeyPairSerialized> keyPairs) {
         return new User(dbId, request.id(), projectId, clientId, request.email(), request.description(), secretHash, defaultKid, request.labels(), keyPairs,
                 map(request.groups()), map(request.roles()));
-    }
-
-    public Group map(String dbId, GroupDto request) {
-        return new Group(dbId, request.id(), request.projectId(), request.description(), request.labels());
     }
 
     public Authx map(AuthxDto authxDto) {
@@ -76,7 +72,7 @@ public class DMapper {
     }
 
     public GroupDto map(Group group) {
-        return new GroupDto(group.getGroupId(), group.getProjectId(), group.getDescription(), group.getLabels());
+        return new GroupDto(group.getGroupId(), group.getDescription(), group.getLabels());
     }
 
     public Group map(String dbId, String projectId, GroupDto createGroupRequest) {
@@ -84,7 +80,7 @@ public class DMapper {
     }
 
     public RoleDto map(Role role) {
-        return new RoleDto(role.getRoleId(), role.getProjectId(), role.getDescription(), map(role.getPermissionIds()));
+        return new RoleDto(role.getRoleId(), role.getDescription(), map(role.getPermissionIds()));
     }
 
     public Role map(String dbId, String projectId, RoleDto roleDto) {
@@ -92,7 +88,7 @@ public class DMapper {
     }
 
     public PermissionDto map(Permission permission) {
-        return new PermissionDto(permission.getPermissionId(), permission.getProjectId(), permission.getDescription(), permission.getService(), permission.getResource(), permission.getAction());
+        return new PermissionDto(permission.getPermissionId(), permission.getDescription(), permission.getService(), permission.getResource(), permission.getAction());
     }
 
     public Permission map(String dbId, String projectId, PermissionDto permissionDto) {
