@@ -31,5 +31,6 @@ docker run -name authx-service \
   -e MONGODB_PASSWORD=s3cr3t \
   -e ADMIN_USER_PASSWORD=secret \
   -e ADMIN_CLIENT_SECRET=secret \ 
-  jurajveverka/authx-micro-service:1.1.4-amd64
+  -e ...
+  jurajveverka/authx-micro-service:1.1.5-amd64
 ```

@@ -27,7 +27,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);
 
-    private static final Set<String> PUBLIC_RESOURCES = Set.of("/api/v1/system/**", "/api/v1/oauth2/**");
+    private static final Set<String> PUBLIC_RESOURCES = Set.of("/api/v1/system/**", "/api/v1/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**");
     private static final String GLOBAL_ADMIN_RESOURCES = "/api/v1/admin/authx/**";
     private static final String PROJECT_ADMIN_RESOURCES = "/api/v1/admin/project/**";
 

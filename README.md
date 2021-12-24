@@ -31,6 +31,7 @@ http://localhost:8080/authx/swagger-ui/index.html?configUrl=/authx/v3/api-docs/s
 * __Refresh Token__ - wip
 
 ### REST Endpoints
+* Check This [insomnia collection](docs/insomnia-collection.json).
 * OAuth2 endpoints
   ```
   http://localhost:8080/authx/api/v1/oauth2
