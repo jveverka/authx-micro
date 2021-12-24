@@ -39,7 +39,7 @@ public class DMapper {
     }
 
     public UserDto map(User user) {
-        return new UserDto(user.getUserId(), user.getClientId(), user.getEmail(), user.getDescription(), user.getSecret(), user.getLabels(), map(user.getRoles()), map(user.getGroups()));
+        return new UserDto(user.getUserId(), user.getClientId(), user.getEmail(), user.getDescription(), user.getLabels(), map(user.getRoles()), map(user.getGroups()));
     }
 
     public User map(String dbId, String projectId, String clientId, String secretHash, CreateUserRequest request, String defaultKid, Map<String, KeyPairSerialized> keyPairs) {
