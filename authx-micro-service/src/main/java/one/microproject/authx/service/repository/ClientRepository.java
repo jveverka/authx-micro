@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface ClientRepository extends MongoRepository<Client, String> {
 
-    @Query(value="{projectId:'?0'}", fields="{'name' : 1, 'quantity' : 1}")
+    @Query(value="{ 'projectId' : ?0 }")
     List<Client> findAll(String projectId);
 
-    @Query(value="{projectId:'?0'}", fields="{'name' : 1, 'quantity' : 1}", delete = true)
+    @Query(value="{ 'projectId' : ?0 }", delete = true)
     List<Client> deleteAll(String projectId);
 
 }

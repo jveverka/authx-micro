@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface RoleRepository extends MongoRepository<Role, String> {
 
-    @Query(value="{projectId:'?0'}", fields="{'name' : 1, 'quantity' : 1}")
+    @Query(value="{ 'projectId' : ?0 }")
     List<Role> findAll(String projectId);
 
-    @Query(value="{projectId:'?0'}", fields="{'name' : 1, 'quantity' : 1}", delete = true)
+    @Query(value="{ 'projectId' : ?0 }", delete = true)
     List<Role> deleteAll(String projectId);
 
 }

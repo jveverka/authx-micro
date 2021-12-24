@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface PermissionRepository extends MongoRepository<Permission, String> {
 
-    @Query(value="{projectId:'?0'}", fields="{'name' : 1, 'quantity' : 1}")
+    @Query(value="{ 'projectId' : ?0 }")
     List<Permission> findAll(String projectId);
 
-    @Query(value="{projectId:'?0'}", fields="{'name' : 1, 'quantity' : 1}", delete = true)
+    @Query(value="{ 'projectId' : ?0 }", delete = true)
     List<Permission> deleteAll(String projectId);
 
 }

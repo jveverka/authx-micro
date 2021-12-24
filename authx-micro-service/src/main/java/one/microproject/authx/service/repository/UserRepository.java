@@ -9,13 +9,13 @@ import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User, String> {
 
-    @Query(value="{projectId:'?0'}", fields="{'name' : 1, 'quantity' : 1}")
+    @Query(value="{ 'projectId' : ?0 }")
     List<User> findAll(String projectId);
 
-    @Query(value="{clientId:'?0'}", fields="{'name' : 1, 'quantity' : 1}")
+    @Query(value="{ 'clientId' : ?0 }")
     Optional<User> findByClientId(String clientId);
 
-    @Query(value="{projectId:'?0'}", fields="{'name' : 1, 'quantity' : 1}", delete = true)
+    @Query(value="{ 'projectId' : ?0 }", delete = true)
     List<User> deleteAll(String projectId);
 
 }

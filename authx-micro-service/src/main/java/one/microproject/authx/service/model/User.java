@@ -2,6 +2,7 @@ package one.microproject.authx.service.model;
 
 import one.microproject.authx.common.dto.KeyPairSerialized;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -14,7 +15,11 @@ public class User {
     private String id;
 
     private String userId;
+
+    @Indexed
     private String projectId;
+
+    @Indexed
     private String clientId;
     private String email;
     private String description;

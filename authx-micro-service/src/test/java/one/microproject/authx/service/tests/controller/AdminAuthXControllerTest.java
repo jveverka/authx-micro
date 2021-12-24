@@ -15,6 +15,7 @@ import one.microproject.authx.jclient.AuthXClient;
 import one.microproject.authx.service.tests.AppBaseTest;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AdminAuthXControllerTest extends AppBaseTest {
@@ -53,6 +55,16 @@ class AdminAuthXControllerTest extends AppBaseTest {
 
         authxInfo = authXClient.getAuthxInfo();
         assertEquals(numberOfProjects, authxInfo.projects().size());
+    }
+
+    @Test
+    void testSerialization() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        BuildProjectRequest buildProjectRequest = createBuildProjectRequest();
+        String serialized = mapper.writeValueAsString(buildProjectRequest);
+        assertNotNull(serialized);
+        BuildProjectRequest deserialized = mapper.readValue(serialized, BuildProjectRequest.class);
+        assertNotNull(deserialized);
     }
 
     private BuildProjectRequest createBuildProjectRequest() throws JsonProcessingException {
