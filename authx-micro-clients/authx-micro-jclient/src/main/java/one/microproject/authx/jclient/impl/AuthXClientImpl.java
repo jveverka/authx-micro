@@ -64,7 +64,7 @@ public class AuthXClientImpl implements AuthXClient {
             String jsonBody = mapper.writeValueAsString(buildProjectRequest);
             Request request = new Request.Builder()
                     .addHeader(AUTHORIZATION, BEARER_PREFIX + token)
-                    .url(baseUrl + SERVICES_ADMIN_AUTHX + "/build")
+                    .url(baseUrl + SERVICES_ADMIN_AUTHX + "/projects/build")
                     .put(RequestBody.create(jsonBody, MediaType.parse(APPLICATION_JSON)))
                     .build();
             Response response = client.newCall(request).execute();
@@ -83,7 +83,7 @@ public class AuthXClientImpl implements AuthXClient {
         try {
             Request request = new Request.Builder()
                     .addHeader(AUTHORIZATION, BEARER_PREFIX + token)
-                    .url(baseUrl + SERVICES_ADMIN_AUTHX + "/project/" + projectId)
+                    .url(baseUrl + SERVICES_ADMIN_AUTHX + "/projects/" + projectId)
                     .delete()
                     .build();
             Response response = client.newCall(request).execute();

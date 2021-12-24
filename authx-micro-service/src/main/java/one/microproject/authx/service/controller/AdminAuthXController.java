@@ -1,5 +1,7 @@
 package one.microproject.authx.service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import one.microproject.authx.common.dto.BuildProjectRequest;
 import one.microproject.authx.common.dto.ProjectDto;
 import one.microproject.authx.common.dto.ResponseMessage;
@@ -22,6 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(path = "/api/v1/admin/authx")
+@Tag(name = "Admin Authx APIs", description = "APIs providing base Authx admin capabilities.")
 public class AdminAuthXController {
 
     private final AdminAuthXService adminAuthXService;
@@ -37,7 +40,8 @@ public class AdminAuthXController {
     }
 
 
-    @PutMapping("/build")
+    @Operation(description = "__Build complete project__ - create new project with all associated data structures like clients, users, roles, groups and permissions.")
+    @PutMapping("/projects/build")
     public ResponseEntity<ResponseMessage> buildProject(@RequestBody BuildProjectRequest buildProjectRequest) {
         ResponseMessage responseMessage = adminAuthXService.buildProject(buildProjectRequest);
         if (responseMessage.success()) {
@@ -47,7 +51,8 @@ public class AdminAuthXController {
         }
     }
 
-    @DeleteMapping("/project/{project-id}")
+    @Operation(description = "__Delete complete project__ - completely delete project with all associated data structures like clients, users, roles, groups and permissions.")
+    @DeleteMapping("/projects/{project-id}")
     public ResponseEntity<ResponseMessage> deleteRecursively(@PathVariable("project-id") String projectId) {
         ResponseMessage responseMessage = adminAuthXService.deleteRecursively(projectId);
         if (responseMessage.success()) {

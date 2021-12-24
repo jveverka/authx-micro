@@ -1,5 +1,7 @@
 package one.microproject.authx.service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import one.microproject.authx.common.dto.AuthxDto;
 import one.microproject.authx.common.dto.ProjectDto;
 import one.microproject.authx.common.dto.AuthxInfo;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping(path = "/api/v1/system")
+@Tag(name = "System APIs", description = "APIs providing base Authx System info.")
 public class SystemController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemController.class);
@@ -36,6 +39,7 @@ public class SystemController {
         this.projectService = projectService;
     }
 
+    @Operation(description = "__Get AuthX system info__ - get AuthX server id and projects ids.")
     @GetMapping("/info")
     public ResponseEntity<AuthxInfo> getAuthxInfo() {
         LOGGER.info("getAuthxInfo");
