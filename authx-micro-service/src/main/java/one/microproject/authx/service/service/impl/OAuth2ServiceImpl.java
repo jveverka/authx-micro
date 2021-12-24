@@ -1,7 +1,7 @@
 package one.microproject.authx.service.service.impl;
 
-import one.microproject.authx.common.Constants;
 import one.microproject.authx.common.dto.ClientCredentials;
+import one.microproject.authx.common.dto.ClientDto;
 import one.microproject.authx.common.dto.KeyPairData;
 import one.microproject.authx.common.dto.PermissionDto;
 import one.microproject.authx.common.dto.ProjectDto;
@@ -14,36 +14,34 @@ import one.microproject.authx.common.dto.oauth2.JWKResponse;
 import one.microproject.authx.common.dto.oauth2.ProviderConfigurationResponse;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
 import one.microproject.authx.common.dto.oauth2.UserInfoResponse;
-import one.microproject.authx.common.utils.LabelUtils;
-import one.microproject.authx.common.utils.TokenUtils;
 import one.microproject.authx.jredis.TokenCacheReaderService;
 import one.microproject.authx.jredis.TokenCacheWriterService;
+import one.microproject.authx.service.dto.GeneratedTokens;
 import one.microproject.authx.service.exceptions.OAuth2TokenException;
 import one.microproject.authx.service.service.ClientService;
 import one.microproject.authx.service.service.OAuth2Service;
 import one.microproject.authx.service.service.PermissionService;
 import one.microproject.authx.service.service.ProjectService;
+import one.microproject.authx.service.service.TokenGenerator;
 import one.microproject.authx.service.service.UserService;
+import one.microproject.authx.service.service.impl.generators.DefaultTokenGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OAuth2ServiceImpl implements OAuth2Service {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2ServiceImpl.class);
 
-    private static final Long DEFAULT_ACCESS_DURATION = 24*60*60*1000L;
-    private static final Long DEFAULT_REFRESH_DURATION = 30*24*60*60*1000L;
+    private static final String DEFAULT = "default";
 
     private final ProjectService projectService;
     private final UserService userService;
@@ -52,6 +50,8 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     private final TokenCacheReaderService tokenCacheReaderService;
     private final TokenCacheWriterService tokenCacheWriterService;
+
+    private final Map<String, TokenGenerator> tokenGenerators;
 
     @Autowired
     public OAuth2ServiceImpl(ProjectService projectService, UserService userService, ClientService clientService, PermissionService permissionService,
@@ -62,6 +62,8 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         this.permissionService = permissionService;
         this.tokenCacheReaderService = tokenCacheReaderService;
         this.tokenCacheWriterService = tokenCacheWriterService;
+        this.tokenGenerators = new ConcurrentHashMap<>();
+        this.tokenGenerators.put(DEFAULT, new DefaultTokenGenerator());
     }
 
     @Override
@@ -78,36 +80,22 @@ public class OAuth2ServiceImpl implements OAuth2Service {
             Optional<UserDto> userDto = userService.get(projectId, userCredentials.username());
             Optional<KeyPairData> keyPairDataOptional = userService.getDefaultKeyPair(projectId, userCredentials.username());
             if (userDto.isPresent() && keyPairDataOptional.isPresent()) {
-                LOGGER.info("Generating tokens for {} {} {} {}", issuerUri, projectId, clientCredentials.id(), userCredentials.username());
+                LOGGER.info("Generating user tokens for {} {} {} {}", issuerUri, projectId, clientCredentials.id(), userCredentials.username());
                 ProjectDto project = projectDto.get();
                 UserDto user = userDto.get();
                 KeyPairData keyPairData = keyPairDataOptional.get();
-
                 Set<PermissionDto> permissions = permissionService.getPermissions(user.roles());
 
-                Long accessDuration = LabelUtils.getAccessTokenDuration(DEFAULT_ACCESS_DURATION, project.labels(), user.labels());
-                Long refreshDuration = LabelUtils.getRefreshTokenDuration(DEFAULT_REFRESH_DURATION, project.labels(), user.labels());
+                TokenGenerator tokenGenerator = tokenGenerators.get(DEFAULT);
+                GeneratedTokens generatedTokens = tokenGenerator.generateUserTokens(issuerUri, project, user, keyPairData, permissions, requestedAudience, requestedScopes);
 
-                Long epochMilli = Instant.now().getEpochSecond() * 1000L;
-                Date issuedAt = new Date(epochMilli);
-                Date accessExpiration = new Date(epochMilli + accessDuration);
-                Date refreshExpiration = new Date(epochMilli + refreshDuration);
-
-                String audience = getAudience(requestedAudience, project);
-                Set<String> scopes = getScopes(requestedScopes, permissions);
-
-                String accessJit = UUID.randomUUID().toString();
-                String refreshJit = UUID.randomUUID().toString();
-                TokenClaims accessClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, accessExpiration, TokenType.BEARER, accessJit, projectId);
-                TokenClaims refreshClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, refreshExpiration, TokenType.REFRESH, refreshJit, projectId);
-                TokenClaims idClaims = new TokenClaims(issuerUri.toString(), user.id(), audience, scopes, issuedAt, accessExpiration, TokenType.ID, UUID.randomUUID().toString(), projectId);
-                String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
-                String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
-                String idToken = TokenUtils.issueToken(idClaims, keyPairData.id(), keyPairData.privateKey());
-                String tokenType = Constants.BEARER;
-                tokenCacheWriterService.saveAccessToken(projectId, accessClaims.jti(), refreshJit, accessToken, keyPairData.x509Certificate(), accessDuration);
-                tokenCacheWriterService.saveRefreshToken(projectId, refreshClaims.jti(), accessJit, refreshToken, keyPairData.x509Certificate(), refreshDuration);
-                return new TokenResponse(accessToken, (epochMilli + accessDuration), (epochMilli + refreshDuration), refreshToken, tokenType, idToken);
+                tokenCacheWriterService.saveAccessToken(projectId, generatedTokens.accessClaims().jti(),
+                        generatedTokens.refreshClaims().jti(), generatedTokens.tokenResponse().getAccessToken(),
+                        keyPairData.x509Certificate(), generatedTokens.accessDuration());
+                tokenCacheWriterService.saveRefreshToken(projectId, generatedTokens.refreshClaims().jti(),
+                        generatedTokens.accessClaims().jti(), generatedTokens.tokenResponse().getRefreshToken(),
+                        keyPairData.x509Certificate(), generatedTokens.refreshDuration());
+                return generatedTokens.tokenResponse();
             } else {
                 LOGGER.warn("User not found: {}", userCredentials.username());
                 throw new OAuth2TokenException("User not found !");
@@ -127,7 +115,33 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         }
         Boolean clientOk = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
         if (clientOk) {
-            throw new UnsupportedOperationException("Not implemented yet !");
+            Optional<ClientDto> clientDtoOptional = clientService.get(projectId, clientCredentials.id());
+            Optional<KeyPairData> keyPairDataOptional = clientService.getDefaultKeyPair(projectId, clientCredentials.id());
+            if (clientDtoOptional.isPresent() && keyPairDataOptional.isPresent()) {
+                LOGGER.info("Generating client tokens for {} {} {} {}", issuerUri, projectId, clientCredentials.id(), clientCredentials.id());
+                ProjectDto project = projectDto.get();
+                ClientDto client = clientDtoOptional.get();
+                if (client.authEnabled()) {
+                    Set<PermissionDto> permissions = permissionService.getPermissions(client.roles());
+                    KeyPairData keyPairData = keyPairDataOptional.get();
+
+                    TokenGenerator tokenGenerator = tokenGenerators.get(DEFAULT);
+                    GeneratedTokens generatedTokens = tokenGenerator.generateClientTokens(issuerUri, project, client, keyPairData, permissions, requestedAudience, requestedScopes);
+
+                    tokenCacheWriterService.saveAccessToken(projectId, generatedTokens.accessClaims().jti(),
+                            generatedTokens.refreshClaims().jti(), generatedTokens.tokenResponse().getAccessToken(),
+                            keyPairData.x509Certificate(), generatedTokens.accessDuration());
+                    tokenCacheWriterService.saveRefreshToken(projectId, generatedTokens.refreshClaims().jti(),
+                            generatedTokens.accessClaims().jti(), generatedTokens.tokenResponse().getRefreshToken(),
+                            keyPairData.x509Certificate(), generatedTokens.refreshDuration());
+                    return generatedTokens.tokenResponse();
+                } else {
+                    throw new OAuth2TokenException("Not Authorized or Not Found !");
+                }
+            } else {
+                LOGGER.warn("Client not found: {}", clientCredentials.id());
+                throw new OAuth2TokenException("User not found !");
+            }
         } else {
             throw new OAuth2TokenException("Not Authorized or Not Found !");
         }
@@ -155,17 +169,15 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                 }
 
                 KeyPairData keyPairData = keyPairDataOptional.get();
-                Long accessDuration = LabelUtils.getAccessTokenDuration(DEFAULT_ACCESS_DURATION, project.labels(), user.labels());
-                Long epochMilli = Instant.now().getEpochSecond() * 1000L;
-                Date issuedAt = new Date(epochMilli);
-                Date accessExpiration = new Date(epochMilli + accessDuration);
-                String accessJti = UUID.randomUUID().toString();
-                TokenClaims accessClaims = new TokenClaims(refreshClaims.issuer(), refreshClaims.subject(), refreshClaims.audience(), refreshClaims.scope(), issuedAt, accessExpiration, TokenType.BEARER, accessJti, refreshClaims.projectId());
+                Set<PermissionDto> permissions = permissionService.getPermissions(user.roles());
 
-                String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
-                tokenCacheWriterService.saveRefreshedAccessToken(projectId, accessClaims.jti(), refreshClaims.jti(), accessToken, keyPairData.x509Certificate(), accessDuration);
-                String tokenType = Constants.BEARER;
-                return new TokenResponse(accessToken, (epochMilli + accessDuration), refreshClaims.expiration().getTime(), refreshToken, tokenType, null);
+                TokenGenerator tokenGenerator = tokenGenerators.get(DEFAULT);
+                GeneratedTokens generatedTokens = tokenGenerator.refreshTokens(project, user, keyPairData, permissions, refreshClaims, refreshToken);
+
+                tokenCacheWriterService.saveRefreshedAccessToken(projectId, generatedTokens.accessClaims().jti(),
+                        refreshClaims.jti(), generatedTokens.tokenResponse().getAccessToken(),
+                        keyPairData.x509Certificate(), generatedTokens.accessDuration());
+                return generatedTokens.tokenResponse();
             } else {
                 throw new OAuth2TokenException("Not Authorized or Not Found !");
             }
@@ -220,26 +232,6 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         } else {
             throw new OAuth2TokenException("Not Authorized or Not Found !");
         }
-    }
-
-    private String getAudience(String requestedAudience, ProjectDto project) {
-        return project.id();
-    }
-
-    private Set<String> getScopes(Set<String> requestedScopes, Set<PermissionDto> permissions) {
-        Set<String> result = new HashSet<>();
-        if (permissions != null) {
-            permissions.forEach(p -> {
-                String permission = p.resource() + "." + p.service() + "." + p.action();
-                result.add(permission);
-            });
-        }
-        if (requestedScopes != null) {
-            if (!requestedScopes.isEmpty()) {
-                //TODO: add scope filtering
-            }
-        }
-        return result;
     }
 
 }

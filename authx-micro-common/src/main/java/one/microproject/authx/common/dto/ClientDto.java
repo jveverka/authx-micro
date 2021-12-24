@@ -9,5 +9,6 @@ public record ClientDto(@JsonProperty("id") String id,
                         @JsonProperty("description") String description,
                         @JsonProperty("labels") Map<String, String> labels,
                         @JsonProperty("roles") Set<String> roles,
-                        @JsonProperty("groups") Set<String> groups) {
+                        @JsonProperty("groups") Set<String> groups,
+                        @JsonProperty("authEnabled") Boolean authEnabled) {
 }

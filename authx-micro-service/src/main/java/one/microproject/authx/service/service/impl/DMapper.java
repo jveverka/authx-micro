@@ -1,7 +1,6 @@
 package one.microproject.authx.service.service.impl;
 
 import one.microproject.authx.common.dto.*;
-import one.microproject.authx.common.dto.AuthxInfo;
 import one.microproject.authx.common.utils.CryptoUtils;
 import one.microproject.authx.service.model.Authx;
 import one.microproject.authx.service.model.Client;
@@ -30,12 +29,12 @@ public class DMapper {
     }
 
     public ClientDto map(Client client) {
-        return new ClientDto(client.getClientId(), client.getDescription(), client.getLabels(), map(client.getRoles()), map(client.getGroups()));
+        return new ClientDto(client.getClientId(), client.getDescription(), client.getLabels(), map(client.getRoles()), map(client.getGroups()), client.getAuthEnabled());
     }
 
     public Client map(String dbId, String projectId, String secretHash, CreateClientRequest clientRequest, String defaultKid, Map<String, KeyPairSerialized> keyPairs) {
         return new Client(dbId, clientRequest.id(), projectId, clientRequest.description(),
-                secretHash, defaultKid, clientRequest.labels(), keyPairs, map(clientRequest.groups()), map(clientRequest.roles()));
+                secretHash, defaultKid, clientRequest.labels(), keyPairs, map(clientRequest.groups()), map(clientRequest.roles()), clientRequest.authEnabled());
     }
 
     public UserDto map(User user) {

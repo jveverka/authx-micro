@@ -25,13 +25,14 @@ public class Client {
     private Map<String, KeyPairSerialized> keyPairs;
     private List<String> groups;
     private List<String> roles;
+    private Boolean authEnabled;
 
     public Client() {
     }
 
     public Client(String id, String clientId, String projectId, String description, String secret,
                   String defaultKid, Map<String, String> labels, Map<String, KeyPairSerialized> keyPairs,
-                  List<String> groups, List<String> roles) {
+                  List<String> groups, List<String> roles, Boolean authEnabled) {
         this.id = id;
         this.clientId = clientId;
         this.projectId = projectId;
@@ -42,6 +43,7 @@ public class Client {
         this.keyPairs = keyPairs;
         this.groups = groups;
         this.roles = roles;
+        this.authEnabled = authEnabled;
     }
 
     public String getId() {
@@ -122,5 +124,13 @@ public class Client {
 
     public void setRoles(List<String> roles) {
         this.roles = roles;
+    }
+
+    public Boolean getAuthEnabled() {
+        return authEnabled;
+    }
+
+    public void setAuthEnabled(Boolean authEnabled) {
+        this.authEnabled = authEnabled;
     }
 }
