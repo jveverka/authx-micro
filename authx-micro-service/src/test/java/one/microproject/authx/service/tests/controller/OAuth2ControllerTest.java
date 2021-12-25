@@ -5,6 +5,7 @@ import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.ResponseMessage;
 import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
+import one.microproject.authx.common.dto.oauth2.ProviderConfigurationResponse;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
 import one.microproject.authx.jclient.AuthXClient;
 import one.microproject.authx.jclient.AuthXOAuth2Client;
@@ -147,6 +148,24 @@ class OAuth2ControllerTest extends AppBaseTest  {
 
         responseMessage = authXClient.deleteProject(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
         assertTrue(responseMessage.success());
+    }
+
+    @Test
+    void testProviderConfigurationTest() {
+        AuthXOAuth2Client authXOAuth2Client = getGlobalAdminOAuth2Client();
+        ProviderConfigurationResponse providerConfigurationResponse = authXOAuth2Client.getConfiguration();
+        assertNotNull(providerConfigurationResponse);
+        assertNotNull(providerConfigurationResponse.getAuthorizationEndpoint());
+        assertNotNull(providerConfigurationResponse.getGrantTypesSupported());
+        assertNotNull(providerConfigurationResponse.getIdTokenEncryptionAlgValuesSupported());
+        assertNotNull(providerConfigurationResponse.getIssuer());
+        assertNotNull(providerConfigurationResponse.getIdTokenSigningAlgValuesSupported());
+        assertNotNull(providerConfigurationResponse.getIntrospectionEndpoint());
+        assertNotNull(providerConfigurationResponse.getJwksUri());
+        assertNotNull(providerConfigurationResponse.getResponseTypesSupported());
+        assertNotNull(providerConfigurationResponse.getRevocationEndpoint());
+        assertNotNull(providerConfigurationResponse.getScopesSupported());
+        assertNotNull(providerConfigurationResponse.getSubjectTypesSupported());
     }
 
 }
