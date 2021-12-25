@@ -32,5 +32,5 @@ docker run -name authx-service \
   -e ADMIN_USER_PASSWORD=secret \
   -e ADMIN_CLIENT_SECRET=secret \ 
   -e ...
-  jurajveverka/authx-micro-service:1.1.5-amd64
+  jurajveverka/authx-micro-service:1.1.6-amd64
 ```
