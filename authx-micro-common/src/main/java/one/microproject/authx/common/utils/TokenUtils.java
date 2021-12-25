@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import one.microproject.authx.common.dto.TokenClaims;
 import one.microproject.authx.common.dto.TokenType;
 
+import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -61,6 +62,10 @@ public final class TokenUtils {
         Date issuedAt = claims.getIssuedAt();
         String projectId = (String) claims.get(PID_CLAIM);
         return new TokenClaims(iss, sub, aud, scope, issuedAt, expiration, TokenType.getTokenType(tokenType), jti, projectId);
+    }
+
+    public static byte[] toBytesUnsigned(final BigInteger bigInt) {
+        return bigInt.toByteArray();
     }
 
     public static Jwt<? extends Header, Claims> getJwt(String token) {

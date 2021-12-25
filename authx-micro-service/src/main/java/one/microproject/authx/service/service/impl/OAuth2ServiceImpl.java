@@ -12,10 +12,13 @@ import one.microproject.authx.common.dto.TokenType;
 import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.common.dto.UserDto;
 import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
+import one.microproject.authx.common.dto.oauth2.JWKData;
 import one.microproject.authx.common.dto.oauth2.JWKResponse;
 import one.microproject.authx.common.dto.oauth2.ProviderConfigurationResponse;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
 import one.microproject.authx.common.dto.oauth2.UserInfoResponse;
+import one.microproject.authx.common.utils.CryptoUtils;
+import one.microproject.authx.common.utils.TokenUtils;
 import one.microproject.authx.jredis.TokenCacheReaderService;
 import one.microproject.authx.jredis.TokenCacheWriterService;
 import one.microproject.authx.service.dto.GeneratedTokens;
@@ -33,6 +36,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,6 +63,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     private static final String[] subjectTypesSupported = { "public", "pairwise" };
     private static final String[] idTokenSigningAlgValuesSupported = { KEY_ALGORITHM };
     private static final String[] idTokenEncryptionAlgValuesSupported = { KEY_TYPE };
+    private static final String[] operations = { "verify" };
 
     private static final String DEFAULT = "default";
 
@@ -254,8 +261,22 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public JWKResponse getJWKResponse(String projectId) {
-        //TODO: finish implementation
-        throw new UnsupportedOperationException("Not implemented yet !");
+        List<UserDto> users = userService.getAll(projectId);
+        List<JWKData> keys = new ArrayList<>();
+        users.forEach(u -> {
+            Optional<KeyPairData> keyPairDataOptional = userService.getDefaultKeyPair(projectId, u.id());
+            if (keyPairDataOptional.isPresent()) {
+                KeyPairData keyPairData = keyPairDataOptional.get();
+                RSAPublicKey publicKey = (RSAPublicKey) keyPairData.x509Certificate().getPublicKey();
+                String modulusBase64String = Base64.getEncoder().encodeToString(TokenUtils.toBytesUnsigned(publicKey.getModulus()));
+                String exponentBase64String = Base64.getEncoder().encodeToString(TokenUtils.toBytesUnsigned(publicKey.getPublicExponent()));
+                String x509Serialized = CryptoUtils.serializeX509Certificate(keyPairData.x509Certificate());
+                JWKData jwkData = new JWKData(keyPairData.id(), KEY_TYPE, KEY_USE, KEY_ALGORITHM, operations,
+                        x509Serialized, modulusBase64String, exponentBase64String);
+                keys.add(jwkData);
+            }
+        });
+        return new JWKResponse(keys);
     }
 
     @Override
