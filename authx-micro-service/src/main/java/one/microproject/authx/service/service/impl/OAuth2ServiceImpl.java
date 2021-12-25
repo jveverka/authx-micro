@@ -192,7 +192,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
                     ProjectDto project = projectDto.get();
                     ClientDto client = clientDtoOptional.get();
                     Boolean result = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
-                    if (!result) {
+                    if (!result || !client.authEnabled()) {
                         throw new OAuth2TokenException("Not Authorized or Not Found !");
                     }
 

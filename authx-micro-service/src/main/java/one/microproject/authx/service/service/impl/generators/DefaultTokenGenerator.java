@@ -20,6 +20,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -88,23 +89,18 @@ public class DefaultTokenGenerator implements TokenGenerator {
     @Override
     public GeneratedTokens refreshTokens(ProjectDto project, UserDto user, KeyPairData keyPairData, Set<PermissionDto> permissions, TokenClaims refreshClaims, String refreshToken) {
         LOGGER.info("refreshTokens user: {}", project.id());
-        Long accessDuration = LabelUtils.getAccessTokenDuration(DEFAULT_ACCESS_DURATION, project.labels(), user.labels());
-        Long epochMilli = Instant.now().getEpochSecond() * 1000L;
-        Date issuedAt = new Date(epochMilli);
-        Date accessExpiration = new Date(epochMilli + accessDuration);
-        String accessJti = UUID.randomUUID().toString();
-        TokenClaims accessClaims = new TokenClaims(refreshClaims.issuer(), refreshClaims.subject(), refreshClaims.audience(), refreshClaims.scope(), issuedAt, accessExpiration, TokenType.BEARER, accessJti, refreshClaims.projectId());
-
-        String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
-        String tokenType = Constants.BEARER;
-        TokenResponse tokenResponse = new TokenResponse(accessToken, (epochMilli + accessDuration), refreshClaims.expiration().getTime(), refreshToken, tokenType, null);
-        return new GeneratedTokens(tokenResponse, accessClaims, refreshClaims, accessDuration, null);
+        return refreshTokens(project, user.labels(), keyPairData, permissions, refreshClaims, refreshToken);
     }
 
     @Override
     public GeneratedTokens refreshTokens(ProjectDto project, ClientDto client, KeyPairData keyPairData, Set<PermissionDto> permissions, TokenClaims refreshClaims, String refreshToken) {
         LOGGER.info("refreshTokens client: {}", project.id());
-        Long accessDuration = LabelUtils.getAccessTokenDuration(DEFAULT_ACCESS_DURATION, project.labels(), client.labels());
+        return refreshTokens(project, client.labels(), keyPairData, permissions, refreshClaims, refreshToken);
+    }
+
+    public GeneratedTokens refreshTokens(ProjectDto project, Map<String, String> labels, KeyPairData keyPairData, Set<PermissionDto> permissions, TokenClaims refreshClaims, String refreshToken) {
+        LOGGER.info("refreshTokens: {}", project.id());
+        Long accessDuration = LabelUtils.getAccessTokenDuration(DEFAULT_ACCESS_DURATION, project.labels(), labels);
         Long epochMilli = Instant.now().getEpochSecond() * 1000L;
         Date issuedAt = new Date(epochMilli);
         Date accessExpiration = new Date(epochMilli + accessDuration);
@@ -115,7 +111,6 @@ public class DefaultTokenGenerator implements TokenGenerator {
         String tokenType = Constants.BEARER;
         TokenResponse tokenResponse = new TokenResponse(accessToken, (epochMilli + accessDuration), refreshClaims.expiration().getTime(), refreshToken, tokenType, null);
         return new GeneratedTokens(tokenResponse, accessClaims, refreshClaims, accessDuration, null);
-
     }
 
     private String getAudience(String requestedAudience, ProjectDto project) {
