@@ -1,6 +1,7 @@
 package one.microproject.authx.service.config;
 
 import one.microproject.authx.common.dto.TokenClaims;
+import one.microproject.authx.common.dto.TokenContext;
 import one.microproject.authx.jredis.TokenCacheReaderService;
 import one.microproject.authx.service.service.AdminAuthXService;
 import org.slf4j.Logger;
@@ -53,12 +54,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         String token = authHeader.substring(BEARER_PREFIX.length());
-        Optional<TokenClaims> claims = tokenCacheReaderService.verify(token);
-        if (claims.isEmpty()) {
+        Optional<TokenContext> tokenContext = tokenCacheReaderService.verify(token);
+        if (tokenContext.isEmpty()) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             return;
         }
-        TokenClaims tokenClaims = claims.get();
+        TokenClaims tokenClaims = tokenContext.get().tokenClaims();
         AntPathMatcher matcher = new AntPathMatcher();
         boolean isGlobalAdminProject = adminAuthXService.isGlobalAdminProject(tokenClaims.projectId());
         boolean isAdminUser = adminAuthXService.isAdminUser(tokenClaims.projectId(), tokenClaims.subject());

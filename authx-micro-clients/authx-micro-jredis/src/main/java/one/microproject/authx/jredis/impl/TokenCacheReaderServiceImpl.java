@@ -5,6 +5,7 @@ import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.MalformedJwtException;
 import one.microproject.authx.common.dto.TokenClaims;
+import one.microproject.authx.common.dto.TokenContext;
 import one.microproject.authx.common.utils.CryptoUtils;
 import one.microproject.authx.common.utils.TokenUtils;
 import one.microproject.authx.jredis.TokenCacheReaderService;
@@ -32,12 +33,12 @@ public class TokenCacheReaderServiceImpl implements TokenCacheReaderService {
     }
 
     @Override
-    public Optional<TokenClaims> verify(String jwt) {
+    public Optional<TokenContext> verify(String jwt) {
         return verify(jwt, null);
     }
 
     @Override
-    public Optional<TokenClaims> verify(String jwt, String tokenTypeHint) {
+    public Optional<TokenContext> verify(String jwt, String tokenTypeHint) {
         Jwt<? extends Header, Claims> jwtToken;
         try {
             jwtToken = TokenUtils.getJwt(jwt);
@@ -50,8 +51,10 @@ public class TokenCacheReaderServiceImpl implements TokenCacheReaderService {
         String id = (String)jwtToken.getBody().get(JTI_CLAIM);
         Optional<CachedToken> cachedTokenOptional = cacheTokenRepository.findById(id);
         if (cachedTokenOptional.isPresent()) {
-            X509Certificate x509Certificate = CryptoUtils.deserializeX509Certificate(cachedTokenOptional.get().getX509Certificate());
-            return Optional.of(TokenUtils.validate(jwt, x509Certificate));
+            CachedToken cachedToken = cachedTokenOptional.get();
+            X509Certificate x509Certificate = CryptoUtils.deserializeX509Certificate(cachedToken.getX509Certificate());
+            TokenContext tokenContext = new TokenContext(TokenUtils.validate(jwt, x509Certificate), cachedToken.getGrantType());
+            return Optional.of(tokenContext);
         } else {
             return Optional.empty();
         }

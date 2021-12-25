@@ -7,6 +7,7 @@ import one.microproject.authx.common.dto.KeyPairData;
 import one.microproject.authx.common.dto.PermissionDto;
 import one.microproject.authx.common.dto.ProjectDto;
 import one.microproject.authx.common.dto.TokenClaims;
+import one.microproject.authx.common.dto.TokenContext;
 import one.microproject.authx.common.dto.TokenType;
 import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.common.dto.UserDto;
@@ -156,29 +157,58 @@ public class OAuth2ServiceImpl implements OAuth2Service {
             LOGGER.warn("Project not found {}", projectId);
             throw new OAuth2TokenException("Project not found !");
         }
-        Optional<TokenClaims> claimsOptional = tokenCacheReaderService.verify(refreshToken, TokenType.REFRESH.getType());
-        if (claimsOptional.isPresent()) {
-            TokenClaims refreshClaims = claimsOptional.get();
-            Optional<UserDto> userDto = userService.get(projectId, refreshClaims.subject());
-            Optional<KeyPairData> keyPairDataOptional = userService.getDefaultKeyPair(projectId, refreshClaims.subject());
-            if (userDto.isPresent() && keyPairDataOptional.isPresent()) {
-                ProjectDto project = projectDto.get();
-                UserDto user = userDto.get();
-                Boolean result = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
-                if (!result) {
+        Optional<TokenContext> contextOptional = tokenCacheReaderService.verify(refreshToken, TokenType.REFRESH.getType());
+        if (contextOptional.isPresent()) {
+            TokenContext tokenContext = contextOptional.get();
+            TokenClaims refreshClaims = tokenContext.tokenClaims();
+            if (GrantType.PASSWORD.equals(tokenContext.type())) {
+                Optional<UserDto> userDto = userService.get(projectId, refreshClaims.subject());
+                Optional<KeyPairData> keyPairDataOptional = userService.getDefaultKeyPair(projectId, refreshClaims.subject());
+                if (userDto.isPresent() && keyPairDataOptional.isPresent()) {
+                    ProjectDto project = projectDto.get();
+                    UserDto user = userDto.get();
+                    Boolean result = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
+                    if (!result) {
+                        throw new OAuth2TokenException("Not Authorized or Not Found !");
+                    }
+
+                    KeyPairData keyPairData = keyPairDataOptional.get();
+                    Set<PermissionDto> permissions = permissionService.getPermissions(user.roles());
+
+                    TokenGenerator tokenGenerator = tokenGenerators.get(DEFAULT);
+                    GeneratedTokens generatedTokens = tokenGenerator.refreshTokens(project, user, keyPairData, permissions, refreshClaims, refreshToken);
+
+                    tokenCacheWriterService.saveRefreshedAccessToken(projectId, generatedTokens.accessClaims().jti(),
+                            refreshClaims.jti(), generatedTokens.tokenResponse().getAccessToken(),
+                            keyPairData.x509Certificate(), generatedTokens.accessDuration());
+                    return generatedTokens.tokenResponse();
+                } else {
                     throw new OAuth2TokenException("Not Authorized or Not Found !");
                 }
+            } else if (GrantType.CLIENT_CREDENTIALS.equals(tokenContext.type())) {
+                Optional<ClientDto> clientDtoOptional = clientService.get(projectId, refreshClaims.subject());
+                Optional<KeyPairData> keyPairDataOptional = clientService.getDefaultKeyPair(projectId, refreshClaims.subject());
+                if (clientDtoOptional.isPresent() && keyPairDataOptional.isPresent()) {
+                    ProjectDto project = projectDto.get();
+                    ClientDto client = clientDtoOptional.get();
+                    Boolean result = clientService.verifySecret(projectId, clientCredentials.id(), clientCredentials.secret());
+                    if (!result) {
+                        throw new OAuth2TokenException("Not Authorized or Not Found !");
+                    }
 
-                KeyPairData keyPairData = keyPairDataOptional.get();
-                Set<PermissionDto> permissions = permissionService.getPermissions(user.roles());
+                    KeyPairData keyPairData = keyPairDataOptional.get();
+                    Set<PermissionDto> permissions = permissionService.getPermissions(client.roles());
 
-                TokenGenerator tokenGenerator = tokenGenerators.get(DEFAULT);
-                GeneratedTokens generatedTokens = tokenGenerator.refreshTokens(project, user, keyPairData, permissions, refreshClaims, refreshToken);
+                    TokenGenerator tokenGenerator = tokenGenerators.get(DEFAULT);
+                    GeneratedTokens generatedTokens = tokenGenerator.refreshTokens(project, client, keyPairData, permissions, refreshClaims, refreshToken);
 
-                tokenCacheWriterService.saveRefreshedAccessToken(projectId, generatedTokens.accessClaims().jti(),
-                        refreshClaims.jti(), generatedTokens.tokenResponse().getAccessToken(),
-                        keyPairData.x509Certificate(), generatedTokens.accessDuration());
-                return generatedTokens.tokenResponse();
+                    tokenCacheWriterService.saveRefreshedAccessToken(projectId, generatedTokens.accessClaims().jti(),
+                            refreshClaims.jti(), generatedTokens.tokenResponse().getAccessToken(),
+                            keyPairData.x509Certificate(), generatedTokens.accessDuration());
+                    return generatedTokens.tokenResponse();
+                } else {
+                    throw new OAuth2TokenException("Not Authorized or Not Found !");
+                }
             } else {
                 throw new OAuth2TokenException("Not Authorized or Not Found !");
             }
@@ -203,8 +233,8 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     public IntrospectResponse getIntrospectResponse(String projectId, String token, String tokenTypeHint) {
         //TODO: use client Id and secret for request validation (https://datatracker.ietf.org/doc/html/rfc7662)
         LOGGER.info("getIntrospectResponse: {} {}", projectId, tokenTypeHint);
-        Optional<TokenClaims> claimsOptional = tokenCacheReaderService.verify(token, tokenTypeHint);
-        if (claimsOptional.isPresent()) {
+        Optional<TokenContext> contextOptional = tokenCacheReaderService.verify(token, tokenTypeHint);
+        if (contextOptional.isPresent()) {
             return new IntrospectResponse(Boolean.TRUE);
         } else {
             return new IntrospectResponse(Boolean.FALSE);
@@ -215,8 +245,8 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     public void revoke(String projectId, String token, String tokenTypeHint) {
         //TODO: use client Id and secret for request validation (https://datatracker.ietf.org/doc/html/rfc7009)
         LOGGER.info("revoke: {} {}", projectId, tokenTypeHint);
-        Optional<TokenClaims> tokenClaims = tokenCacheReaderService.verify(token, tokenTypeHint);
-        if (tokenClaims.isPresent()) {
+        Optional<TokenContext> contextOptional = tokenCacheReaderService.verify(token, tokenTypeHint);
+        if (contextOptional.isPresent()) {
             tokenCacheWriterService.removeToken(token);
             return;
         } else {
@@ -226,9 +256,9 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public Optional<UserInfoResponse> getUserInfo(String projectId, String token) {
-        Optional<TokenClaims> tokenClaims = tokenCacheReaderService.verify(token);
-        if (tokenClaims.isPresent()) {
-            TokenClaims claims = tokenClaims.get();
+        Optional<TokenContext> contextOptional = tokenCacheReaderService.verify(token);
+        if (contextOptional.isPresent()) {
+            TokenClaims claims = contextOptional.get().tokenClaims();
             return Optional.of(new UserInfoResponse(claims.subject()));
         } else {
             throw new OAuth2TokenException("Not Authorized or Not Found !");

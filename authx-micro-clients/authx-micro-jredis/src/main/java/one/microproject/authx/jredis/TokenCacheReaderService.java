@@ -1,6 +1,6 @@
 package one.microproject.authx.jredis;
 
-import one.microproject.authx.common.dto.TokenClaims;
+import one.microproject.authx.common.dto.TokenContext;
 
 import java.util.Optional;
 
@@ -11,7 +11,7 @@ public interface TokenCacheReaderService {
      * @param jwt - JWT token to verify.
      * @return
      */
-    Optional<TokenClaims> verify(String jwt);
+    Optional<TokenContext> verify(String jwt);
 
     /**
      * Verify validity of JWT Token. Token is valid if it's signature is valid and is not expired.
@@ -19,6 +19,6 @@ public interface TokenCacheReaderService {
      * @param tokenTypeHint - expected token type.
      * @return
      */
-    Optional<TokenClaims> verify(String jwt, String tokenTypeHint);
+    Optional<TokenContext> verify(String jwt, String tokenTypeHint);
 
 }

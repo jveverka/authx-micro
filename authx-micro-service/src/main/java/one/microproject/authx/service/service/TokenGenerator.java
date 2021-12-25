@@ -22,4 +22,6 @@ public interface TokenGenerator {
 
     GeneratedTokens refreshTokens(ProjectDto project, UserDto user, KeyPairData keyPairData, Set<PermissionDto> permissions, TokenClaims refreshClaims, String refreshToken);
 
+    GeneratedTokens refreshTokens(ProjectDto project, ClientDto client, KeyPairData keyPairData, Set<PermissionDto> permissions, TokenClaims refreshClaims, String refreshToken);
+
 }
