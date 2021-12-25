@@ -18,12 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static one.microproject.authx.common.utils.ServiceUtils.createId;
 import static one.microproject.authx.common.utils.CryptoUtils.getSha512HashBase64;
 import static one.microproject.authx.common.utils.LabelUtils.AUTHX_CERTIFICATE_DURATION;
-import static one.microproject.authx.common.utils.LabelUtils.PRIMARY_KID;
 
 
 @Service
@@ -51,11 +51,12 @@ public class ClientServiceImpl implements ClientService {
         if (clientOptional.isPresent()) {
             throw new DataConflictException("Client id already exists.");
         }
+        String kid = UUID.randomUUID().toString();
         String secretHash = getSha512HashBase64(request.secret());
         Map<String, String> labels = LabelUtils.mergeWithDefaults(request.labels());
-        Map<String, KeyPairSerialized> keys = generateKeyPair(request.id(), labels);
+        Map<String, KeyPairSerialized> keys = generateKeyPair(request.id(), labels, kid);
 
-        Client client = dMapper.map(dbId, projectId, secretHash, request, PRIMARY_KID, keys);
+        Client client = dMapper.map(dbId, projectId, secretHash, request, kid, keys);
         clientRepository.save(client);
         return dMapper.map(client);
     }
@@ -137,12 +138,12 @@ public class ClientServiceImpl implements ClientService {
         }
     }
 
-    private Map<String, KeyPairSerialized> generateKeyPair(String subject, Map<String, String> labels) {
+    private Map<String, KeyPairSerialized> generateKeyPair(String subject, Map<String, String> labels, String kid) {
         TimeUnit unit = TimeUnit.MILLISECONDS;
         Long duration = Long.parseLong(labels.get(AUTHX_CERTIFICATE_DURATION));
-        KeyPairData keyPairData = cryptoService.generateKeyPair(PRIMARY_KID, subject, unit, duration);
+        KeyPairData keyPairData = cryptoService.generateKeyPair(kid, subject, unit, duration);
         KeyPairSerialized keyPairSerialized = dMapper.map(keyPairData);
-        return Map.of(PRIMARY_KID, keyPairSerialized);
+        return Map.of(kid, keyPairSerialized);
     }
 
 }

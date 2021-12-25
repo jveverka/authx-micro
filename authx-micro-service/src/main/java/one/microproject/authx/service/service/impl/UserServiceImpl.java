@@ -18,13 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static one.microproject.authx.common.utils.ServiceUtils.createId;
 import static one.microproject.authx.common.utils.CryptoUtils.getSha512HashBase64;
 import static one.microproject.authx.common.utils.LabelUtils.AUTHX_CERTIFICATE_DURATION;
-import static one.microproject.authx.common.utils.LabelUtils.PRIMARY_KID;
 
 
 @Service
@@ -52,11 +52,12 @@ public class UserServiceImpl implements UserService {
         if (userOptional.isPresent()) {
             throw new DataConflictException("User id already exists.");
         }
+        String kid = UUID.randomUUID().toString();
         String secretHash = getSha512HashBase64(request.secret());
         Map<String, String> labels = LabelUtils.mergeWithDefaults(request.labels());
-        Map<String, KeyPairSerialized> keys = generateKeyPair(request.id(), labels);
+        Map<String, KeyPairSerialized> keys = generateKeyPair(request.id(), labels, kid);
 
-        User user = dMapper.map(dbId, projectId, request.clientId(), secretHash, request, PRIMARY_KID, keys);
+        User user = dMapper.map(dbId, projectId, request.clientId(), secretHash, request, kid, keys);
         userRepository.save(user);
         return dMapper.map(user);
     }
@@ -134,12 +135,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private Map<String, KeyPairSerialized> generateKeyPair(String subject, Map<String, String> labels) {
+    private Map<String, KeyPairSerialized> generateKeyPair(String subject, Map<String, String> labels, String kid) {
         TimeUnit unit = TimeUnit.MILLISECONDS;
         Long duration = Long.parseLong(labels.get(AUTHX_CERTIFICATE_DURATION));
-        KeyPairData keyPairData = cryptoService.generateKeyPair(PRIMARY_KID, subject, unit, duration);
+        KeyPairData keyPairData = cryptoService.generateKeyPair(kid, subject, unit, duration);
         KeyPairSerialized keyPairSerialized = dMapper.map(keyPairData);
-        return Map.of(PRIMARY_KID, keyPairSerialized);
+        return Map.of(kid, keyPairSerialized);
     }
 
 }
