@@ -10,7 +10,10 @@ import okhttp3.Response;
 import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
+import one.microproject.authx.common.dto.oauth2.JWKResponse;
+import one.microproject.authx.common.dto.oauth2.ProviderConfigurationResponse;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
+import one.microproject.authx.common.dto.oauth2.UserInfoResponse;
 import one.microproject.authx.jclient.AuthXOAuth2Client;
 
 import java.io.IOException;
@@ -22,9 +25,6 @@ import static one.microproject.authx.common.Urls.REVOKE;
 import static one.microproject.authx.common.Urls.SERVICES_OAUTH2;
 import static one.microproject.authx.common.Urls.TOKEN;
 import static one.microproject.authx.common.utils.TokenUtils.mapScopes;
-import static one.microproject.authx.jclient.impl.Constants.CLIENT_ID;
-import static one.microproject.authx.jclient.impl.Constants.CLIENT_SECRET;
-import static one.microproject.authx.jclient.impl.Constants.SCOPE;
 
 public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
 
@@ -46,17 +46,44 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
     }
 
     @Override
+    public TokenResponse getTokenForClient(ClientCredentials clientCredentials, String audience, Set<String> scopes) {
+        try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + TOKEN)
+                    .newBuilder();
+            httpBuilder.addQueryParameter("grant_type", "client_credentials");
+            httpBuilder.addQueryParameter("scope", mapScopes(scopes));
+            httpBuilder.addQueryParameter("audience", audience);
+            httpBuilder.addQueryParameter("client_id", clientCredentials.id());
+            httpBuilder.addQueryParameter("client_secret", clientCredentials.secret());
+            Request request = new Request.Builder()
+                    .url(httpBuilder.build())
+                    .post(RequestBody.create("{}", MediaType.parse(APPLICATION_FORM_URLENCODED)))
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200) {
+                return mapper.readValue(response.body().string(), TokenResponse.class);
+            } else {
+                throw new AuthXClientException("Username/Password Auth Error: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new AuthXClientException(e);
+        }
+    }
+
+    @Override
     public TokenResponse getTokenForPassword(ClientCredentials clientCredentials, String audience, Set<String> scopes, UserCredentials userCredentials) {
         try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + TOKEN)
+                    .newBuilder();
+            httpBuilder.addQueryParameter("grant_type", "password");
+            httpBuilder.addQueryParameter("username", userCredentials.username());
+            httpBuilder.addQueryParameter("scope", mapScopes(scopes));
+            httpBuilder.addQueryParameter("audience", audience);
+            httpBuilder.addQueryParameter("password", userCredentials.password());
+            httpBuilder.addQueryParameter("client_id", clientCredentials.id());
+            httpBuilder.addQueryParameter("client_secret", clientCredentials.secret());
             Request request = new Request.Builder()
-                    .url(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + TOKEN +
-                            "?grant_type=password" +
-                            "&username=" + userCredentials.username() +
-                            SCOPE + mapScopes(scopes) +
-                            "&audience=" + audience +
-                            "&password=" + userCredentials.password() +
-                            CLIENT_ID + clientCredentials.id() +
-                            CLIENT_SECRET + clientCredentials.secret())
+                    .url(httpBuilder.build())
                     .post(RequestBody.create("{}", MediaType.parse(APPLICATION_FORM_URLENCODED)))
                     .build();
             Response response = client.newCall(request).execute();
@@ -119,12 +146,14 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
     @Override
     public TokenResponse refreshToken(ClientCredentials clientCredentials, String refreshToken) {
         try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + TOKEN)
+                    .newBuilder();
+            httpBuilder.addQueryParameter("grant_type", "refresh_token");
+            httpBuilder.addQueryParameter("refresh_token", refreshToken);
+            httpBuilder.addQueryParameter("client_id", clientCredentials.id());
+            httpBuilder.addQueryParameter("client_secret", clientCredentials.secret());
             Request request = new Request.Builder()
-                    .url(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + TOKEN +
-                            "?grant_type=refresh_token" +
-                            "&refresh_token=" + refreshToken +
-                            CLIENT_ID + clientCredentials.id() +
-                            CLIENT_SECRET + clientCredentials.secret())
+                    .url(httpBuilder.build())
                     .post(RequestBody.create("{}", MediaType.parse(APPLICATION_FORM_URLENCODED)))
                     .build();
             Response response = client.newCall(request).execute();
@@ -138,5 +167,19 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
         }
     }
 
+    @Override
+    public ProviderConfigurationResponse getConfiguration() {
+        return null;
+    }
+
+    @Override
+    public JWKResponse getCerts() {
+        return null;
+    }
+
+    @Override
+    public UserInfoResponse getUserInfo(String token) {
+        return null;
+    }
 
 }

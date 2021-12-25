@@ -1,6 +1,13 @@
 package one.microproject.authx.service.tests;
 
+import one.microproject.authx.common.dto.BuildProjectRequest;
 import one.microproject.authx.common.dto.ClientCredentials;
+import one.microproject.authx.common.dto.CreateClientRequest;
+import one.microproject.authx.common.dto.CreateProjectRequest;
+import one.microproject.authx.common.dto.CreateUserRequest;
+import one.microproject.authx.common.dto.GroupDto;
+import one.microproject.authx.common.dto.PermissionDto;
+import one.microproject.authx.common.dto.RoleDto;
 import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
 import one.microproject.authx.jclient.AuthXClient;
@@ -25,6 +32,8 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Testcontainers
@@ -117,6 +126,18 @@ public abstract class AppBaseTest {
                     "spring.redis.port=" + redisBoundPort
             ).applyTo(context.getEnvironment());
         }
+    }
+
+    public BuildProjectRequest createBuildProjectRequest(String pid) {
+        CreateUserRequest adminUser = new CreateUserRequest("admin-user-001", "admin@pid-001", "", "secret", Map.of(), Set.of(), Set.of(), "admin-client-001");
+        CreateClientRequest adminClient = new CreateClientRequest("admin-client-001", "", false, "secret", Map.of(), Set.of(), Set.of());
+        CreateProjectRequest cp = new CreateProjectRequest(pid, "desc", Map.of(), adminUser, adminClient);
+        List<GroupDto> groups = List.of(new GroupDto("g-001", "description", Map.of()));
+        List<PermissionDto> permissions = List.of(new PermissionDto("p-001", "description", "service", "resource", "action"));
+        List<RoleDto> roles = List.of(new RoleDto("r-001", "description", Set.of("p-001")));
+        CreateClientRequest normalClient = new CreateClientRequest("cl-001", "", true, "secret", Map.of(), Set.of("r-001"), Set.of("g-001"));
+        CreateUserRequest normalUser = new CreateUserRequest("u-001", "u@p-001", "", "secret", Map.of(), Set.of("r-001"), Set.of("g-001"), "cl-001");
+        return new BuildProjectRequest(cp, groups, roles, permissions, List.of(normalClient), List.of(normalUser));
     }
 
 }

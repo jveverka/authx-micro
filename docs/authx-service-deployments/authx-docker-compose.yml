@@ -3,7 +3,7 @@ version: '3.6'
 services:
 
   authx-service:
-    image: jurajveverka/authx-micro-service:1.1.7-amd64
+    image: jurajveverka/authx-micro-service:1.1.8-amd64
     ports:
       - 8080:8080
       - 7777:7777
