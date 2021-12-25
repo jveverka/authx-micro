@@ -43,13 +43,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import static one.microproject.authx.common.Constants.BEARER_PREFIX;
+import static one.microproject.authx.common.Urls.SERVICES_OAUTH2;
 import static one.microproject.authx.service.controller.ControllerUtils.getClientCredentials;
 import static one.microproject.authx.service.controller.ControllerUtils.getIssuerUri;
 import static one.microproject.authx.service.controller.ControllerUtils.getScopes;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
-@RequestMapping(path = "/api/v1/oauth2")
+@RequestMapping(path = SERVICES_OAUTH2)
 @Tag(name = "OAuth2", description = "APIs providing OAuth2 authentication flows.")
 public class OAuth2Controller {
 

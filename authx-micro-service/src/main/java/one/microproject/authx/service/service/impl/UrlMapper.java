@@ -20,4 +20,12 @@ public class UrlMapper {
         }
     }
 
+    public String getInternalUrl() {
+        return internalUrl;
+    }
+
+    public String getExternalUrl() {
+        return externalUrl;
+    }
+
 }

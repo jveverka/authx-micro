@@ -16,14 +16,14 @@ import one.microproject.authx.jclient.AuthXOAuth2Client;
 import java.io.IOException;
 import java.util.Set;
 
+import static one.microproject.authx.common.Urls.DELIMITER;
+import static one.microproject.authx.common.Urls.INTROSPECT;
+import static one.microproject.authx.common.Urls.REVOKE;
+import static one.microproject.authx.common.Urls.SERVICES_OAUTH2;
+import static one.microproject.authx.common.Urls.TOKEN;
 import static one.microproject.authx.common.utils.TokenUtils.mapScopes;
 import static one.microproject.authx.jclient.impl.Constants.CLIENT_ID;
 import static one.microproject.authx.jclient.impl.Constants.CLIENT_SECRET;
-import static one.microproject.authx.jclient.impl.Constants.DELIMITER;
-import static one.microproject.authx.jclient.impl.Constants.INTROSPECT;
-import static one.microproject.authx.jclient.impl.Constants.REVOKE;
-import static one.microproject.authx.jclient.impl.Constants.SERVICES_OAUTH2;
-import static one.microproject.authx.jclient.impl.Constants.TOKEN;
 import static one.microproject.authx.jclient.impl.Constants.SCOPE;
 
 public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {

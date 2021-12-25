@@ -19,10 +19,11 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import static one.microproject.authx.common.utils.ServiceUtils.getScopes;
 
 public class DefaultTokenGenerator implements TokenGenerator {
 
@@ -115,22 +116,6 @@ public class DefaultTokenGenerator implements TokenGenerator {
 
     private String getAudience(String requestedAudience, ProjectDto project) {
         return project.id();
-    }
-
-    private Set<String> getScopes(Set<String> requestedScopes, Set<PermissionDto> permissions) {
-        Set<String> result = new HashSet<>();
-        if (permissions != null) {
-            permissions.forEach(p -> {
-                String permission = p.resource() + "." + p.service() + "." + p.action();
-                result.add(permission);
-            });
-        }
-        if (requestedScopes != null) {
-            if (!requestedScopes.isEmpty()) {
-                //TODO: add scope filtering
-            }
-        }
-        return result;
     }
 
 }

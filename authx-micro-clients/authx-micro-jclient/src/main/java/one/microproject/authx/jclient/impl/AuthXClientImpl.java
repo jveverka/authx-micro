@@ -16,12 +16,12 @@ import one.microproject.authx.jclient.AuthXOAuth2Client;
 import java.io.IOException;
 
 import static one.microproject.authx.common.Constants.BEARER_PREFIX;
+import static one.microproject.authx.common.Urls.DELIMITER;
+import static one.microproject.authx.common.Urls.SERVICES_ADMIN_AUTHX;
+import static one.microproject.authx.common.Urls.SERVICES_ADMIN_PROJECTS;
+import static one.microproject.authx.common.Urls.SERVICES_SYSTEM;
 import static one.microproject.authx.jclient.impl.AuthXOAuth2ClientImpl.APPLICATION_JSON;
 import static one.microproject.authx.jclient.impl.AuthXOAuth2ClientImpl.AUTHORIZATION;
-import static one.microproject.authx.jclient.impl.Constants.DELIMITER;
-import static one.microproject.authx.jclient.impl.Constants.SERVICES_ADMIN_AUTHX;
-import static one.microproject.authx.jclient.impl.Constants.SERVICES_ADMIN_PROJECTS;
-import static one.microproject.authx.jclient.impl.Constants.SERVICES_SYSTEM;
 
 public class AuthXClientImpl implements AuthXClient {
 

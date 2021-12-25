@@ -24,9 +24,9 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import static one.microproject.authx.common.Urls.DELIMITER;
 import static one.microproject.authx.jclient.impl.AuthXOAuth2ClientImpl.APPLICATION_JSON;
 import static one.microproject.authx.jclient.impl.AuthXOAuth2ClientImpl.AUTHORIZATION;
-import static one.microproject.authx.jclient.impl.Constants.DELIMITER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SecurityTests extends AppBaseTest {

@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Set;
 
-import static one.microproject.authx.jclient.impl.Constants.DELIMITER;
-import static one.microproject.authx.jclient.impl.Constants.SERVICES_OAUTH2;
+import static one.microproject.authx.common.Urls.DELIMITER;
+import static one.microproject.authx.common.Urls.SERVICES_OAUTH2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AuthXClientTest {

@@ -33,15 +33,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static one.microproject.authx.common.Urls.DELIMITER;
+import static one.microproject.authx.common.Urls.SERVICES_OAUTH2;
+import static one.microproject.authx.common.utils.ServiceUtils.getScopes;
+
 @Service
 public class OAuth2ServiceImpl implements OAuth2Service {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2ServiceImpl.class);
+
+    public static final String KEY_TYPE = "RSA";
+    public static final String KEY_USE = "sig";
+    public static final String KEY_ALGORITHM = "RS256";
+
+    private static final String[] responseTypes = { "code", "code id_token","code token","code id_token token" };
+    private static final String[] grantTypes = { "refresh_token", "password", "client_credentials" };
+    private static final String[] subjectTypesSupported = { "public", "pairwise" };
+    private static final String[] idTokenSigningAlgValuesSupported = { KEY_ALGORITHM };
+    private static final String[] idTokenEncryptionAlgValuesSupported = { KEY_TYPE };
 
     private static final String DEFAULT = "default";
 
@@ -52,12 +67,13 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     private final TokenCacheReaderService tokenCacheReaderService;
     private final TokenCacheWriterService tokenCacheWriterService;
+    private final UrlMapper urlMapper;
 
     private final Map<String, TokenGenerator> tokenGenerators;
 
     @Autowired
     public OAuth2ServiceImpl(ProjectService projectService, UserService userService, ClientService clientService, PermissionService permissionService,
-                             TokenCacheReaderService tokenCacheReaderService, TokenCacheWriterService tokenCacheWriterService) {
+                             TokenCacheReaderService tokenCacheReaderService, TokenCacheWriterService tokenCacheWriterService, UrlMapper urlMapper) {
         this.projectService = projectService;
         this.userService = userService;
         this.clientService = clientService;
@@ -65,6 +81,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         this.tokenCacheReaderService = tokenCacheReaderService;
         this.tokenCacheWriterService = tokenCacheWriterService;
         this.tokenGenerators = new ConcurrentHashMap<>();
+        this.urlMapper = urlMapper;
         this.tokenGenerators.put(DEFAULT, new DefaultTokenGenerator());
     }
 
@@ -219,8 +236,20 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public ProviderConfigurationResponse getProviderConfiguration(URI issuerUri, String projectId) {
-        //TODO: finish implementation
-        throw new UnsupportedOperationException("Not implemented yet !");
+        List<PermissionDto> permissions = permissionService.getAll(projectId);
+        Set<String> scopes = getScopes(permissions);
+        String[] scopesSupported = scopes.stream().toArray(n-> new String[n]);
+        String baseUrl = urlMapper.getExternalUrl() + SERVICES_OAUTH2 + DELIMITER + projectId;
+        String issuer = baseUrl;
+        String authorizationEndpoint = baseUrl + "/authorize";
+        String tokenEndpoint = baseUrl + "/token";
+        String jwksUri = baseUrl + "/.well-known/jwks.json";
+        String introspectionEndpoint = baseUrl + "/introspect";
+        String revocationEndpoint = baseUrl + "/revoke";
+        return new ProviderConfigurationResponse(issuer, authorizationEndpoint, tokenEndpoint, jwksUri,
+                scopesSupported, responseTypes, grantTypes, subjectTypesSupported,
+                idTokenSigningAlgValuesSupported, idTokenEncryptionAlgValuesSupported,
+                introspectionEndpoint, revocationEndpoint);
     }
 
     @Override

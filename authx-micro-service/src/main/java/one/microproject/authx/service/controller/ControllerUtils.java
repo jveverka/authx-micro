@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static one.microproject.authx.common.Constants.AUTHORIZATION;
+import static one.microproject.authx.common.Urls.DELIMITER;
+import static one.microproject.authx.common.Urls.SERVICES_OAUTH2;
 
 public final class ControllerUtils {
 
@@ -65,7 +67,7 @@ public final class ControllerUtils {
         String contextPath = getContextPath(servletContextPath);
         String baseUrl = requestUrl.getProtocol() + "://" + requestUrl.getHost() + ":" + requestUrl.getPort() + contextPath;
         baseUrl = urlMapper.map(baseUrl);
-        return new URI(baseUrl + "/api/v1/oauth2/" + projectId );
+        return new URI(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId );
     }
 
 }
