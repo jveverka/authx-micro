@@ -1,5 +1,6 @@
 package one.microproject.authx.jredis.model;
 
+import one.microproject.authx.common.dto.GrantType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
@@ -22,11 +23,12 @@ public class CachedToken {
 
     @TimeToLive(unit = TimeUnit.MILLISECONDS)
     private Long timeToLive;
+    private GrantType grantType;
 
     public CachedToken() {
     }
 
-    public CachedToken(String id, String token, String projectId, String x509Certificate, String relatedTokenId, String typ, Long timeToLive) {
+    public CachedToken(String id, String token, String projectId, String x509Certificate, String relatedTokenId, String typ, Long timeToLive, GrantType grantType) {
         this.id = id;
         this.token = token;
         this.projectId = projectId;
@@ -34,6 +36,7 @@ public class CachedToken {
         this.relatedTokenId = relatedTokenId;
         this.typ = typ;
         this.timeToLive = timeToLive;
+        this.grantType = grantType;
     }
 
     public String getId() {
@@ -88,4 +91,15 @@ public class CachedToken {
         this.timeToLive = timeToLive;
     }
 
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public GrantType getGrantType() {
+        return grantType;
+    }
+
+    public void setGrantType(GrantType grantType) {
+        this.grantType = grantType;
+    }
 }

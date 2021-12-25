@@ -2,6 +2,7 @@ package one.microproject.authx.service.service.impl;
 
 import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.ClientDto;
+import one.microproject.authx.common.dto.GrantType;
 import one.microproject.authx.common.dto.KeyPairData;
 import one.microproject.authx.common.dto.PermissionDto;
 import one.microproject.authx.common.dto.ProjectDto;
@@ -91,10 +92,10 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
                 tokenCacheWriterService.saveAccessToken(projectId, generatedTokens.accessClaims().jti(),
                         generatedTokens.refreshClaims().jti(), generatedTokens.tokenResponse().getAccessToken(),
-                        keyPairData.x509Certificate(), generatedTokens.accessDuration());
+                        keyPairData.x509Certificate(), generatedTokens.accessDuration(), GrantType.PASSWORD);
                 tokenCacheWriterService.saveRefreshToken(projectId, generatedTokens.refreshClaims().jti(),
                         generatedTokens.accessClaims().jti(), generatedTokens.tokenResponse().getRefreshToken(),
-                        keyPairData.x509Certificate(), generatedTokens.refreshDuration());
+                        keyPairData.x509Certificate(), generatedTokens.refreshDuration(), GrantType.PASSWORD);
                 return generatedTokens.tokenResponse();
             } else {
                 LOGGER.warn("User not found: {}", userCredentials.username());
@@ -130,10 +131,10 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
                     tokenCacheWriterService.saveAccessToken(projectId, generatedTokens.accessClaims().jti(),
                             generatedTokens.refreshClaims().jti(), generatedTokens.tokenResponse().getAccessToken(),
-                            keyPairData.x509Certificate(), generatedTokens.accessDuration());
+                            keyPairData.x509Certificate(), generatedTokens.accessDuration(), GrantType.CLIENT_CREDENTIALS);
                     tokenCacheWriterService.saveRefreshToken(projectId, generatedTokens.refreshClaims().jti(),
                             generatedTokens.accessClaims().jti(), generatedTokens.tokenResponse().getRefreshToken(),
-                            keyPairData.x509Certificate(), generatedTokens.refreshDuration());
+                            keyPairData.x509Certificate(), generatedTokens.refreshDuration(), GrantType.CLIENT_CREDENTIALS);
                     return generatedTokens.tokenResponse();
                 } else {
                     throw new OAuth2TokenException("Not Authorized or Not Found !");

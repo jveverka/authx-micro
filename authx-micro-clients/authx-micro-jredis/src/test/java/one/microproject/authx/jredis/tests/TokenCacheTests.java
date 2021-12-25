@@ -1,5 +1,6 @@
 package one.microproject.authx.jredis.tests;
 
+import one.microproject.authx.common.dto.GrantType;
 import one.microproject.authx.common.dto.KeyPairData;
 import one.microproject.authx.common.dto.TokenClaims;
 import one.microproject.authx.common.dto.TokenType;
@@ -51,7 +52,7 @@ class TokenCacheTests extends AppBaseTest {
         KeyPairData keyPairData = generateKeyPair("key-001", "sub", TimeUnit.HOURS, 1L);
         TokenClaims accessClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, accessExpiration, TokenType.BEARER, "jti", "p-01");
         String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
-        tokenCacheWriterService.saveAccessToken("p-01", "jti", "NA", accessToken, keyPairData.x509Certificate(), TimeToLiveAccess);
+        tokenCacheWriterService.saveAccessToken("p-01", "jti", "NA", accessToken, keyPairData.x509Certificate(), TimeToLiveAccess, GrantType.PASSWORD);
         Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify(accessToken);
         assertTrue(verifiedClaims.isPresent());
         tokenCacheWriterService.removeTokenById("jti");
@@ -67,7 +68,7 @@ class TokenCacheTests extends AppBaseTest {
         KeyPairData keyPairData = generateKeyPair("key-001", "sub", TimeUnit.HOURS, 1L);
         TokenClaims refreshClaims = new TokenClaims("iss", "sub", "aud", Set.of(), issuedAt, refreshExpiration, TokenType.REFRESH, "jti", "p-01");
         String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
-        tokenCacheWriterService.saveRefreshToken("p-01", "jti", "NA", refreshToken, keyPairData.x509Certificate(), TimeToLiveRefresh);
+        tokenCacheWriterService.saveRefreshToken("p-01", "jti", "NA", refreshToken, keyPairData.x509Certificate(), TimeToLiveRefresh, GrantType.PASSWORD);
         Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify(refreshToken);
         assertTrue(verifiedClaims.isPresent());
         tokenCacheWriterService.removeTokenById( "jti");
@@ -89,8 +90,8 @@ class TokenCacheTests extends AppBaseTest {
         String accessToken = TokenUtils.issueToken(accessClaims, keyPairData.id(), keyPairData.privateKey());
         String refreshToken = TokenUtils.issueToken(refreshClaims, keyPairData.id(), keyPairData.privateKey());
 
-        tokenCacheWriterService.saveAccessToken("p-01", "access-001", "refresh-001", accessToken, keyPairData.x509Certificate(), TimeToLiveAccess);
-        tokenCacheWriterService.saveRefreshToken("p-01", "refresh-001", "access-001", refreshToken, keyPairData.x509Certificate(), TimeToLiveRefresh);
+        tokenCacheWriterService.saveAccessToken("p-01", "access-001", "refresh-001", accessToken, keyPairData.x509Certificate(), TimeToLiveAccess, GrantType.PASSWORD);
+        tokenCacheWriterService.saveRefreshToken("p-01", "refresh-001", "access-001", refreshToken, keyPairData.x509Certificate(), TimeToLiveRefresh, GrantType.PASSWORD);
 
         Optional<TokenClaims> verifiedClaims = tokenCacheReaderService.verify(accessToken);
         assertTrue(verifiedClaims.isPresent());

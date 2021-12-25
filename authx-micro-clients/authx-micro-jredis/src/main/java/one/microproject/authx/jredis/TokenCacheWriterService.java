@@ -1,5 +1,7 @@
 package one.microproject.authx.jredis;
 
+import one.microproject.authx.common.dto.GrantType;
+
 import java.security.cert.X509Certificate;
 
 public interface TokenCacheWriterService {
@@ -12,8 +14,9 @@ public interface TokenCacheWriterService {
      * @param token - JWT access token.
      * @param certificate - X509 certificate for token signature verification.
      * @param timeToLive - token expiration interval in seconds.
+     * @param grantType - grant type used to create this token.
      */
-    void saveAccessToken(String projectId, String jti, String refreshJti, String token, X509Certificate certificate, Long timeToLive);
+    void saveAccessToken(String projectId, String jti, String refreshJti, String token, X509Certificate certificate, Long timeToLive, GrantType grantType);
 
     /**
      * Save JWT refresh token and corresponding X509 certificate in cache by it unique ProjectId and JTI.
@@ -23,8 +26,9 @@ public interface TokenCacheWriterService {
      * @param token - JWT refresh token.
      * @param certificate - X509 certificate for token signature verification.
      * @param timeToLive - token expiration interval in seconds.
+     * @param grantType - grant type used to create this token.
      */
-    void saveRefreshToken(String projectId, String jti, String accessJti, String token, X509Certificate certificate, Long timeToLive);
+    void saveRefreshToken(String projectId, String jti, String accessJti, String token, X509Certificate certificate, Long timeToLive, GrantType grantType);
 
     /**
      * Save new Access Token after successful refresh,
@@ -44,7 +48,7 @@ public interface TokenCacheWriterService {
     void removeTokenById(String jti);
 
     /**
-     * Remove JWT Token by it's unique ID.
+     * Remove JWT Token.
      * @param token - JWT token to remove.
      */
     void removeToken(String token);

@@ -3,6 +3,7 @@ package one.microproject.authx.jredis.impl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwt;
+import one.microproject.authx.common.dto.GrantType;
 import one.microproject.authx.common.dto.TokenType;
 import one.microproject.authx.common.utils.TokenUtils;
 import one.microproject.authx.jredis.model.CachedToken;
@@ -31,15 +32,15 @@ public class TokenCacheWriterServiceImpl implements TokenCacheWriterService {
 
     @Override
     @Transactional
-    public void saveAccessToken(String projectId, String jti, String refreshJti, String token, X509Certificate certificate, Long timeToLive) {
-        CachedToken cachedToken = new CachedToken(jti, token, projectId, serializeX509Certificate(certificate), refreshJti, TokenType.BEARER.getType(), timeToLive);
+    public void saveAccessToken(String projectId, String jti, String refreshJti, String token, X509Certificate certificate, Long timeToLive, GrantType grantType) {
+        CachedToken cachedToken = new CachedToken(jti, token, projectId, serializeX509Certificate(certificate), refreshJti, TokenType.BEARER.getType(), timeToLive, grantType);
         cacheTokenRepository.save(cachedToken);
     }
 
     @Override
     @Transactional
-    public void saveRefreshToken(String projectId, String jti, String accessJti, String token, X509Certificate certificate, Long timeToLive) {
-        CachedToken cachedToken = new CachedToken(jti, token, projectId, serializeX509Certificate(certificate), accessJti, TokenType.REFRESH.getType(), timeToLive);
+    public void saveRefreshToken(String projectId, String jti, String accessJti, String token, X509Certificate certificate, Long timeToLive, GrantType grantType) {
+        CachedToken cachedToken = new CachedToken(jti, token, projectId, serializeX509Certificate(certificate), accessJti, TokenType.REFRESH.getType(), timeToLive, grantType);
         cacheTokenRepository.save(cachedToken);
     }
 
@@ -51,7 +52,7 @@ public class TokenCacheWriterServiceImpl implements TokenCacheWriterService {
             CachedToken refreshToken = refreshTokenOptional.get();
             cacheTokenRepository.deleteById(refreshToken.getRelatedTokenId());
             refreshToken.setRelatedTokenId(accessJti);
-            CachedToken accessToken = new CachedToken(accessJti, token, projectId, serializeX509Certificate(certificate), refreshJti, TokenType.BEARER.getType(), timeToLive);
+            CachedToken accessToken = new CachedToken(accessJti, token, projectId, serializeX509Certificate(certificate), refreshJti, TokenType.BEARER.getType(), timeToLive, refreshToken.getGrantType());
             cacheTokenRepository.save(accessToken);
             cacheTokenRepository.save(refreshToken);
         } else {
