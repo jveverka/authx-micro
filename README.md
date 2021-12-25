@@ -19,19 +19,18 @@ curl http://localhost:8080/authx/api/v1/system/info
 ```
 See other [deployments scenarios](docs/authx-service-deployments);
 
-##### OpenAPI 3.0 (swagger)
-```
-http://localhost:8080/authx/v3/api-docs
-http://localhost:8080/authx/swagger-ui/index.html?configUrl=/authx/v3/api-docs/swagger-config
-```
-
 ## Supported OAuth2 flows
-* __Password Credentials__ - wip
-* __Client Credentials__ - wip
-* __Refresh Token__ - wip
+* __Password Credentials__ - [flow details](docs/oauth2/133_password-credentials-flow.md).
+* __Client Credentials__ - [flow details](docs/oauth2/134_client-credentials-flow.md).
+* __Refresh Token__ - [flow detail](docs/oauth2/15_refresh-tokens-flow.md).
 
 ### REST Endpoints
 * Check This [insomnia collection](docs/insomnia-collection.json).
+* OpenAPI 3.0 (swagger)
+  ```
+  http://localhost:8080/authx/v3/api-docs
+  http://localhost:8080/authx/swagger-ui/index.html?configUrl=/authx/v3/api-docs/swagger-config
+  ```
 * OAuth2 endpoints
   ```
   http://localhost:8080/authx/api/v1/oauth2
@@ -46,7 +45,7 @@ http://localhost:8080/authx/swagger-ui/index.html?configUrl=/authx/v3/api-docs/s
   http://localhost:7777/actuator/health
   http://localhost:7777/actuator/prometheus
   ```
- 
+
 ### Technical documentation
 * [Security Model](docs/authx-security-model.md)
 * [Internal Data Model.](docs/authx-data-model.md)
