@@ -19,6 +19,7 @@ import one.microproject.authx.jclient.AuthXOAuth2Client;
 import java.io.IOException;
 import java.util.Set;
 
+import static one.microproject.authx.common.Constants.BEARER_PREFIX;
 import static one.microproject.authx.common.Urls.DELIMITER;
 import static one.microproject.authx.common.Urls.INTROSPECT;
 import static one.microproject.authx.common.Urls.JWKS;
@@ -26,6 +27,7 @@ import static one.microproject.authx.common.Urls.OPENID_CONFIG;
 import static one.microproject.authx.common.Urls.REVOKE;
 import static one.microproject.authx.common.Urls.SERVICES_OAUTH2;
 import static one.microproject.authx.common.Urls.TOKEN;
+import static one.microproject.authx.common.Urls.USERINFO;
 import static one.microproject.authx.common.utils.TokenUtils.mapScopes;
 
 public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
@@ -211,7 +213,23 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
 
     @Override
     public UserInfoResponse getUserInfo(String token) {
-        return null;
+        try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + USERINFO)
+                    .newBuilder();
+            Request request = new Request.Builder()
+                    .url(httpBuilder.build())
+                    .addHeader(AUTHORIZATION, BEARER_PREFIX + token)
+                    .get()
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200) {
+                return mapper.readValue(response.body().string(), UserInfoResponse.class);
+            } else {
+                throw new AuthXClientException("Refresh token Error: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new AuthXClientException(e);
+        }
     }
 
 }

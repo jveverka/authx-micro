@@ -8,6 +8,7 @@ import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
 import one.microproject.authx.common.dto.oauth2.JWKResponse;
 import one.microproject.authx.common.dto.oauth2.ProviderConfigurationResponse;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
+import one.microproject.authx.common.dto.oauth2.UserInfoResponse;
 import one.microproject.authx.jclient.AuthXClient;
 import one.microproject.authx.jclient.AuthXOAuth2Client;
 import one.microproject.authx.service.tests.AppBaseTest;
@@ -177,6 +178,17 @@ class OAuth2ControllerTest extends AppBaseTest  {
         assertNotNull(certs);
         assertNotNull(certs.getKeys());
         assertEquals(1, certs.getKeys().size());
+    }
+
+    @Test
+    void testUserInfo() {
+        AuthXOAuth2Client authXOAuth2Client = getGlobalAdminOAuth2Client();
+        TokenResponse globalAdminTokens = getGlobalAdminTokens();
+
+        UserInfoResponse userInfo = authXOAuth2Client.getUserInfo(globalAdminTokens.getAccessToken());
+        assertNotNull(userInfo);
+        assertNotNull(userInfo.getSub());
+        assertEquals("admin-user", userInfo.getSub());
     }
 
 }
