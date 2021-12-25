@@ -16,5 +16,6 @@ public final class Urls {
     public static final String INTROSPECT = "/introspect";
     public static final String REVOKE = "/revoke";
     public static final String OPENID_CONFIG = "/.well-known/openid-configuration";
+    public static final String JWKS = "/.well-known/jwks.json";
 
 }

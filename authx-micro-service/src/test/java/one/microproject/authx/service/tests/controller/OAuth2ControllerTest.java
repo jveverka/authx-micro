@@ -5,6 +5,7 @@ import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.ResponseMessage;
 import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
+import one.microproject.authx.common.dto.oauth2.JWKResponse;
 import one.microproject.authx.common.dto.oauth2.ProviderConfigurationResponse;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
 import one.microproject.authx.jclient.AuthXClient;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -151,7 +153,7 @@ class OAuth2ControllerTest extends AppBaseTest  {
     }
 
     @Test
-    void testProviderConfigurationTest() {
+    void testProviderConfiguration() {
         AuthXOAuth2Client authXOAuth2Client = getGlobalAdminOAuth2Client();
         ProviderConfigurationResponse providerConfigurationResponse = authXOAuth2Client.getConfiguration();
         assertNotNull(providerConfigurationResponse);
@@ -166,6 +168,15 @@ class OAuth2ControllerTest extends AppBaseTest  {
         assertNotNull(providerConfigurationResponse.getRevocationEndpoint());
         assertNotNull(providerConfigurationResponse.getScopesSupported());
         assertNotNull(providerConfigurationResponse.getSubjectTypesSupported());
+    }
+
+    @Test
+    void testGetCerts() {
+        AuthXOAuth2Client authXOAuth2Client = getGlobalAdminOAuth2Client();
+        JWKResponse certs = authXOAuth2Client.getCerts();
+        assertNotNull(certs);
+        assertNotNull(certs.getKeys());
+        assertEquals(1, certs.getKeys().size());
     }
 
 }

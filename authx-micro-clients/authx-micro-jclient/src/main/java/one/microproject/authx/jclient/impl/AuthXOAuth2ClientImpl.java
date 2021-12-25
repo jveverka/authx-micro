@@ -21,6 +21,7 @@ import java.util.Set;
 
 import static one.microproject.authx.common.Urls.DELIMITER;
 import static one.microproject.authx.common.Urls.INTROSPECT;
+import static one.microproject.authx.common.Urls.JWKS;
 import static one.microproject.authx.common.Urls.OPENID_CONFIG;
 import static one.microproject.authx.common.Urls.REVOKE;
 import static one.microproject.authx.common.Urls.SERVICES_OAUTH2;
@@ -190,7 +191,22 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
 
     @Override
     public JWKResponse getCerts() {
-        return null;
+        try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + JWKS)
+                    .newBuilder();
+            Request request = new Request.Builder()
+                    .url(httpBuilder.build())
+                    .get()
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200) {
+                return mapper.readValue(response.body().string(), JWKResponse.class);
+            } else {
+                throw new AuthXClientException("Refresh token Error: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new AuthXClientException(e);
+        }
     }
 
     @Override
