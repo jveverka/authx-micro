@@ -10,6 +10,7 @@ import one.microproject.authx.common.dto.AuthxInfo;
 import one.microproject.authx.common.dto.BuildProjectRequest;
 import one.microproject.authx.common.dto.ProjectReportDto;
 import one.microproject.authx.common.dto.ResponseMessage;
+import one.microproject.authx.common.dto.UpdateProjectRequest;
 import one.microproject.authx.jclient.AuthXClient;
 import one.microproject.authx.jclient.AuthXOAuth2Client;
 
@@ -108,6 +109,26 @@ public class AuthXClientImpl implements AuthXClient {
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
                 return mapper.readValue(response.body().string(), ProjectReportDto.class);
+            } else {
+                throw new AuthXClientException("Refresh token Error: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new AuthXClientException(e);
+        }
+    }
+
+    @Override
+    public ResponseMessage update(String token, UpdateProjectRequest updateProjectRequest) {
+        try {
+            String jsonBody = mapper.writeValueAsString(updateProjectRequest);
+            Request request = new Request.Builder()
+                    .addHeader(AUTHORIZATION, BEARER_PREFIX + token)
+                    .url(baseUrl + SERVICES_ADMIN_PROJECTS + DELIMITER + updateProjectRequest.id())
+                    .post(RequestBody.create(jsonBody, MediaType.parse(APPLICATION_JSON)))
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200) {
+                return mapper.readValue(response.body().string(), ResponseMessage.class);
             } else {
                 throw new AuthXClientException("Refresh token Error: " + response.code());
             }

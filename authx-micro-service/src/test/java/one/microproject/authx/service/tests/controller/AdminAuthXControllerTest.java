@@ -4,10 +4,13 @@ import one.microproject.authx.common.dto.AuthxInfo;
 import one.microproject.authx.common.dto.BuildProjectRequest;
 import one.microproject.authx.common.dto.ProjectReportDto;
 import one.microproject.authx.common.dto.ResponseMessage;
+import one.microproject.authx.common.dto.UpdateProjectRequest;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
 import one.microproject.authx.jclient.AuthXClient;
 import one.microproject.authx.service.tests.AppBaseTest;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,6 +44,26 @@ class AdminAuthXControllerTest extends AppBaseTest {
 
         authxInfo = authXClient.getAuthxInfo();
         assertEquals(numberOfProjects, authxInfo.projects().size());
+    }
+
+    @Test
+    void testUpdateProject() {
+        TokenResponse globalAdminTokens = getGlobalAdminTokens();
+        AuthXClient authXClient = getAuthXClient();
+        BuildProjectRequest buildProjectRequest = createBuildProjectRequest("pid-004");
+
+        ResponseMessage responseMessage = authXClient.buildProject(globalAdminTokens.getAccessToken(), buildProjectRequest);
+        assertTrue(responseMessage.success());
+
+        UpdateProjectRequest updateProjectRequest = new UpdateProjectRequest("pid-004", "new description", Map.of());
+        responseMessage = authXClient.update(globalAdminTokens.getAccessToken(), updateProjectRequest);
+        assertTrue(responseMessage.success());
+
+        ProjectReportDto projectReport = authXClient.getProjectReport(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
+        assertEquals("new description", projectReport.project().description());
+
+        responseMessage = authXClient.deleteProject(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
+        assertTrue(responseMessage.success());
     }
 
 }

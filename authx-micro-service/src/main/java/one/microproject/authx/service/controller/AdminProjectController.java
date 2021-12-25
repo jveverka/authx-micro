@@ -3,6 +3,7 @@ package one.microproject.authx.service.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import one.microproject.authx.common.dto.ProjectReportDto;
+import one.microproject.authx.common.dto.ResponseMessage;
 import one.microproject.authx.common.dto.UpdateProjectRequest;
 import one.microproject.authx.service.service.AdminProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static one.microproject.authx.common.Urls.SERVICES_ADMIN_PROJECTS;
+
 /**
  * Only Global Admins and Admins for this project are authorized.
  */
 @RestController
-@RequestMapping(path = "/api/v1/admin/project/projects")
+@RequestMapping(path = SERVICES_ADMIN_PROJECTS)
 @Tag(name = "Projects APIs", description = "APIs for AuthX projects.")
 public class AdminProjectController {
 
@@ -37,9 +40,9 @@ public class AdminProjectController {
 
     @Operation(description = "__Update project__ - update some data on existing project.")
     @PostMapping("/{project-id}")
-    public ResponseEntity<Void> update(@RequestBody UpdateProjectRequest updateProjectRequest) {
+    public ResponseEntity<ResponseMessage> update(@RequestBody UpdateProjectRequest updateProjectRequest) {
         adminService.update(updateProjectRequest);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ResponseMessage.ok("Project updated."));
     }
 
 }

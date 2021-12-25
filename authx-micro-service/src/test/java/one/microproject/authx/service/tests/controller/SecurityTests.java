@@ -35,7 +35,7 @@ class SecurityTests extends AppBaseTest {
 
     private static Stream<Arguments> provideForTestPutAccessNoToken() {
         return Stream.of(
-                Arguments.of("/api/v1/admin/authx/build")
+                Arguments.of("/api/v1/admin/authx/project/build")
         );
     }
 

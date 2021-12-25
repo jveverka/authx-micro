@@ -4,6 +4,7 @@ import one.microproject.authx.common.dto.AuthxInfo;
 import one.microproject.authx.common.dto.BuildProjectRequest;
 import one.microproject.authx.common.dto.ProjectReportDto;
 import one.microproject.authx.common.dto.ResponseMessage;
+import one.microproject.authx.common.dto.UpdateProjectRequest;
 
 public interface AuthXClient {
 
@@ -16,5 +17,7 @@ public interface AuthXClient {
     ResponseMessage deleteProject(String token, String projectId);
 
     ProjectReportDto getProjectReport(String token, String projectId);
+
+    ResponseMessage update(String token, UpdateProjectRequest updateProjectRequest);
 
 }
