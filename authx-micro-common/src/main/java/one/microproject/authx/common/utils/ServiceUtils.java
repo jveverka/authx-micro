@@ -2,8 +2,8 @@ package one.microproject.authx.common.utils;
 
 import one.microproject.authx.common.dto.PermissionDto;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public final class ServiceUtils {
@@ -16,22 +16,22 @@ public final class ServiceUtils {
     }
 
     public static Set<String> getScopes(Set<String> requestedScopes, Set<PermissionDto> permissions) {
-        Set<String> result = new HashSet<>();
-        if (permissions != null) {
-            permissions.forEach(p -> {
-                String permission = p.resource() + "." + p.service() + "." + p.action();
-                result.add(permission);
-            });
-        }
+        Set<String> result = getScopes(permissions);
         if (requestedScopes != null) {
             if (!requestedScopes.isEmpty()) {
-                //TODO: add scope filtering
+                Set<String> filteredScopes = new HashSet<>();
+                requestedScopes.forEach(s -> {
+                    if (result.contains(s)) {
+                        filteredScopes.add(s);
+                    }
+                });
+                return filteredScopes;
             }
         }
         return result;
     }
 
-    public static Set<String> getScopes(List<PermissionDto> permissions) {
+    public static Set<String> getScopes(Collection<PermissionDto> permissions) {
         Set<String> result = new HashSet<>();
         if (permissions != null) {
             permissions.forEach(p -> {
