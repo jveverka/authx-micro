@@ -61,7 +61,10 @@ public class AdminAuthXServiceImpl implements AdminAuthXService {
         if (projectDtoOptional.isPresent()) {
             return ResponseMessage.error("Project id=" + projectId + " already exists.");
         }
-        //TODO: validate data
+        ResponseMessage responseMessage = validate(buildProjectRequest);
+        if (!responseMessage.success()) {
+            return responseMessage;
+        }
         projectService.create(buildProjectRequest.createProjectRequest());
         buildProjectRequest.groups().forEach(
                 g -> groupService.create(projectId, g)
@@ -124,6 +127,31 @@ public class AdminAuthXServiceImpl implements AdminAuthXService {
     @Override
     public boolean isAdminUser(String projectId, String userId) {
         return projectService.isAdmin(projectId, userId);
+    }
+
+    public static ResponseMessage validate(BuildProjectRequest buildProjectRequest) {
+        if (buildProjectRequest.createProjectRequest() == null) {
+            return ResponseMessage.error("createProjectRequest is null !");
+        }
+        if (buildProjectRequest.createProjectRequest().id() == null) {
+            return ResponseMessage.error("createProjectRequest.id is null !");
+        }
+        if (buildProjectRequest.createProjectRequest().adminUser() == null) {
+            return ResponseMessage.error("createProjectRequest.adminUser is null !");
+        }
+        if (buildProjectRequest.createProjectRequest().adminClient() == null) {
+            return ResponseMessage.error("createProjectRequest.adminClient is null !");
+        }
+        //TODO: complete request validation
+        /*
+        List<RoleDto> roles = buildProjectRequest.roles();
+        roles.forEach(r -> {
+            if (buildProjectRequest.permissions().stream().filter(p -> r.permissionIds().contains(p.id())).findAny().isEmpty()) {
+                return ResponseMessage.error("");
+            }
+        });
+        */
+        return ResponseMessage.ok("passed");
     }
 
 }

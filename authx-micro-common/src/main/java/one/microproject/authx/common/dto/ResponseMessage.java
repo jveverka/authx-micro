@@ -2,7 +2,7 @@ package one.microproject.authx.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record ResponseMessage(@JsonProperty("success") Boolean success,
+public record ResponseMessage(@JsonProperty("success") boolean success,
                               @JsonProperty("code") String code,
                               @JsonProperty("message") String message) {
 
