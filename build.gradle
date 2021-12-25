@@ -1,5 +1,5 @@
 
-ext.globalAuthXVersion = '1.1.6'
+ext.globalAuthXVersion = '1.1.7'
 
 subprojects {
     apply plugin: 'java'
