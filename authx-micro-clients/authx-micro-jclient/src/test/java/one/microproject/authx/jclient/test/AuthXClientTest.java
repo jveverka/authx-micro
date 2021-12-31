@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import one.microproject.authx.common.dto.AuthXResponse;
 import one.microproject.authx.common.dto.ClientCredentials;
 import one.microproject.authx.common.dto.UserCredentials;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
@@ -21,6 +22,7 @@ import java.util.Set;
 import static one.microproject.authx.common.Urls.DELIMITER;
 import static one.microproject.authx.common.Urls.SERVICES_OAUTH2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AuthXClientTest {
 
@@ -53,7 +55,10 @@ public class AuthXClientTest {
                 .build();
         server.enqueue(new MockResponse().setBody(mapper.writeValueAsString(tokenResponse)));
 
-        TokenResponse response = authXClient.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
+        AuthXResponse<TokenResponse, Void> responseTokens = authXClient.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
+        assertTrue(responseTokens.isSuccess());
+
+        TokenResponse response = responseTokens.response();
         assertEquals(tokenResponse.getAccessToken(), response.getAccessToken());
         assertEquals(tokenResponse.getExpiresIn(), response.getExpiresIn());
         assertEquals(tokenResponse.getRefreshExpiresIn(), response.getRefreshExpiresIn());

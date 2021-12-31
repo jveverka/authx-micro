@@ -7,13 +7,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import one.microproject.authx.common.dto.AuthXResponse;
 import one.microproject.authx.common.dto.ClientCredentials;
+import one.microproject.authx.common.dto.Empty;
 import one.microproject.authx.common.dto.UserCredentials;
-import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
-import one.microproject.authx.common.dto.oauth2.JWKResponse;
-import one.microproject.authx.common.dto.oauth2.ProviderConfigurationResponse;
-import one.microproject.authx.common.dto.oauth2.TokenResponse;
-import one.microproject.authx.common.dto.oauth2.UserInfoResponse;
+import one.microproject.authx.common.dto.oauth2.*;
 import one.microproject.authx.jclient.AuthXOAuth2Client;
 
 import java.io.IOException;
@@ -50,7 +48,7 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
     }
 
     @Override
-    public TokenResponse getTokenForClient(ClientCredentials clientCredentials, String audience, Set<String> scopes) {
+    public AuthXResponse<TokenResponse, Void> getTokenForClient(ClientCredentials clientCredentials, String audience, Set<String> scopes) {
         try {
             HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + TOKEN)
                     .newBuilder();
@@ -65,9 +63,10 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), TokenResponse.class);
+                TokenResponse tokenResponse = mapper.readValue(response.body().string(), TokenResponse.class);
+                return AuthXResponse.ok(tokenResponse, response.code());
             } else {
-                throw new AuthXClientException("Username/Password Auth Error: " + response.code());
+                return AuthXResponse.error(response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
@@ -75,7 +74,7 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
     }
 
     @Override
-    public TokenResponse getTokenForPassword(ClientCredentials clientCredentials, String audience, Set<String> scopes, UserCredentials userCredentials) {
+    public AuthXResponse<TokenResponse, Void> getTokenForPassword(ClientCredentials clientCredentials, String audience, Set<String> scopes, UserCredentials userCredentials) {
         try {
             HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + TOKEN)
                     .newBuilder();
@@ -92,9 +91,10 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), TokenResponse.class);
+                TokenResponse tokenResponse = mapper.readValue(response.body().string(), TokenResponse.class);
+                return AuthXResponse.ok(tokenResponse, response.code());
             } else {
-                throw new AuthXClientException("Username/Password Auth Error: " + response.code());
+                return AuthXResponse.error(response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
@@ -102,7 +102,7 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
     }
 
     @Override
-    public IntrospectResponse introspect(String token, String typeHint) {
+    public AuthXResponse<IntrospectResponse, Void> introspect(String token, String typeHint) {
         try {
             HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + INTROSPECT)
                     .newBuilder();
@@ -116,9 +116,10 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
                 .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), IntrospectResponse.class);
+                IntrospectResponse introspectResponse = mapper.readValue(response.body().string(), IntrospectResponse.class);
+                return AuthXResponse.ok(introspectResponse, response.code());
             } else {
-                throw new AuthXClientException("Token Introspect Error: " + response.code());
+                return AuthXResponse.error(response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
@@ -126,7 +127,7 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
     }
 
     @Override
-    public void revoke(String token, String typeHint) {
+    public AuthXResponse<Empty, Void> revoke(String token, String typeHint) {
         try {
             HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + REVOKE)
                     .newBuilder();
@@ -139,8 +140,10 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
                     .post(RequestBody.create("{}", MediaType.parse(APPLICATION_JSON)))
                     .build();
             Response response = client.newCall(request).execute();
-            if (response.code() != 200) {
-                throw new AuthXClientException("Token Revoke Error: " + response.code());
+            if (response.code() == 200) {
+                return AuthXResponse.ok(response.code());
+            } else {
+                return AuthXResponse.error(response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
@@ -148,7 +151,7 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
     }
 
     @Override
-    public TokenResponse refreshToken(ClientCredentials clientCredentials, String refreshToken) {
+    public AuthXResponse<TokenResponse, Void> refreshToken(ClientCredentials clientCredentials, String refreshToken) {
         try {
             HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + TOKEN)
                     .newBuilder();
@@ -162,9 +165,10 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), TokenResponse.class);
+                TokenResponse tokenResponse = mapper.readValue(response.body().string(), TokenResponse.class);
+                return AuthXResponse.ok(tokenResponse, response.code());
             } else {
-                throw new AuthXClientException("Refresh token Error: " + response.code());
+                return AuthXResponse.error(response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
@@ -172,7 +176,7 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
     }
 
     @Override
-    public ProviderConfigurationResponse getConfiguration() {
+    public AuthXResponse<ProviderConfigurationResponse, Void> getConfiguration() {
         try {
             HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + OPENID_CONFIG)
                     .newBuilder();
@@ -182,9 +186,10 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), ProviderConfigurationResponse.class);
+                ProviderConfigurationResponse providerConfigurationResponse = mapper.readValue(response.body().string(), ProviderConfigurationResponse.class);
+                return AuthXResponse.ok(providerConfigurationResponse, response.code());
             } else {
-                throw new AuthXClientException("Refresh token Error: " + response.code());
+                return AuthXResponse.error(response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
@@ -192,7 +197,7 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
     }
 
     @Override
-    public JWKResponse getCerts() {
+    public AuthXResponse<JWKResponse, Void> getCerts() {
         try {
             HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + JWKS)
                     .newBuilder();
@@ -202,9 +207,10 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), JWKResponse.class);
+                JWKResponse jwkResponse = mapper.readValue(response.body().string(), JWKResponse.class);
+                return AuthXResponse.ok(jwkResponse, response.code());
             } else {
-                throw new AuthXClientException("Refresh token Error: " + response.code());
+                return AuthXResponse.error(response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
@@ -212,7 +218,7 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
     }
 
     @Override
-    public UserInfoResponse getUserInfo(String token) {
+    public AuthXResponse<UserInfoResponse, Void> getUserInfo(String token) {
         try {
             HttpUrl.Builder httpBuilder = HttpUrl.parse(baseUrl + SERVICES_OAUTH2 + DELIMITER + projectId + USERINFO)
                     .newBuilder();
@@ -223,9 +229,10 @@ public class AuthXOAuth2ClientImpl implements AuthXOAuth2Client {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), UserInfoResponse.class);
+                UserInfoResponse userInfoResponse = mapper.readValue(response.body().string(), UserInfoResponse.class);
+                return AuthXResponse.ok(userInfoResponse, response.code());
             } else {
-                throw new AuthXClientException("Refresh token Error: " + response.code());
+                return AuthXResponse.error(response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);

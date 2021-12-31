@@ -1,23 +1,19 @@
 package one.microproject.authx.jclient;
 
-import one.microproject.authx.common.dto.AuthxInfo;
-import one.microproject.authx.common.dto.BuildProjectRequest;
-import one.microproject.authx.common.dto.ProjectReportDto;
-import one.microproject.authx.common.dto.ResponseMessage;
-import one.microproject.authx.common.dto.UpdateProjectRequest;
+import one.microproject.authx.common.dto.*;
 
 public interface AuthXClient {
 
-    AuthxInfo getAuthxInfo();
+    AuthXResponse<AuthxInfo, Void> getAuthxInfo();
 
     AuthXOAuth2Client getAuthXOAuth2Client(String projectId);
 
-    ResponseMessage buildProject(String token, BuildProjectRequest buildProjectRequest);
+    AuthXResponse<String, ErrorMessage> buildProject(String token, BuildProjectRequest buildProjectRequest);
 
-    ResponseMessage deleteProject(String token, String projectId);
+    AuthXResponse<String, ErrorMessage> deleteProject(String token, String projectId);
 
-    ProjectReportDto getProjectReport(String token, String projectId);
+    AuthXResponse<ProjectReportDto, Void> getProjectReport(String token, String projectId);
 
-    ResponseMessage update(String token, UpdateProjectRequest updateProjectRequest);
+    AuthXResponse<String, ErrorMessage> update(String token, UpdateProjectRequest updateProjectRequest);
 
 }

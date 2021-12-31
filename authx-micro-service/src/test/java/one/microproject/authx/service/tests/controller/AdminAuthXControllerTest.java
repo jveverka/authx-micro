@@ -1,10 +1,6 @@
 package one.microproject.authx.service.tests.controller;
 
-import one.microproject.authx.common.dto.AuthxInfo;
-import one.microproject.authx.common.dto.BuildProjectRequest;
-import one.microproject.authx.common.dto.ProjectReportDto;
-import one.microproject.authx.common.dto.ResponseMessage;
-import one.microproject.authx.common.dto.UpdateProjectRequest;
+import one.microproject.authx.common.dto.*;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
 import one.microproject.authx.jclient.AuthXClient;
 import one.microproject.authx.service.tests.AppBaseTest;
@@ -23,15 +19,17 @@ class AdminAuthXControllerTest extends AppBaseTest {
         AuthXClient authXClient = getAuthXClient();
         BuildProjectRequest buildProjectRequest = createBuildProjectRequest("pid-001");
 
-        AuthxInfo authxInfo = authXClient.getAuthxInfo();
-        int numberOfProjects = authxInfo.projects().size();
+        AuthXResponse<AuthxInfo, Void> authXResponse = authXClient.getAuthxInfo();
+        int numberOfProjects = authXResponse.response().projects().size();
 
-        ResponseMessage responseMessage = authXClient.buildProject(globalAdminTokens.getAccessToken(), buildProjectRequest);
-        assertTrue(responseMessage.success());
-        authxInfo = authXClient.getAuthxInfo();
-        assertEquals(numberOfProjects + 1, authxInfo.projects().size());
+        AuthXResponse<String, ErrorMessage> responseMessage = authXClient.buildProject(globalAdminTokens.getAccessToken(), buildProjectRequest);
+        assertTrue(responseMessage.isSuccess());
+        authXResponse = authXClient.getAuthxInfo();
+        assertEquals(numberOfProjects + 1, authXResponse.response().projects().size());
 
-        ProjectReportDto projectReport = authXClient.getProjectReport(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
+        AuthXResponse<ProjectReportDto, Void> projectReportResponse = authXClient.getProjectReport(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
+        assertTrue(projectReportResponse.isSuccess());
+        ProjectReportDto projectReport = projectReportResponse.response();
         assertEquals(buildProjectRequest.createProjectRequest().id(), projectReport.project().id());
         assertEquals(buildProjectRequest.groups().size(), projectReport.groups().size());
         assertEquals(buildProjectRequest.roles().size(), projectReport.roles().size());
@@ -40,10 +38,10 @@ class AdminAuthXControllerTest extends AppBaseTest {
         assertEquals(2, projectReport.clients().size());
 
         responseMessage = authXClient.deleteProject(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
-        assertTrue(responseMessage.success());
+        assertTrue(responseMessage.isSuccess());
 
-        authxInfo = authXClient.getAuthxInfo();
-        assertEquals(numberOfProjects, authxInfo.projects().size());
+        authXResponse = authXClient.getAuthxInfo();
+        assertEquals(numberOfProjects, authXResponse.response().projects().size());
     }
 
     @Test
@@ -52,18 +50,18 @@ class AdminAuthXControllerTest extends AppBaseTest {
         AuthXClient authXClient = getAuthXClient();
         BuildProjectRequest buildProjectRequest = createBuildProjectRequest("pid-004");
 
-        ResponseMessage responseMessage = authXClient.buildProject(globalAdminTokens.getAccessToken(), buildProjectRequest);
-        assertTrue(responseMessage.success());
+        AuthXResponse<String, ErrorMessage> responseMessage = authXClient.buildProject(globalAdminTokens.getAccessToken(), buildProjectRequest);
+        assertTrue(responseMessage.isSuccess());
 
         UpdateProjectRequest updateProjectRequest = new UpdateProjectRequest("pid-004", "new description", Map.of());
         responseMessage = authXClient.update(globalAdminTokens.getAccessToken(), updateProjectRequest);
-        assertTrue(responseMessage.success());
+        assertTrue(responseMessage.isSuccess());
 
-        ProjectReportDto projectReport = authXClient.getProjectReport(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
-        assertEquals("new description", projectReport.project().description());
+        AuthXResponse<ProjectReportDto, Void> projectReport = authXClient.getProjectReport(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
+        assertEquals("new description", projectReport.response().project().description());
 
         responseMessage = authXClient.deleteProject(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
-        assertTrue(responseMessage.success());
+        assertTrue(responseMessage.isSuccess());
     }
 
 }

@@ -1,18 +1,11 @@
 package one.microproject.authx.service.tests;
 
-import one.microproject.authx.common.dto.BuildProjectRequest;
-import one.microproject.authx.common.dto.ClientCredentials;
-import one.microproject.authx.common.dto.CreateClientRequest;
-import one.microproject.authx.common.dto.CreateProjectRequest;
-import one.microproject.authx.common.dto.CreateUserRequest;
-import one.microproject.authx.common.dto.GroupDto;
-import one.microproject.authx.common.dto.PermissionDto;
-import one.microproject.authx.common.dto.RoleDto;
-import one.microproject.authx.common.dto.UserCredentials;
+import one.microproject.authx.common.dto.*;
 import one.microproject.authx.common.dto.oauth2.TokenResponse;
 import one.microproject.authx.jclient.AuthXClient;
 import one.microproject.authx.jclient.AuthXClientBuilder;
 import one.microproject.authx.jclient.AuthXOAuth2Client;
+import one.microproject.authx.jclient.impl.AuthXClientException;
 import one.microproject.authx.service.service.DataInitService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
@@ -77,7 +70,12 @@ public abstract class AppBaseTest {
         ClientCredentials clientCredentials = new ClientCredentials("admin-client", "secret");
         Set<String> scopes = Set.of();
         UserCredentials userCredentials = new UserCredentials("admin-user", "s3cr3t");
-        return globalAdminClient.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
+        AuthXResponse<TokenResponse, Void> authXResponse = globalAdminClient.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
+        if (authXResponse.isSuccess()) {
+            return authXResponse.response();
+        } else {
+            throw new AuthXClientException();
+        }
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AppBaseTest.class);

@@ -6,11 +6,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import one.microproject.authx.common.dto.AuthxInfo;
-import one.microproject.authx.common.dto.BuildProjectRequest;
-import one.microproject.authx.common.dto.ProjectReportDto;
+import one.microproject.authx.common.dto.*;
 import one.microproject.authx.common.dto.ResponseMessage;
-import one.microproject.authx.common.dto.UpdateProjectRequest;
 import one.microproject.authx.jclient.AuthXClient;
 import one.microproject.authx.jclient.AuthXOAuth2Client;
 
@@ -37,7 +34,7 @@ public class AuthXClientImpl implements AuthXClient {
     }
 
     @Override
-    public AuthxInfo getAuthxInfo() {
+    public AuthXResponse<AuthxInfo, Void> getAuthxInfo() {
         try {
             Request request = new Request.Builder()
                     .url(baseUrl + SERVICES_SYSTEM + DELIMITER + "info")
@@ -45,9 +42,10 @@ public class AuthXClientImpl implements AuthXClient {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), AuthxInfo.class);
+                AuthxInfo authxInfo = mapper.readValue(response.body().string(), AuthxInfo.class);
+                return AuthXResponse.ok(authxInfo, response.code());
             } else {
-                throw new AuthXClientException("GET AuthxInfo Error: " + response.code());
+                return AuthXResponse.error(response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
@@ -60,7 +58,7 @@ public class AuthXClientImpl implements AuthXClient {
     }
 
     @Override
-    public ResponseMessage buildProject(String token, BuildProjectRequest buildProjectRequest) {
+    public AuthXResponse<String, ErrorMessage> buildProject(String token, BuildProjectRequest buildProjectRequest) {
         try {
             String jsonBody = mapper.writeValueAsString(buildProjectRequest);
             Request request = new Request.Builder()
@@ -69,10 +67,11 @@ public class AuthXClientImpl implements AuthXClient {
                     .put(RequestBody.create(jsonBody, MediaType.parse(APPLICATION_JSON)))
                     .build();
             Response response = client.newCall(request).execute();
+            ResponseMessage responseMessage = mapper.readValue(response.body().string(), ResponseMessage.class);
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), ResponseMessage.class);
+                return AuthXResponse.ok(responseMessage, response.code());
             } else {
-                throw new AuthXClientException("Refresh token Error: " + response.code());
+                return AuthXResponse.error(responseMessage, response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
@@ -80,7 +79,7 @@ public class AuthXClientImpl implements AuthXClient {
     }
 
     @Override
-    public ResponseMessage deleteProject(String token, String projectId) {
+    public AuthXResponse<String, ErrorMessage> deleteProject(String token, String projectId) {
         try {
             Request request = new Request.Builder()
                     .addHeader(AUTHORIZATION, BEARER_PREFIX + token)
@@ -88,10 +87,11 @@ public class AuthXClientImpl implements AuthXClient {
                     .delete()
                     .build();
             Response response = client.newCall(request).execute();
+            ResponseMessage responseMessage = mapper.readValue(response.body().string(), ResponseMessage.class);
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), ResponseMessage.class);
+                return AuthXResponse.ok(responseMessage, response.code());
             } else {
-                throw new AuthXClientException("Refresh token Error: " + response.code());
+                return AuthXResponse.error(responseMessage, response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
@@ -99,7 +99,7 @@ public class AuthXClientImpl implements AuthXClient {
     }
 
     @Override
-    public ProjectReportDto getProjectReport(String token, String projectId) {
+    public AuthXResponse<ProjectReportDto, Void> getProjectReport(String token, String projectId) {
         try {
             Request request = new Request.Builder()
                     .addHeader(AUTHORIZATION, BEARER_PREFIX + token)
@@ -108,9 +108,10 @@ public class AuthXClientImpl implements AuthXClient {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), ProjectReportDto.class);
+                ProjectReportDto projectReportDto = mapper.readValue(response.body().string(), ProjectReportDto.class);
+                return AuthXResponse.ok(projectReportDto, response.code());
             } else {
-                throw new AuthXClientException("Refresh token Error: " + response.code());
+                return AuthXResponse.error(response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);
@@ -118,7 +119,7 @@ public class AuthXClientImpl implements AuthXClient {
     }
 
     @Override
-    public ResponseMessage update(String token, UpdateProjectRequest updateProjectRequest) {
+    public AuthXResponse<String, ErrorMessage> update(String token, UpdateProjectRequest updateProjectRequest) {
         try {
             String jsonBody = mapper.writeValueAsString(updateProjectRequest);
             Request request = new Request.Builder()
@@ -127,10 +128,11 @@ public class AuthXClientImpl implements AuthXClient {
                     .post(RequestBody.create(jsonBody, MediaType.parse(APPLICATION_JSON)))
                     .build();
             Response response = client.newCall(request).execute();
+            ResponseMessage responseMessage = mapper.readValue(response.body().string(), ResponseMessage.class);
             if (response.code() == 200) {
-                return mapper.readValue(response.body().string(), ResponseMessage.class);
+                return AuthXResponse.ok(responseMessage, response.code());
             } else {
-                throw new AuthXClientException("Refresh token Error: " + response.code());
+                return AuthXResponse.error(responseMessage, response.code());
             }
         } catch (IOException e) {
             throw new AuthXClientException(e);

@@ -1,9 +1,6 @@
 package one.microproject.authx.service.tests.controller;
 
-import one.microproject.authx.common.dto.BuildProjectRequest;
-import one.microproject.authx.common.dto.ClientCredentials;
-import one.microproject.authx.common.dto.ResponseMessage;
-import one.microproject.authx.common.dto.UserCredentials;
+import one.microproject.authx.common.dto.*;
 import one.microproject.authx.common.dto.oauth2.IntrospectResponse;
 import one.microproject.authx.common.dto.oauth2.JWKResponse;
 import one.microproject.authx.common.dto.oauth2.ProviderConfigurationResponse;
@@ -29,29 +26,36 @@ class OAuth2ControllerTest extends AppBaseTest  {
         ClientCredentials clientCredentials = new ClientCredentials("admin-client", "secret");
         Set<String> scopes = Set.of();
         UserCredentials userCredentials = new UserCredentials("admin-user", "s3cr3t");
-        TokenResponse tokensForPassword = authXOAuth2Client.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
+        AuthXResponse<TokenResponse, Void> response = authXOAuth2Client.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
+
+        assertTrue(response.isSuccess());
+        TokenResponse tokensForPassword = response.response();
         assertNotNull(tokensForPassword);
         assertNotNull(tokensForPassword.getAccessToken());
         assertNotNull(tokensForPassword.getRefreshToken());
 
-        IntrospectResponse introspectResponse = authXOAuth2Client.introspect(tokensForPassword.getAccessToken(), "");
+        AuthXResponse<IntrospectResponse,Void> introspectResponse = authXOAuth2Client.introspect(tokensForPassword.getAccessToken(), "");
         assertNotNull(introspectResponse);
-        assertTrue(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
 
         introspectResponse = authXOAuth2Client.introspect(tokensForPassword.getRefreshToken(), "");
         assertNotNull(introspectResponse);
-        assertTrue(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
 
         authXOAuth2Client.revoke(tokensForPassword.getAccessToken(), "");
         authXOAuth2Client.revoke(tokensForPassword.getRefreshToken(), "");
 
         introspectResponse = authXOAuth2Client.introspect(tokensForPassword.getAccessToken(), "");
         assertNotNull(introspectResponse);
-        assertFalse(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertFalse(introspectResponse.response().getActive());
 
         introspectResponse = authXOAuth2Client.introspect(tokensForPassword.getRefreshToken(), "");
         assertNotNull(introspectResponse);
-        assertFalse(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertFalse(introspectResponse.response().getActive());
     }
 
     @Test
@@ -60,23 +64,35 @@ class OAuth2ControllerTest extends AppBaseTest  {
         ClientCredentials clientCredentials = new ClientCredentials("admin-client", "secret");
         Set<String> scopes = Set.of();
         UserCredentials userCredentials = new UserCredentials("admin-user", "s3cr3t");
-        TokenResponse tokensForPassword = authXOAuth2Client.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
 
-        IntrospectResponse introspectResponse = authXOAuth2Client.introspect(tokensForPassword.getAccessToken(), "");
-        assertTrue(introspectResponse.getActive());
+        AuthXResponse<TokenResponse, Void> response = authXOAuth2Client.getTokenForPassword(clientCredentials, "", scopes, userCredentials);
+        assertTrue(response.isSuccess());
+        TokenResponse tokensForPassword = response.response();
+
+        AuthXResponse<IntrospectResponse, Void> introspectResponse = authXOAuth2Client.introspect(tokensForPassword.getAccessToken(), "");
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
         introspectResponse = authXOAuth2Client.introspect(tokensForPassword.getRefreshToken(), "");
-        assertTrue(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
 
-        TokenResponse tokensForRefresh = authXOAuth2Client.refreshToken(clientCredentials, tokensForPassword.getRefreshToken());
+        response = authXOAuth2Client.refreshToken(clientCredentials, tokensForPassword.getRefreshToken());
+        assertTrue(response.isSuccess());
+        TokenResponse tokensForRefresh = response.response();
 
         introspectResponse = authXOAuth2Client.introspect(tokensForPassword.getAccessToken(), "");
-        assertFalse(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertFalse(introspectResponse.response().getActive());
         introspectResponse = authXOAuth2Client.introspect(tokensForPassword.getRefreshToken(), "");
-        assertTrue(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
+
         introspectResponse = authXOAuth2Client.introspect(tokensForRefresh.getAccessToken(), "");
-        assertTrue(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
         introspectResponse = authXOAuth2Client.introspect(tokensForRefresh.getRefreshToken(), "");
-        assertTrue(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
     }
 
     @Test
@@ -84,39 +100,41 @@ class OAuth2ControllerTest extends AppBaseTest  {
         TokenResponse globalAdminTokens = getGlobalAdminTokens();
         AuthXClient authXClient = getAuthXClient();
         BuildProjectRequest buildProjectRequest = createBuildProjectRequest("pid-002");
-        ResponseMessage responseMessage = authXClient.buildProject(globalAdminTokens.getAccessToken(), buildProjectRequest);
-        assertTrue(responseMessage.success());
+        AuthXResponse<String, ErrorMessage> responseMessage = authXClient.buildProject(globalAdminTokens.getAccessToken(), buildProjectRequest);
+        assertTrue(responseMessage.isSuccess());
 
         AuthXOAuth2Client authXOAuth2Client = authXClient.getAuthXOAuth2Client("pid-002");
 
         ClientCredentials clientCredentials = new ClientCredentials("cl-001", "secret");
         Set<String> scopes = Set.of();
-        TokenResponse tokensForClient = authXOAuth2Client.getTokenForClient(clientCredentials, "", scopes);
+        AuthXResponse<TokenResponse, Void> response = authXOAuth2Client.getTokenForClient(clientCredentials, "", scopes);
+        assertTrue(response.isSuccess());
+        TokenResponse tokensForClient = response.response();
         assertNotNull(tokensForClient);
         assertNotNull(tokensForClient.getAccessToken());
         assertNotNull(tokensForClient.getRefreshToken());
 
-        IntrospectResponse introspectResponse = authXOAuth2Client.introspect(tokensForClient.getAccessToken(), "");
-        assertNotNull(introspectResponse);
-        assertTrue(introspectResponse.getActive());
+        AuthXResponse<IntrospectResponse, Void> introspectResponse = authXOAuth2Client.introspect(tokensForClient.getAccessToken(), "");
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
 
         introspectResponse = authXOAuth2Client.introspect(tokensForClient.getRefreshToken(), "");
-        assertNotNull(introspectResponse);
-        assertTrue(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
 
         authXOAuth2Client.revoke(tokensForClient.getAccessToken(), "");
         authXOAuth2Client.revoke(tokensForClient.getRefreshToken(), "");
 
         introspectResponse = authXOAuth2Client.introspect(tokensForClient.getAccessToken(), "");
-        assertNotNull(introspectResponse);
-        assertFalse(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertFalse(introspectResponse.response().getActive());
 
         introspectResponse = authXOAuth2Client.introspect(tokensForClient.getRefreshToken(), "");
-        assertNotNull(introspectResponse);
-        assertFalse(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertFalse(introspectResponse.response().getActive());
 
         responseMessage = authXClient.deleteProject(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
-        assertTrue(responseMessage.success());
+        assertTrue(responseMessage.isSuccess());
     }
 
     @Test
@@ -124,39 +142,51 @@ class OAuth2ControllerTest extends AppBaseTest  {
         TokenResponse globalAdminTokens = getGlobalAdminTokens();
         AuthXClient authXClient = getAuthXClient();
         BuildProjectRequest buildProjectRequest = createBuildProjectRequest("pid-003");
-        ResponseMessage responseMessage = authXClient.buildProject(globalAdminTokens.getAccessToken(), buildProjectRequest);
-        assertTrue(responseMessage.success());
+        AuthXResponse<String, ErrorMessage> responseMessage = authXClient.buildProject(globalAdminTokens.getAccessToken(), buildProjectRequest);
+        assertTrue(responseMessage.isSuccess());
 
         AuthXOAuth2Client authXOAuth2Client = authXClient.getAuthXOAuth2Client("pid-003");
         ClientCredentials clientCredentials = new ClientCredentials("cl-001", "secret");
         Set<String> scopes = Set.of();
 
-        TokenResponse tokensForClient = authXOAuth2Client.getTokenForClient(clientCredentials, "", scopes);
+        AuthXResponse<TokenResponse, Void> response = authXOAuth2Client.getTokenForClient(clientCredentials, "", scopes);
+        assertTrue(response.isSuccess());
+        TokenResponse tokensForClient = response.response();
 
-        IntrospectResponse introspectResponse = authXOAuth2Client.introspect(tokensForClient.getAccessToken(), "");
-        assertTrue(introspectResponse.getActive());
+        AuthXResponse<IntrospectResponse, Void> introspectResponse = authXOAuth2Client.introspect(tokensForClient.getAccessToken(), "");
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
         introspectResponse = authXOAuth2Client.introspect(tokensForClient.getRefreshToken(), "");
-        assertTrue(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
 
-        TokenResponse tokensForRefresh = authXOAuth2Client.refreshToken(clientCredentials, tokensForClient.getRefreshToken());
+        response = authXOAuth2Client.refreshToken(clientCredentials, tokensForClient.getRefreshToken());
+        assertTrue(response.isSuccess());
+        TokenResponse tokensForRefresh = response.response();
 
         introspectResponse = authXOAuth2Client.introspect(tokensForClient.getAccessToken(), "");
-        assertFalse(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertFalse(introspectResponse.response().getActive());
         introspectResponse = authXOAuth2Client.introspect(tokensForClient.getRefreshToken(), "");
-        assertTrue(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
         introspectResponse = authXOAuth2Client.introspect(tokensForRefresh.getAccessToken(), "");
-        assertTrue(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
         introspectResponse = authXOAuth2Client.introspect(tokensForRefresh.getRefreshToken(), "");
-        assertTrue(introspectResponse.getActive());
+        assertTrue(introspectResponse.isSuccess());
+        assertTrue(introspectResponse.response().getActive());
 
         responseMessage = authXClient.deleteProject(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
-        assertTrue(responseMessage.success());
+        assertTrue(responseMessage.isSuccess());
     }
 
     @Test
     void testProviderConfiguration() {
         AuthXOAuth2Client authXOAuth2Client = getGlobalAdminOAuth2Client();
-        ProviderConfigurationResponse providerConfigurationResponse = authXOAuth2Client.getConfiguration();
+        AuthXResponse<ProviderConfigurationResponse, Void> response = authXOAuth2Client.getConfiguration();
+        assertTrue(response.isSuccess());
+        ProviderConfigurationResponse providerConfigurationResponse = response.response();
         assertNotNull(providerConfigurationResponse);
         assertNotNull(providerConfigurationResponse.getAuthorizationEndpoint());
         assertNotNull(providerConfigurationResponse.getGrantTypesSupported());
@@ -174,10 +204,10 @@ class OAuth2ControllerTest extends AppBaseTest  {
     @Test
     void testGetCerts() {
         AuthXOAuth2Client authXOAuth2Client = getGlobalAdminOAuth2Client();
-        JWKResponse certs = authXOAuth2Client.getCerts();
-        assertNotNull(certs);
-        assertNotNull(certs.getKeys());
-        assertEquals(1, certs.getKeys().size());
+        AuthXResponse<JWKResponse, Void> certs = authXOAuth2Client.getCerts();
+        assertTrue(certs.isSuccess());
+        assertNotNull(certs.response().getKeys());
+        assertEquals(1, certs.response().getKeys().size());
     }
 
     @Test
@@ -185,10 +215,10 @@ class OAuth2ControllerTest extends AppBaseTest  {
         AuthXOAuth2Client authXOAuth2Client = getGlobalAdminOAuth2Client();
         TokenResponse globalAdminTokens = getGlobalAdminTokens();
 
-        UserInfoResponse userInfo = authXOAuth2Client.getUserInfo(globalAdminTokens.getAccessToken());
-        assertNotNull(userInfo);
-        assertNotNull(userInfo.getSub());
-        assertEquals("admin-user", userInfo.getSub());
+        AuthXResponse<UserInfoResponse, Void> userInfo = authXOAuth2Client.getUserInfo(globalAdminTokens.getAccessToken());
+        assertTrue(userInfo.isSuccess());
+        assertNotNull(userInfo.response().getSub());
+        assertEquals("admin-user", userInfo.response().getSub());
     }
 
 }
