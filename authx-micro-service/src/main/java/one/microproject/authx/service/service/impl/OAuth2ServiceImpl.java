@@ -311,7 +311,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
             TokenClaims claims = contextOptional.get().tokenClaims();
             return Optional.of(new UserInfoResponse(claims.subject()));
         } else {
-            throw new OAuth2TokenException("Not Authorized or Not Found !");
+            return Optional.empty();
         }
     }
 
