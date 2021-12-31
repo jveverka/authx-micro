@@ -4,7 +4,7 @@ import one.microproject.authx.common.dto.*;
 
 public interface AuthXClient {
 
-    AuthXResponse<AuthxInfo, Void> getAuthxInfo();
+    AuthXResponse<AuthXInfo, Void> getAuthXInfo();
 
     AuthXOAuth2Client getAuthXOAuth2Client(String projectId);
 

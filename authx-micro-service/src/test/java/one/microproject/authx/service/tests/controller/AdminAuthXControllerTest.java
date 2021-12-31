@@ -19,12 +19,12 @@ class AdminAuthXControllerTest extends AppBaseTest {
         AuthXClient authXClient = getAuthXClient();
         BuildProjectRequest buildProjectRequest = createBuildProjectRequest("pid-001");
 
-        AuthXResponse<AuthxInfo, Void> authXResponse = authXClient.getAuthxInfo();
+        AuthXResponse<AuthXInfo, Void> authXResponse = authXClient.getAuthXInfo();
         int numberOfProjects = authXResponse.response().projects().size();
 
         AuthXResponse<String, ErrorMessage> responseMessage = authXClient.buildProject(globalAdminTokens.getAccessToken(), buildProjectRequest);
         assertTrue(responseMessage.isSuccess());
-        authXResponse = authXClient.getAuthxInfo();
+        authXResponse = authXClient.getAuthXInfo();
         assertEquals(numberOfProjects + 1, authXResponse.response().projects().size());
 
         AuthXResponse<ProjectReportDto, Void> projectReportResponse = authXClient.getProjectReport(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
@@ -40,7 +40,7 @@ class AdminAuthXControllerTest extends AppBaseTest {
         responseMessage = authXClient.deleteProject(globalAdminTokens.getAccessToken(), buildProjectRequest.createProjectRequest().id());
         assertTrue(responseMessage.isSuccess());
 
-        authXResponse = authXClient.getAuthxInfo();
+        authXResponse = authXClient.getAuthXInfo();
         assertEquals(numberOfProjects, authXResponse.response().projects().size());
     }
 

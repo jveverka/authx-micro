@@ -34,7 +34,7 @@ public class AuthXClientImpl implements AuthXClient {
     }
 
     @Override
-    public AuthXResponse<AuthxInfo, Void> getAuthxInfo() {
+    public AuthXResponse<AuthXInfo, Void> getAuthXInfo() {
         try {
             Request request = new Request.Builder()
                     .url(baseUrl + SERVICES_SYSTEM + DELIMITER + "info")
@@ -42,7 +42,7 @@ public class AuthXClientImpl implements AuthXClient {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.code() == 200) {
-                AuthxInfo authxInfo = mapper.readValue(response.body().string(), AuthxInfo.class);
+                AuthXInfo authxInfo = mapper.readValue(response.body().string(), AuthXInfo.class);
                 return AuthXResponse.ok(authxInfo, response.code());
             } else {
                 return AuthXResponse.error(response.code());

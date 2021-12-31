@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import one.microproject.authx.common.dto.AuthxDto;
 import one.microproject.authx.common.dto.ProjectDto;
-import one.microproject.authx.common.dto.AuthxInfo;
+import one.microproject.authx.common.dto.AuthXInfo;
 import one.microproject.authx.service.service.AuthXService;
 import one.microproject.authx.service.service.ProjectService;
 import org.slf4j.Logger;
@@ -41,13 +41,13 @@ public class SystemController {
 
     @Operation(description = "__Get AuthX system info__ - get AuthX server id and projects ids.")
     @GetMapping("/info")
-    public ResponseEntity<AuthxInfo> getAuthxInfo() {
+    public ResponseEntity<AuthXInfo> getAuthxInfo() {
         LOGGER.info("getAuthxInfo");
         Optional<AuthxDto> authxOptional = authXService.getAuthxInfo();
         if (authxOptional.isPresent()) {
             AuthxDto authx = authxOptional.get();
             List<String> projectIds = projectService.getAll().stream().map(ProjectDto::id).collect(Collectors.toList());
-            AuthxInfo authxInfo = new AuthxInfo(authx.id(), projectIds);
+            AuthXInfo authxInfo = new AuthXInfo(authx.id(), projectIds);
             return ResponseEntity.ok(authxInfo);
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

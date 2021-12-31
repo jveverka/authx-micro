@@ -1,7 +1,6 @@
 package one.microproject.authx.service.service.impl;
 
 import one.microproject.authx.common.dto.AuthxDto;
-import one.microproject.authx.common.dto.AuthxInfo;
 import one.microproject.authx.service.model.Authx;
 import one.microproject.authx.service.repository.AuthxRepository;
 import one.microproject.authx.service.service.AuthXService;
