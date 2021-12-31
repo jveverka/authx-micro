@@ -219,6 +219,10 @@ class OAuth2ControllerTest extends AppBaseTest  {
         assertTrue(userInfo.isSuccess());
         assertNotNull(userInfo.response().getSub());
         assertEquals("admin-user", userInfo.response().getSub());
+
+        userInfo = authXOAuth2Client.getUserInfo("");
+        assertFalse(userInfo.isSuccess());
+        assertEquals(401, userInfo.status());
     }
 
 }

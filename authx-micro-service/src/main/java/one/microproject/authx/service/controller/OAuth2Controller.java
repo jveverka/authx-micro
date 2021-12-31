@@ -216,7 +216,7 @@ public class OAuth2Controller {
             Optional<UserInfoResponse> response = oAuth2Service.getUserInfo(projectId, token);
             return ResponseEntity.of(response);
         } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
