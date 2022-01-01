@@ -43,7 +43,6 @@ project(':authx-micro-jredis') {
 project(':authx-micro-examples') {
 }
 
-/*
 project(':authx-micro-service') {
     dependencies {
         implementation project(':authx-micro-common')
@@ -51,7 +50,6 @@ project(':authx-micro-service') {
         testImplementation project(':authx-micro-jclient')
     }
 }
-*/
 
 tasks.register('getversion') {
     doFirst {

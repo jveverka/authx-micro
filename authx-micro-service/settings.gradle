@@ -1,3 +1,4 @@
+/*
 pluginManagement {
     repositories {
         maven { url 'https://repo.spring.io/release' }
@@ -5,4 +6,6 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+ */
 rootProject.name = 'authx-micro-service'
