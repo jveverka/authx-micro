@@ -3,6 +3,7 @@ ext.globalAuthXVersion = '1.1.9'
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'maven-publish'
 
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
@@ -10,7 +11,16 @@ subprojects {
     ext.authXVersion = "${globalAuthXVersion}"
 
     repositories {
+        mavenLocal()
         mavenCentral()
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+            }
+        }
     }
 
 }
@@ -33,6 +43,7 @@ project(':authx-micro-jredis') {
 project(':authx-micro-examples') {
 }
 
+/*
 project(':authx-micro-service') {
     dependencies {
         implementation project(':authx-micro-common')
@@ -40,6 +51,7 @@ project(':authx-micro-service') {
         testImplementation project(':authx-micro-jclient')
     }
 }
+*/
 
 tasks.register('getversion') {
     doFirst {

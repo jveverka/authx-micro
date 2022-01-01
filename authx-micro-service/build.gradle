@@ -2,12 +2,16 @@ plugins {
     id 'org.springframework.boot' version '2.6.2'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
+    id 'org.springframework.experimental.aot' version '0.11.1'
 }
 
 group = 'one.microproject'
-version = "${authXVersion}"
+//version = "${authXVersion}"
+version = "1.1.9"
 
 repositories {
+    maven { url 'https://repo.spring.io/release' }
+    mavenLocal()
     mavenCentral()
 }
 
@@ -23,6 +27,10 @@ dependencies {
     implementation 'net.logstash.logback:logstash-logback-encoder:7.0.1'
     implementation 'org.codehaus.janino:janino:3.1.6'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+    implementation 'one.microproject:authx-micro-common:1.1.9'
+    implementation 'one.microproject:authx-micro-jredis:1.1.9'
+    testImplementation 'one.microproject:authx-micro-jclient:1.1.9'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.testcontainers:junit-jupiter:1.16.2'
@@ -50,5 +58,10 @@ test {
 
 jar {
     //do not create build/libs/authx-micro-service-*-plain.jar file
-    enabled = false
+    //enabled = false
+}
+
+bootBuildImage {
+    builder = 'paketobuildpacks/builder:tiny'
+    environment = ['BP_NATIVE_IMAGE': 'true']
 }
