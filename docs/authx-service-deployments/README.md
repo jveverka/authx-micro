@@ -9,6 +9,26 @@ curl http://localhost:8080/authx/api/v1/system/info
 docker-compose -f authx-docker-compose.yml down -v --rmi all --remove-orphans
 ```
 
+### Docker Swarm
+* Consider Swarm cluster: ``swarm-master, swarm-mode-01, swarm-mode-02``
+* On Swarm Master node:
+  ```
+  docker network create --attachable -d overlay authx-network
+  docker node update --label-add network-proxy=true swarm-node-01
+  docker node update --label-add persistence=true swarm-node-02
+  ```
+* On Swarm Master node - deploy nginx authx and data layer
+  ```
+  sudo docker stack deploy -c authx-swarm-databases.yml authx-databases
+  sudo docker stack deploy -c authx-swarm-app.yml authx-app
+  sudo docker stack deploy -c authx-swarm-network.yml authx-network
+  ```
+* Check deployments
+  ```
+  docker stack ls
+  docker stack ps authx-databases
+  ```
+
 ### Kubernetes
 * Setup environment variables and secrets.
 * Deployment
@@ -32,5 +52,5 @@ docker run -name authx-service \
   -e ADMIN_USER_PASSWORD=secret \
   -e ADMIN_CLIENT_SECRET=secret \ 
   -e ...
-  jurajveverka/authx-micro-service:1.1.9-amd64
+  jurajveverka/authx-micro-service:1.2.0-amd64
 ```

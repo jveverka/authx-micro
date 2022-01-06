@@ -17,22 +17,10 @@ services:
       - MONGODB_PASSWORD=s3cr3t
       - ADMIN_USER_PASSWORD=secret
       - ADMIN_CLIENT_SECRET=secret
+    deploy:
+      replicas: 1
 
-  mongodb:
-    image: mongo:5.0.5-focal
-    ports:
-      - 27017:27017
-    environment:
-      - MONGO_INITDB_DATABASE=mongodb
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=s3cr3t
-    volumes:
-      - mongodb-data:/data/db
-
-  redis:
-    image: redis:6.2.6-alpine
-    ports:
-      - 6379:6379
-
-volumes:
-  mongodb-data:
+networks:
+  default:
+    external: true
+    name: authx-network
