@@ -20,11 +20,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static one.microproject.authx.common.Urls.SERVICES_SYSTEM;
+
 /**
  * Public endpoint
  */
 @RestController
-@RequestMapping(path = "/api/v1/system")
+@RequestMapping(path = SERVICES_SYSTEM)
 @Tag(name = "System APIs", description = "APIs providing base Authx System info.")
 public class SystemController {
 

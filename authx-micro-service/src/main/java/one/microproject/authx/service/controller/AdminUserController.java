@@ -3,11 +3,13 @@ package one.microproject.authx.service.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static one.microproject.authx.common.Urls.SERVICES_ADMIN_PROJECT_USERS;
+
 /**
  * Only Global Admins and Admins for this project are authorized.
  */
 @RestController
-@RequestMapping(path = "/api/v1/admin/project/users")
+@RequestMapping(path = SERVICES_ADMIN_PROJECT_USERS)
 public class AdminUserController {
     //TODO:
     //List users on project

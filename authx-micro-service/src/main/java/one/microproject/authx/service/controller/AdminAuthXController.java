@@ -19,11 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static one.microproject.authx.common.Urls.SERVICES_ADMIN_AUTHX;
+
 /**
  * Only Global Admins are authorized.
  */
 @RestController
-@RequestMapping(path = "/api/v1/admin/authx")
+@RequestMapping(path = SERVICES_ADMIN_AUTHX)
 @Tag(name = "Admin Authx APIs", description = "APIs providing base Authx admin capabilities.")
 public class AdminAuthXController {
 
